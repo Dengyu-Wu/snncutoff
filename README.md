@@ -1,1 +1,1 @@
-# EasyCutoffSNN
+# Easy Cutoff
