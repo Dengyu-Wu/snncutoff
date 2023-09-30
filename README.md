@@ -21,10 +21,10 @@ git clone https://github.com/TACPSLab/easycutoff.git
 
 ### Training Example
 ```sh
-python scripts/training.py base.gpu_id=\'0\
+python scripts/training.py base.gpu_id=\'0\'
 ```
 
 ### Test Example
 ```sh
-python scripts/test.py base.gpu_id=\'0\ snn.mode=cutoff
+python scripts/test.py base.gpu_id=\'0\' snn.mode=cutoff
 ```
