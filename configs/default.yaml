@@ -1,0 +1,29 @@
+
+base:
+  epochs: 100
+  batch_size: 128
+  start_epoch: 0
+  weight_decay: 1e-5
+  lr: 0.1
+  print_freq: 1000
+  seed: 1000
+  nprocs: 0
+  local_rank: 0
+  workers: 6
+  log: log
+  port: '12345'
+  gpu_id: '1'
+
+snn:
+  T: 10
+  evaluate: 'False'
+  TET: 'True'
+  means: 1.0
+  lamb: 1e-3
+  alpha: 0.01
+
+snn-test:
+mode: 'cutoff'
+
+AOI-SNN-Conversion:
+  alpha: 0.01
