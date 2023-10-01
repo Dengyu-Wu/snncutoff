@@ -12,6 +12,7 @@ class BaseConfig(BaseModel):
     print_freq: int
     seed: int
     log: str
+    project: str
     port: str
     gpu_id: str
     nprocs: int
@@ -25,5 +26,10 @@ class SNNConfig(BaseModel):
     lamb: float
     alpha: float
 
-class AllConfig(BaseConfig, SNNConfig):
+class LoggingConfig(BaseModel):
+    wandb_logging: bool
+    tensorboard_logging: bool
+    run_dir: str
+
+class AllConfig(BaseConfig, SNNConfig,LoggingConfig):
     pass

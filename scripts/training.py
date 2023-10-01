@@ -11,6 +11,8 @@ import torch.optim
 import torch.multiprocessing as mp
 import torch.utils.data
 import torch.utils.data.distributed
+from torch.utils.tensorboard import SummaryWriter
+
 from easycutoff.models.resnet_models import resnet19
 from easycutoff.models.VGG_models import *
 from easycutoff import dvs_loaders
@@ -21,7 +23,7 @@ from easycutoff.ddp import reduce_mean, ProgressMeter, adjust_learning_rate, acc
 from configs import BaseConfig, SNNConfig, AllConfig
 from omegaconf import DictConfig, OmegaConf
 import hydra
-
+import wandb
 
 def main_worker(local_rank, args):
     args.local_rank = local_rank
@@ -44,7 +46,8 @@ def main_worker(local_rank, args):
     save_names = None
 
     # load_names = 'dvs-cifar1048_V1_D05_VGGSNN_distribute_ensemble_gama05.pth'
-    save_names = './saved_models/Cifar10DVS/'+args.log+'.pth'
+    save_names = args.log+'/'+args.project + '.pth'
+    # save_names = './saved_models/Cifar10DVS/'+args.log+'.pth'
     # model = VGGSNN_Spike() #if args.spike_out else VGGSNN()
     model = VGGSNN(current_out=True)
     #model = sew_resnet.__dict__['sew_resnet34'](T=args.T, connect_f='ADD')
@@ -94,8 +97,17 @@ def main_worker(local_rank, args):
     if args.evaluate:
         validate(val_loader, model, criterion, local_rank, args)
         return
-    logger = get_logger('./saved_models/Cifar10DVS/'+args.log+'.log')
+
+    # logger = get_logger('./saved_models/Cifar10DVS/'+args.log+'.log')
+    logger = get_logger(args.log+'/'+ args.project + '.log')
     logger.info('start training!')
+
+    if args.local_rank == 0:
+        if args.wandb_logging:
+            wandb.init(config=args,name=args.log, project=args.project, sync_tensorboard=True)
+        if args.tensorboard_logging:
+            writer = SummaryWriter(args.log)
+
     for epoch in range(args.start_epoch, args.epochs):
         t1 = time.time()
         train_sampler.set_epoch(epoch)
@@ -112,8 +124,13 @@ def main_worker(local_rank, args):
         # remember best acc@1 and save checkpoint
         is_best = acc1 >= best_acc1
         best_acc1 = max(acc1, best_acc1)
-        logger.info('Epoch:[{}/{}]\t best acc={:.5f}\t acc={:.3f} \t cs1={:.3f} \t cs2={:.3f}'.format(epoch , args.epochs, best_acc1, acc1,cs1, cs2))
-
+        logger.info('Epoch:[{}/{}]\t best acc={:.5f}\t acc={:.3f} \t cs1={:.3f} \t cs2={:.3f}'.format(epoch+1 , args.epochs, best_acc1, acc1,cs1, cs2))
+        if args.local_rank == 0:
+            if args.wandb_logging:
+                wandb.log({"accuracy": acc1, "cs1": cs1})
+            if args.tensorboard_logging:
+                writer.add_scalar("training/accuracy", acc1, epoch+1)
+                writer.add_scalar("training/cs1", cs1, epoch+1)
         t2 = time.time()
         print('Time elapsed: ', t2 - t1)
         print('Best top-1 Acc: ', best_acc1)
@@ -133,14 +150,22 @@ def main_worker(local_rank, args):
 def train(train_loader, model, criterion, optimizer, epoch, local_rank, args):
     batch_time = AverageMeter('Time', ':6.3f')
     data_time = AverageMeter('Data', ':6.3f')
-    losses = AverageMeter('Loss', ':.4e')
-    top1 = AverageMeter('Acc@1', ':6.2f')
-    top5 = AverageMeter('Acc@5', ':6.2f')
-    cs1 = AverageMeter('cs1@5', ':6.3f')
-    cs2 = AverageMeter('cs2@5', ':6.3f')
+    
+    metric_list = ['Loss', 'Acc@1','Acc@5','cs1','cs2']
+    metrics = []
+    for metric in metric_list:
+        metrics.append(AverageMeter(metric, ':.4e'))
+
+
+    # losses = AverageMeter('Loss', ':.4e')
+    # top1 = AverageMeter('Acc@1', ':6.2f')
+    # top5 = AverageMeter('Acc@5', ':6.2f')
+    # cs1 = AverageMeter('cs1@5', ':6.3f')
+    # cs2 = AverageMeter('cs2@5', ':6.3f')
     progress = ProgressMeter(len(train_loader),
-                             [batch_time, data_time, losses, top1, top5],
-                             prefix="Epoch: [{}]".format(epoch))
+                            #  [batch_time, data_time, losses, top1, top5],
+                             [batch_time, data_time] + metrics,
+                             prefix="Epoch: [{}]".format(epoch+1))
     # switch to train mode
     model.train()
     end = time.time()
@@ -187,17 +212,24 @@ def train(train_loader, model, criterion, optimizer, epoch, local_rank, args):
 
         torch.distributed.barrier()
 
-        reduced_loss = reduce_mean(loss, args.nprocs)
-        reduced_acc1 = reduce_mean(acc1, args.nprocs)
-        reduced_acc5 = reduce_mean(acc5, args.nprocs)
-        reduced_cs1 = reduce_mean(cs1_mean, args.nprocs)
-        reduced_cs2 = reduce_mean(cs2_mean, args.nprocs)
+        reduced_list = [loss,acc1,acc5,cs1_mean,cs2_mean]
+        reduced_metrics = []
+        for reduced_metric in reduced_list:
+            reduced_metrics.append(reduce_mean(reduced_metric, args.nprocs))
 
-        losses.update(reduced_loss.item(), images.size(0))
-        top1.update(reduced_acc1.item(), images.size(0))
-        top5.update(reduced_acc5.item(), images.size(0))
-        cs1.update(reduced_cs1.item(), images.size(0))
-        cs2.update(reduced_cs2.item(), images.size(0))
+        # reduced_loss = reduce_mean(loss, args.nprocs)
+        # reduced_acc1 = reduce_mean(acc1, args.nprocs)
+        # reduced_acc5 = reduce_mean(acc5, args.nprocs)
+        # reduced_cs1 = reduce_mean(cs1_mean, args.nprocs)
+        # reduced_cs2 = reduce_mean(cs2_mean, args.nprocs)
+        
+        for metric,reduced_metric in zip(metrics, reduced_metrics):
+            metric.update(reduced_metric.item(), images.size(0))
+        # losses.update(reduced_loss.item(), images.size(0))
+        # top1.update(reduced_acc1.item(), images.size(0))
+        # top5.update(reduced_acc5.item(), images.size(0))
+        # cs1.update(reduced_cs1.item(), images.size(0))
+        # cs2.update(reduced_cs2.item(), images.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -211,14 +243,24 @@ def train(train_loader, model, criterion, optimizer, epoch, local_rank, args):
         if i % args.print_freq == 0:
             progress.display(i)
 
-    return cs1.avg, cs2.avg
+    return metrics[3].avg, metrics[4].avg
 
 def validate(val_loader, model, criterion, local_rank, args):
     batch_time = AverageMeter('Time', ':6.3f')
-    losses = AverageMeter('Loss', ':.4e')
-    top1 = AverageMeter('Acc@1', ':6.2f')
-    top5 = AverageMeter('Acc@5', ':6.2f')
-    progress = ProgressMeter(len(val_loader), [batch_time, losses, top1, top5],
+    # losses = AverageMeter('Loss', ':.4e')
+    # top1 = AverageMeter('Acc@1', ':6.2f')
+    # top5 = AverageMeter('Acc@5', ':6.2f')
+    # progress = ProgressMeter(len(val_loader), [batch_time, losses, top1, top5],
+    #                          prefix='Test: ')
+
+    
+    metric_list = ['Loss', 'Acc@1','Acc@5']
+    metrics = []
+    for metric in metric_list:
+        metrics.append(AverageMeter(metric, ':.4e'))
+    progress = ProgressMeter(len(val_loader),
+                            #  [batch_time, losses, top1, top5],
+                             [batch_time] + metrics,
                              prefix='Test: ')
 
     # switch to evaluate mode
@@ -240,13 +282,22 @@ def validate(val_loader, model, criterion, local_rank, args):
 
             torch.distributed.barrier()
 
-            reduced_loss = reduce_mean(loss, args.nprocs)
-            reduced_acc1 = reduce_mean(acc1, args.nprocs)
-            reduced_acc5 = reduce_mean(acc5, args.nprocs)
 
-            losses.update(reduced_loss.item(), images.size(0))
-            top1.update(reduced_acc1.item(), images.size(0))
-            top5.update(reduced_acc5.item(), images.size(0))
+            reduced_list = [loss,acc1,acc5]
+            reduced_metrics = []
+            for reduced_metric in reduced_list:
+                reduced_metrics.append(reduce_mean(reduced_metric, args.nprocs))
+            
+            for metric,reduced_metric in zip(metrics, reduced_metrics):
+                metric.update(reduced_metric.item(), images.size(0))
+
+            # reduced_loss = reduce_mean(loss, args.nprocs)
+            # reduced_acc1 = reduce_mean(acc1, args.nprocs)
+            # reduced_acc5 = reduce_mean(acc5, args.nprocs)
+
+            # losses.update(reduced_loss.item(), images.size(0))
+            # top1.update(reduced_acc1.item(), images.size(0))
+            # top5.update(reduced_acc5.item(), images.size(0))
 
             # measure elapsed timecs1.avg, cs2.avg
             batch_time.update(time.time() - end)
@@ -256,10 +307,11 @@ def validate(val_loader, model, criterion, local_rank, args):
                 progress.display(i)
 
         # TODO: this should also be done with the ProgressMeter
-        print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'.format(top1=top1,
-                                                                    top5=top5))
+        # print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'.format(top1=top1,
+        #                                                             top5=top5))
 
-    return top1.avg
+    # return top1.avg
+    return metrics[1].avg
 
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
@@ -270,9 +322,14 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
 @hydra.main(version_base=None, config_path='../configs', config_name='default')
 def main(cfg: DictConfig):   
-    all_conf = AllConfig(**cfg['base'],**cfg['SNN'])
+    all_conf = AllConfig(**cfg['base'],**cfg['snn-train'],**cfg['logging'])
     os.environ['CUDA_VISIBLE_DEVICES'] = all_conf.gpu_id
     all_conf.nprocs = torch.cuda.device_count()
+    all_conf.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    if all_conf.wandb_logging:
+        wandb.login()
+
+
     mp.spawn(main_worker, nprocs=all_conf.nprocs, args=(all_conf,))
 
 
