@@ -1,4 +1,3 @@
-
 base:
   epochs: 100
   batch_size: 128
@@ -9,12 +8,13 @@ base:
   seed: 1000
   nprocs: 0
   local_rank: 0
-  workers: 6
-  log: log
+  workers: 4
+  log: none
+  project: Cifar10DVS
   port: '12345'
-  gpu_id: '1'
+  gpu_id: '0,1'
 
-snn:
+snn-train:
   T: 10
   evaluate: 'False'
   TET: 'True'
@@ -23,7 +23,18 @@ snn:
   alpha: 0.01
 
 snn-test:
-mode: 'cutoff'
+  mode: 'cutoff'
 
 AOI-SNN-Conversion:
   alpha: 0.01
+
+###Logging Configuration
+logging:
+  wandb_logging: 'True'
+  tensorboard_logging: 'True'
+  run_dir: none
+
+###  Disable Hydra Logging ###
+defaults:
+  - override hydra/hydra_logging: none
+  - override hydra/job_logging: none

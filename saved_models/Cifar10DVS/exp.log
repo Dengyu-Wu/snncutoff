@@ -1,3 +1,0 @@
-[2023-09-18 21:00:21,599][training.py][line:164][INFO] start training!
-[2023-09-18 21:00:29,372][distributed.py][line:1027][INFO] Reducer buckets have been rebuilt in this iteration.
-[2023-09-18 21:00:48,700][training.py][line:181][INFO] Epoch:[0/100]	 best acc=20.20000	 acc=20.200 	 cs1=0.305 	 cs2=0.566
