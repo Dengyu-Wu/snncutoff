@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Function
+from easycutoff.ann_constrs import QCFSConstrs
 
 class TensorNormalization(nn.Module):
     def __init__(self,mean, std):
@@ -38,20 +40,114 @@ class SeqToANNContainer(nn.Module):
         y_shape.extend(y_seq.shape[1:])
         return y_seq.view(y_shape)
 
-class Cov2dLIF(nn.Module):
-    def __init__(self,in_plane,out_plane,kernel_size,stride,padding,droprate=0.0):
-        super(Cov2dLIF, self).__init__()
-        self.fwd = SeqToANNContainer(
-            nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding),
-            nn.BatchNorm2d(out_plane),
-            nn.Dropout(p=droprate)
-        )
-        self.act = LIFSpike()
+
+class Cov2dReLU(nn.Module):
+    def __init__(self,in_plane,out_plane,kernel_size,stride,padding,droprate=0.0,bias=True,batch_norm=True):
+        super(Cov2dReLU, self).__init__()
+        if batch_norm:
+            self.fwd = SeqToANNContainer(
+                nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding,bias=bias),
+                nn.BatchNorm2d(out_plane),
+                nn.Dropout(p=droprate)
+            )
+        else:
+            self.fwd = SeqToANNContainer(
+                nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding,bias=bias),
+                nn.Dropout(p=droprate)
+            )
+        # self.act = TempReLU()
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self,x):
         x = self.fwd(x)
+        x = self.relu(x)
+        # x = self.act(x)
+        return x
+    
+class GradFloor(Function):
+    @staticmethod
+    def forward(ctx, input):
+        return input.floor()
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        return grad_output
+
+myfloor = GradFloor.apply
+
+class NormLayer(nn.Module):
+    def __init__(self,scale=128):
+        super(NormLayer, self).__init__()
+        self.moving_max = nn.Parameter(torch.tensor([scale]), requires_grad=False)
+    def forward(self, x):
+        if self.training:
+            moving_max = 0.9*self.moving_max+0.1*torch.max(x)
+            self.moving_max.copy_(moving_max)
+        x = x / self.moving_max
+        x = torch.clamp(x, 0, 1)
+        return x
+
+class TempReLU(nn.Module):
+    def __init__(self, thresh=1, tau=0.5, gama=1.0,scale=8.0,t=8):
+        super(TempReLU, self).__init__()
+        self.act = ZIF.apply
+        self.thresh = thresh
+        self.tau = tau
+        self.gama = gama
+        self.moving_max = nn.Parameter(torch.tensor([scale]), requires_grad=True)
+        self.t = t 
+    def forward(self, x):
+        x = x / self.moving_max
+        # x = myfloor(x*self.t+0.5)/self.t
+        x = torch.clamp(x, 0, 1)
+        x = x * self.moving_max
+
+        return x
+
+class Cov2dLIF(nn.Module):
+    def __init__(self,in_plane,out_plane,kernel_size,stride,padding,droprate=0.0,bias=True,batch_norm=True):
+        super(Cov2dLIF, self).__init__()
+        if batch_norm:
+            self.fwd = SeqToANNContainer(
+                nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding,bias=bias),
+                nn.BatchNorm2d(out_plane),
+                nn.Dropout(p=droprate)
+            )
+        else:
+            self.fwd = SeqToANNContainer(
+                nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding,bias=bias),
+                nn.Dropout(p=droprate)
+            )
+
+        self.act = LIFSpike()
+        # self.relu = nn.ReLU(inplace=True)
+
+    def forward(self,x):
+        x = self.fwd(x)
+        # x = self.relu(x)
         x = self.act(x)[0]
         return x
+
+class LinearReLU(nn.Module):
+    def __init__(self,in_plane,out_plane,droprate=0.0, BatchNorm=True):
+        super(LinearReLU, self).__init__()
+        self.fwd = SeqToANNContainer(
+            nn.Linear(in_plane,out_plane),
+            nn.BatchNorm1d(out_plane),
+            nn.Dropout(p=droprate)
+        ) if BatchNorm else SeqToANNContainer(
+            nn.Linear(in_plane,out_plane)
+        )
+
+        # self.act = TempReLU()
+        self.relu = nn.ReLU()
+
+    def forward(self,x):
+        x = self.fwd(x)
+        x = self.relu(x)
+        # x = self.act(x)[0]
+        return x
+
 
 class LinearLIF(nn.Module):
     def __init__(self,in_plane,out_plane,droprate=0.0, BatchNorm=True):
@@ -64,11 +160,11 @@ class LinearLIF(nn.Module):
             nn.Linear(in_plane,out_plane)
         )
 
-        self.act = LIF()
+        self.act = LIFSpike()
 
     def forward(self,x):
         x = self.fwd(x)
-        x = self.act(x)
+        x = self.act(x)[0]
         return x
 
 class RecurrentLIF(nn.Module):
@@ -128,18 +224,33 @@ class LIFSpike(nn.Module):
         import numpy as np
         rank = len(x.size())-1   # N,T,C,W,H
         rank = np.clip(rank,3,rank)
-        dim = np.arange(rank-1)+2   
+        # dim = np.arange(rank-1)+2   
+        dim = np.arange(rank-1)+1
         dim = list(dim)
         for t in range(T):
             mem = pre_mem * self.tau + x[t, ...]
             spike = self.act(mem - self.thresh, self.gama)
             pre_mem = (1 - spike) * mem
-            _pre_mem.append(pre_mem)
+            _pre_mem.append(mem)
+            # _pre_mem.append(pre_mem)
             spike_pot.append(spike)
         spike_pot = torch.stack(spike_pot, dim=0)
         _pre_mem = torch.stack(_pre_mem, dim=0)
 
-        loss = (spike_pot.clone().pow(2).sum(dim=dim)+1e-7)**0.5/(_pre_mem.clone().pow(2).sum(dim=dim)+1e-7)**0.5
+
+        ### Direct regularisation
+        acc_mem = _pre_mem.clone().mean(dim=1)
+
+        x_clone = torch.maximum(acc_mem,torch.tensor(0.0))
+        xmax = torch.max(x_clone)
+        sigma = (x_clone.pow(2).mean(dim=dim)+1e-5)**0.5
+        r = xmax/torch.min(sigma)
+        r = torch.maximum(r,torch.tensor(1.0))
+        loss = torch.log(r)
+
+        # loss = (spike_pot.clone().pow(2).sum(dim=dim)+1e-7)**0.5/(_pre_mem.clone().pow(2).sum(dim=dim)+1e-7)**0.5
+
+    
         return spike_pot, loss
 
 class LIF(nn.Module):

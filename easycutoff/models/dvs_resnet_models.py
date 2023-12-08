@@ -1,6 +1,7 @@
 import random
 from easycutoff.layers import *
 
+
 # ------------------- #
 #   ResNet Example    #
 # ------------------- #
@@ -37,7 +38,7 @@ class BasicBlock(nn.Module):
 
         self.conv1_s = tdLayer(self.conv1, self.bn1)
         self.conv2_s = tdLayer(self.conv2, self.bn2)
-        self.spike = LIFSpike()
+        self.spike = TempReLU()
 
     def forward(self, x):
         identity = x
@@ -74,10 +75,14 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=3, stride=1, padding=1,
+        self.conv1 = nn.Conv2d(2, self.inplanes, kernel_size=8, stride=4, padding=3,
+                               bias=False)
+        self.conv2 = nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1,
                                bias=False)
         self.bn1 = norm_layer(self.inplanes)
+        self.bn2 = norm_layer(self.inplanes)
         self.conv1_s = tdLayer(self.conv1, self.bn1)
+        self.conv2_s = tdLayer(self.conv2, self.bn2)
         self.layer1 = self._make_layer(block, 128, layers[0])
         self.layer2 = self._make_layer(block, 256, layers[1], stride=2,
                                        dilate=replace_stride_with_dilation[0])
@@ -89,7 +94,8 @@ class ResNet(nn.Module):
         self.fc1_s = tdLayer(self.fc1)
         self.fc2 = nn.Linear(256, num_classes)
         self.fc2_s = tdLayer(self.fc2)
-        self.spike = LIFSpike()
+        self.spike = TempReLU()
+        self.norm = NormLayer()
         #self.spike_out = LIFSpikeOut()
         self.T = 1
 
@@ -129,9 +135,11 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _forward_impl(self, x):
+    def forward(self, x):
         # See note [TorchScript super()]
+        x = self.norm(x)
         x = self.conv1_s(x)
+        x = self.conv2_s(x)
         x = self.spike(x)
 
         x = self.layer1(x)
@@ -145,11 +153,6 @@ class ResNet(nn.Module):
         x = self.fc2_s(x)
         #x = self.spike_out(x)
         return x
-
-    def forward(self, x):
-        x = add_dimention(x, self.T)
-        return self._forward_impl(x)
-
 
 
 def _resnet(arch, block, layers, pretrained, progress, **kwargs):

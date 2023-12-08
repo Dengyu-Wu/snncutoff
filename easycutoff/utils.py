@@ -7,8 +7,9 @@ import logging
 import random
 import os
 import numpy as np
+from easycutoff.neuron import *
 
-def seed_all(seed=1029):
+def seed_all(seed=1024):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
@@ -42,17 +43,103 @@ def isActivation(name):
         return True
     return False
 
+def isContainer(name):
+    if 'container' in name.lower():
+        return True
+    return False
+
+def ann_to_snn_conversion(model,layers):
+    for child in model.children():
+        if hasattr(child,"children"):
+            model,layers = ann_to_snn_conversion(child,layers)
+                # if isActivation(module.__class__.__name__.lower()):
+        # else:
+        #     print(child.__class__.__name__.lower())
+        if isContainer(child.__class__.__name__.lower()):
+            layers.append(child)
+        if  'clip' in child.__class__.__name__.lower() or 'temprelu' in child.__class__.__name__.lower():
+            # print(child.__class__.__name__.lower())
+            if hasattr(child,"moving_max"):
+                # layers.append(nn.ReLU())
+                # layers.append(child)
+                layers.append(IFNeuron(vthr=child.moving_max.item()))
+        # if 'vggann' in child.__class__.__name__.lower():
+        #     layers.append(child)
+        # if 'clip' in child.__class__.__name__.lower():
+        #     layers.append(child)
+
+        if 'flatten' in child.__class__.__name__.lower():
+            layers.append(child)
+        if 'normlayer' in child.__class__.__name__.lower():
+            layers.append(child)
+    return model,layers
+
+def multi_to_single_step(model):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = multi_to_single_step(module)
+        if  'lifspike' in module.__class__.__name__.lower() or 'constrs' in module.__class__.__name__.lower() :
+            model._modules[name] = IFNeuron(vthr=module.thresh)
+            # model._modules[name] = IFNeuron(vthr=module.thresh,tau=module.tau)
+    return model
+
+def add_ann_constraints(model, T, ann_constrs, regularizer=None):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = add_ann_constraints(module, T, ann_constrs,regularizer)
+        if  'relu' == module.__class__.__name__.lower():
+            model._modules[name] = ann_constrs(T=T, regularizer=regularizer)
+    return model
+
+
+
+# def multi_to_single_step(model,layers):
+#     for child in model.children():
+#         if hasattr(child,"children"):
+#             model,layers = multi_to_single_step(child,layers)
+#                 # if isActivation(module.__class__.__name__.lower()):
+#         # else:
+#         #     print(child.__class__.__name__.lower())
+#         if isContainer(child.__class__.__name__.lower()):
+#             layers.append(child)
+#         if  'lifspike' in child.__class__.__name__.lower():
+#             # print(child.__class__.__name__.lower())
+#             # if hasattr(child,"moving_max"):
+#                 # layers.append(nn.ReLU())
+#                 # layers.append(child)
+#             layers.append(LIFNeuronReg(vthr=child.thresh.item(),tau=child.tau.item()))
+#         # if 'vggann' in child.__class__.__name__.lower():
+#         #     layers.append(child)
+#         # if 'clip' in child.__class__.__name__.lower():
+#         #     layers.append(child)
+
+#         if 'flatten' in child.__class__.__name__.lower():
+#             layers.append(child)
+#         if 'normlayer' in child.__class__.__name__.lower():
+#             layers.append(child)
+#     return model,layers
+
+def reset_neuron(model):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = reset_neuron(module)
+        if 'neuron' in module.__class__.__name__.lower():
+                model._modules[name].reset()
+    return model
+
 def replace_activation_by_module(model, m):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
             model._modules[name] = replace_activation_by_module(module, m)
         if isActivation(module.__class__.__name__.lower()):
             if hasattr(module, "up"):
-                print(module.up.item())
                 model._modules[name] = m(module.up.item())
             else:
                 model._modules[name] = m()
     return model
+
+
+
 
 def replace_activation_by_floor(model, t):
     for name, module in model._modules.items():
@@ -60,7 +147,6 @@ def replace_activation_by_floor(model, t):
             model._modules[name] = replace_activation_by_floor(module, t)
         if isActivation(module.__class__.__name__.lower()):
             if hasattr(module, "up"):
-                print(module.up.item())
                 if t == 0:
                     model._modules[name] = TCL()
                 else:
@@ -173,13 +259,38 @@ def regular_set(model, paras=([],[],[])):
     return paras
 
 
+# class OutputHook(list):
+#     def __init__(self):
+#         self.mask = 0                
+#     def __call__(self, module, inputs, output):
+#         import numpy as np
+#         x = output
+#         rank = len(x.size())-1   # N,T,C,W,H
+#         rank = np.clip(rank,3,rank)
+#         dim = np.arange(rank-1)+2   
+#         dim = list(dim)
+
+        
+#         x_clone = torch.maximum(x.clone(),torch.tensor(0.0))
+#         xmax = torch.max(x_clone)
+#         sigma = (x_clone.pow(2).mean(dim=dim)+1e-5)**0.5
+#         r = xmax/torch.min(sigma)
+        
+#         r = torch.maximum(r,torch.tensor(1.0))
+#         loss = torch.log(r)
+#         # loss = (torch.max(sigma) - torch.min(sigma)).abs()
+#         # loss = r
+#         self.append(loss)      
+
+
 class OutputHook(list):
     def __init__(self):
         self.mask = 0                
     def __call__(self, module, inputs, output):
-        loss = output[1]
+        loss = output
         self.append(loss)      
                 
+
 class sethook(object):
     def __init__(self,output_hook):
         self.module_dict = {}
@@ -189,7 +300,9 @@ class sethook(object):
         for name, module in model._modules.items():
             if hasattr(module, "_modules"):
                 model._modules[name] = self.get_module(module)
-            if module.__class__.__name__ == 'LIFSpike':
+            # if module.__class__.__name__ == 'TempReLU':BatchNorm2d
+            # if 'batchnorm' in module.__class__.__name__.lower():
+            if 'ROE' == module.__class__.__name__:
                 self.module_dict[str(self.k)] = module
                 self.k+=1
         return model
