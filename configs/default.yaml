@@ -2,39 +2,51 @@ base:
   epochs: 100
   batch_size: 128
   start_epoch: 0
-  weight_decay: 1e-5
+  weight_decay: 5e-4
   lr: 0.1
   print_freq: 1000
-  seed: 1000
+  seed: 2000
   nprocs: 0
   local_rank: 0
-  workers: 4
+  workers: 8
   log: none
-  project: Cifar10DVS
+  project: none
   port: '12345'
-  gpu_id: '0,1'
-
+  gpu_id: '0'
+  data: cifar10-dvs
+  model: vggann
+  # dataset_path: ./datasets
+  dataset_path: /LOCAL/dengyu/dvs_dataset/dvs-cifar10-1
+  
 snn-train:
-  T: 10
+  method: 'ann'
+  ann_constrs: 'baseconstrs'
+  regularizer: 'none'
+  T: 4
   evaluate: 'False'
-  TET: 'True'
+  TET: 'False'
+  multistep: 'False'
   means: 1.0
   lamb: 1e-3
-  alpha: 0.01
-
+  # lamb: 0.0
+  alpha: 0.002
+  
 snn-test:
   mode: 'cutoff'
-
-AOI-SNN-Conversion:
-  alpha: 0.01
+  model_path: none
 
 ###Logging Configuration
 logging:
-  wandb_logging: 'True'
+  wandb_logging: 'False'
   tensorboard_logging: 'True'
+  comet_logging: 'False'
   run_dir: none
 
 ###  Disable Hydra Logging ###
 defaults:
   - override hydra/hydra_logging: none
   - override hydra/job_logging: none
+
+hydra:  
+  run:  
+    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
