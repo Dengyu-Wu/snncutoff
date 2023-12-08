@@ -8,14 +8,15 @@ import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
 from easycutoff.models.resnet_models import resnet19
-from easycutoff.models.vggsnns import *
+from easycutoff.models.VGG_models import *
 from easycutoff import data_loaders
 from easycutoff.functions import TET_loss
 import numpy as np
-from configs import *
+from configs import BaseConfig, SNNConfig, AllConfig
 from omegaconf import DictConfig, OmegaConf
 import hydra
-from easycutoff.utils import replace_activation_by_neuron, ann_to_snn_conversion, reset_neuron
+
+
 
 class OutputHook(list):
     def __init__(self):
@@ -199,9 +200,9 @@ def mops(models, test_loader, device, T,  sigma, spike_gap=False):
 @torch.no_grad()
 def test(models, test_loader, device, T,num_classes):
     import numpy as np
-    correct = np.zeros((1,T))
+    correct = np.zeros((5,T))
     total = 0
-    loss = np.zeros((1,T))
+    loss = np.zeros((5,T))
     variance = 0
     for model in models:
         model.eval()
@@ -258,7 +259,7 @@ def test(models, test_loader, device, T,num_classes):
 @torch.no_grad()
 def cutoff(models, test_loader, device, T,  sigma, spike_gap=False):
     import numpy as np
-    correct = np.zeros((1,T))
+    correct = np.zeros((5,T))
     #correct = 0
     correct_cutoff = 0
     total = 0
@@ -274,43 +275,17 @@ def cutoff(models, test_loader, device, T,  sigma, spike_gap=False):
         inputs = inputs.transpose(0,1)
         k = 0
         outputs=[]
-        # for model in models:
-        #     output = model(inputs)
-        #     outputs.append(output)
-        #     k+=1
-        # for t in range(T):
-        # # for t in range(inputs.size()[0]):
-        #     # print(inputs[t:t+1])
-        #     t = 0
-        #     output = models[0](inputs[t:t+1])[0]
-        #     outputs.append(output)
-        #     # output = models[0](inputs[t:t+1])[0]
-        #     # outputs.append(output)
-        #     # output = models[0](inputs[t:t+1])[0]
-        #     # outputs.append(output)
-        # # for _ in range(10):
-        # # # for t in range(inputs.size()[0]):
-        # #     # print(inputs[t:t+1])
-        # #     t = 1
-        # #     output = models[0](inputs[t:t+1])[0]
-        # #     outputs.append(output)
-        # # for _ in range(10):
-        # # # for t in range(inputs.size()[0]):
-        # #     # print(inputs[t:t+1])
-        # #     t = 2
-        # #     output = models[0](inputs[t:t+1])[0]
-        # #     outputs.append(output)
+        for model in models:
+            output = model(inputs)
+            outputs.append(output)
+            k+=1
+        outputs = torch.stack(outputs,dim=1) #  T (Timestep)  M (Model) N (Batch) O (Output)   
+        _outputs = nn.Softmax(dim=-1)(outputs)
 
-
-        # models[0] = reset_neuron(models[0])
-        output = models[0](inputs)
-        # outputs = torch.stack(outputs,dim=0) #  T (Timestep)  M (Model) N (Batch) O (Output)   
-        outputs = nn.Softmax(dim=-1)(output)
-        # print(_outputs)
-        sigma_max = torch.ge(outputs.max(-1)[0], sigma).to(torch.float32) 
+        sigma_max = torch.ge(_outputs.max(-1)[0], sigma).to(torch.float32) 
         sigma_max[-1,...] = 1
         index = torch.argmax(sigma_max,dim=0) 
-        latency += torch.sum(index+1,dim=0)
+        latency += torch.sum(index+1,dim=1)
         mask =[]
         for _ in range(T):
             step = index >= 0
@@ -322,18 +297,17 @@ def cutoff(models, test_loader, device, T,  sigma, spike_gap=False):
 
         mean_out_cutoff = outputs  * _latency # sigma_max.unsqueeze(-1)
         mean_out_cutoff = mean_out_cutoff.sum(0)
-        # mean_out_cutoff = vmem[:,index,1:].sum(1)
+        #mean_out_cutoff = vmem[:,index,1:].sum(1)
 
         
         ########################
         #model = sethook(output_hook)(model,remove=True)
 
         total += float(targets.size(0))
-        for _k in range(1):
-            output = output#[:,_k]
+        for _k in range(k):
+            output = outputs[:,_k]
             for t in range(output.size()[0]):
                 mean_out = output[0:t+1,...].mean(0)
-                # mean_out = output[0:t+1,...].mean(0)
                 _, predicted = mean_out.cpu().max(-1)
                 correct[_k,t] += float(predicted.eq(targets.cpu()).sum().item())
 
@@ -345,48 +319,41 @@ def cutoff(models, test_loader, device, T,  sigma, spike_gap=False):
         # if batch_idx % 100 == 0:
         #     acc = 100. * float(correct[-1]) / float(total)
         #     print(batch_idx, len(test_loader), ' Acc: %.5f' % acc)
+
     final_acc = 100 * correct / total
-    cutoff_acc = 100 * correct_cutoff.cpu().numpy().item() / total
-    latency = latency.cpu().numpy().item()/total
+    cutoff_acc = 100 * correct_cutoff.cpu().numpy() / total
+    latency = latency.cpu().numpy()/total
     spike_cnt = spike_cnt / total
     spike_cutoff = spike_cutoff/ total
     return final_acc, spike_cnt, cutoff_acc, spike_cutoff, latency
 
-@hydra.main(version_base=None, config_path='../configs', config_name='test')
+@hydra.main(version_base=None, config_path='../configs', config_name='default')
 def main(cfg: DictConfig):
-    all_conf = TestConfig(**cfg['base'],**cfg['snn-test'])
-    # all_conf.nprocs = torch.cuda.device_count()
+    all_conf = AllConfig(**cfg['base'],**cfg['SNN'])
+    all_conf.nprocs = torch.cuda.device_count()
     os.environ['CUDA_VISIBLE_DEVICES'] = all_conf.gpu_id
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    train_dataset, val_dataset = data_loaders.get_dvs_loaders(path=all_conf.dataset_path, resize=False)
+ #train_dataset, val_dataset = data_loaders.build_dvscifar('cifar-dvs') # change to your path
+    train_dataset, val_dataset = data_loaders.get_dvs_loaders(path='/LOCAL/dengyu/dvs_dataset/dvs-cifar10', resize=False)
     test_loader = torch.utils.data.DataLoader(val_dataset, batch_size=all_conf.batch_size,
                                               shuffle=False, num_workers=all_conf.workers, pin_memory=True)
-    models = [VGGSNN() for i in range(1)]  
+    seed_set = [220, 310, 320, 520, 620]
+    models = [VGGSNN() for i in range(len(seed_set))]  
     i= 0
-    path = all_conf.model_path
+    path = '/users/wooooo/project/SNN-Experiment/'
     dataset='Cifar10DVS/'
-    # alpha = all_conf.alpha
-    state_dict = torch.load(path, map_location=torch.device('cpu'))  
-    # state_dict = torch.load(path+'saved_models/'+dataset+'alpha_'+str(alpha)+'_seed_'+str(one_seed)+'.pth', map_location=torch.device('cpu'))  
-    models[i].load_state_dict(state_dict, strict=False)
-    from torchinfo import summary
-
-    # print(models[i])
-    layers = []
-    # summary(models[i])
-
-    # models,layers = ann_to_snn_conversion(models[i],layers)
-    # models = nn.Sequential(*list(layers))
-    # models = models[i]
-    models = torch.nn.DataParallel(models[i])
-    models.to(device)    
-
+    alpha = all_conf.alpha
+    for one_seed in seed_set:
+        state_dict = torch.load(path+'saved_models/'+dataset+'alpha_'+str(alpha)+'_seed_'+str(one_seed)+'.pth', map_location=torch.device('cpu'))
+        models[i].load_state_dict(state_dict, strict=False)
+        models[i] = torch.nn.DataParallel(models[i])
+        models[i].to(device)
+        i += 1
     cutoff_acc_mult = []
     latency_mult = []
-    # for sigma in np.arange(0.8,1.0,0.01):
-    for sigma in range(1):
-        final_acc, spike_cnt, cutoff_acc, spike_cutoff, latency = cutoff([models], test_loader, device, T=all_conf.T, sigma=all_conf.sigma)
+    for sigma in np.arange(0.8,1.0,0.01):
+        final_acc, spike_cnt, cutoff_acc, spike_cutoff, latency = cutoff(models, test_loader, device, T=10, sigma=sigma)
         cutoff_acc_mult.append(cutoff_acc)
         latency_mult.append(latency)
 
@@ -405,10 +372,10 @@ def main(cfg: DictConfig):
     # np.save(path+'Experiment/results/'+dataset+'acc_'+str(alpha),final_acc)
     # np.save(path+'Experiment/results/'+dataset+'var_'+str(alpha),variance.cpu().numpy())
 
-    # dataset='Cifar10DVS/'
-    # np.save(path+'Experiment/results/'+dataset+'acc_cutoff_timestep_'+str(alpha),final_acc)
-    # np.save(path+'Experiment/results/'+dataset+'acc_cutoff_confidence_'+str(alpha),cutoff_acc_mult)
-    # np.save(path+'Experiment/results/'+dataset+'acc_cutoff_latency_'+str(alpha),latency_mult)
+    dataset='Cifar10DVS/'
+    np.save(path+'Experiment/results/'+dataset+'acc_cutoff_timestep_'+str(alpha),final_acc)
+    np.save(path+'Experiment/results/'+dataset+'acc_cutoff_confidence_'+str(alpha),cutoff_acc_mult)
+    np.save(path+'Experiment/results/'+dataset+'acc_cutoff_latency_'+str(alpha),latency_mult)
 
 
     print('Test accuracy of the model:', final_acc)
@@ -417,3 +384,4 @@ def main(cfg: DictConfig):
 
 if __name__ == '__main__':
    main()
+                                                                                            
