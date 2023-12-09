@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python ./scripts/training.py \
+python  ./scripts/training.py \
         base.epochs=300 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
@@ -12,6 +12,6 @@ python ./scripts/training.py \
         snn-train.method=\'ann\' \
         snn-train.ann_constrs=\'qcfsconstrs\' \
         snn-train.regularizer=\'roe\' \
-        snn-train.multistep=False \
+        snn-train.multistep=True \
         snn-train.T=8 \
         snn-train.alpha=0.001
