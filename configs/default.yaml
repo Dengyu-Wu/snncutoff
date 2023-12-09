@@ -23,9 +23,10 @@ snn-train:
   ann_constrs: 'baseconstrs'
   regularizer: 'none'
   T: 4
+  L: 4
   evaluate: 'False'
   TET: 'False'
-  multistep: 'False'
+  multistep: 'True'
   means: 1.0
   lamb: 1e-3
   # lamb: 0.0
@@ -37,7 +38,7 @@ snn-test:
 
 ###Logging Configuration
 logging:
-  wandb_logging: 'False'
+  wandb_logging: 'True'
   tensorboard_logging: 'True'
   comet_logging: 'False'
   run_dir: none
