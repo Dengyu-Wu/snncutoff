@@ -19,7 +19,7 @@ class QCFSConstrs(BaseConstrs):
     def constraints(self, x):
         x = self.relu(x)
         x = x / self.vthr
-        x = myfloor(x*self.L+0.5)/self.T
+        x = myfloor(x*self.L+0.5)/self.L
         x = torch.clamp(x, 0, 1)
         x = x * self.vthr
         return x
