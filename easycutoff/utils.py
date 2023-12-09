@@ -97,26 +97,25 @@ def multi_to_single_step(model):
 
 
 
-def _add_ann_constraints(model, T, ann_constrs, regularizer=None):
+def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = _add_ann_constraints(module, T, ann_constrs,regularizer)
+            model._modules[name] = _add_ann_constraints(module, T, L, ann_constrs,regularizer)
         if  'relu' == module.__class__.__name__.lower():
-            model._modules[name] = ann_constrs(T=T, regularizer=regularizer)
+            model._modules[name] = ann_constrs(T=T, L=L, regularizer=regularizer)
         if  addPreConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PreConstrs(T=T, module=model._modules[name])
         if  addPostConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
     return model
 
-def add_ann_constraints(model, T, ann_constrs, regularizer=None):
-    model = _add_ann_constraints(model, T, ann_constrs, regularizer=regularizer)
+def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
+    model = _add_ann_constraints(model, T, L, ann_constrs, regularizer=regularizer)
     model = nn.Sequential(
         *list(model.children()),  
         PostConstrs(T=T, module=None)    # Add the new layer
         )
     return model
-
 
 
 # def multi_to_single_step(model,layers):
