@@ -13,5 +13,6 @@ python  ./scripts/training.py \
         snn-train.ann_constrs=\'qcfsconstrs\' \
         snn-train.regularizer=\'none\' \
         snn-train.multistep=True \
-        snn-train.T=10 \
+        snn-train.L=8 \
+        snn-train.T=1 \
         snn-train.alpha=0.00 
