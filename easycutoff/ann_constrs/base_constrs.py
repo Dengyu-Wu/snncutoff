@@ -14,7 +14,7 @@ class BaseConstrs(nn.Module):
        
     def constraints(self,x):
         if self.training:
-            vthr = (1-self.momentum)*torch.max(x)+self.momentum*self.vthr
+            vthr = (1-self.momentum)*torch.max(x.detach())+self.momentum*self.vthr
             self.vthr.copy_(vthr)
         x = nn.ReLU()(x)
         return x
