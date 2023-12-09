@@ -25,7 +25,6 @@ class DVS_Dataset(Dataset):
         self.resize = resize
         self.tensorx = transforms.ToTensor()
         self.imgx = transforms.ToPILImage()
-        self.affine = transforms.RandomAffine(degrees=0, translate=(0.2, 0.2))
 
     def __getitem__(self, index):
         """
@@ -35,8 +34,6 @@ class DVS_Dataset(Dataset):
             tuple: (image, target) where target is index of the target class.
         """
         data, target = torch.load(self.root + '/{}.pt'.format(index))
-        # print(data.shape)
-        # if self.train:
         new_data = []
         for t in range(data.size(0)):
             if self.resize:
@@ -45,14 +42,13 @@ class DVS_Dataset(Dataset):
                 # new_data.append(self.tensorx(self.imgx(data[t,...])))
                 new_data.append(torch.tensor(data[t,...]))
         data = torch.stack(new_data, dim=0)
-        if not self.transform:
+        if self.transform:
             # flip = random.random() > 0.5
             # if flip:
             #     data = torch.flip(data, dims=(3,))
-            off1 = random.uniform(0, 0.2)
-            off2 = random.uniform(0, 0.2)
+            off1 = random.randint(-25, 25)
+            off2 = random.randint(-25, 25)
             data = transforms.functional.affine(data, angle = 0.0, scale=1.0, shear=0.0, translate=(off1, off2))
-            # data = torch.roll(data, shifts=(off1, off2), dims=(2, 3))
 
         if self.target_transform is not None:
             target = self.target_transform(target)
@@ -61,14 +57,6 @@ class DVS_Dataset(Dataset):
     def __len__(self):
         return len(os.listdir(self.root))
 
-
-# def get_dvs_loaders(path, data='cifar10-dvs', resize=False):
-#     train_path = path + '/train'
-#     val_path = path + '/test'
-#     train_dataset = DVS_Dataset(root=train_path, transform=True, resize=resize)
-#     val_dataset = DVS_Dataset(root=val_path, resize=resize)
-
-#     return train_dataset, val_dataset
 
 def isDVSData(name):
     if 'cifar10-dvs' in name.lower() or 'ncaltech101' in name.lower() or 'dvs128-gesture' in name.lower():

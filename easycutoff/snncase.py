@@ -33,11 +33,10 @@ class SNNCASE:
         self.criterion = criterion
         self.args = args
     def preprocess(self,x):
-        if self.method == 'ann':             
-            return x.sum(1)
+        if self.method == 'ann':           
+            return x.transpose(0,1)
         elif self.method == 'snn':
-            x = x.transpose(0,1)
-            return x 
+            return x.transpose(0,1)
         else:
             ValueError('Wrong training method')
 
