@@ -26,6 +26,7 @@ class SNNConfig(BaseModel):
     method: str
     ann_constrs: str
     T: int
+    L: int
     evaluate: bool
     TET: bool
     regularizer: str
