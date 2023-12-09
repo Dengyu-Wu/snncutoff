@@ -5,7 +5,7 @@ from easycutoff.regularizer import ROE
 from typing import Callable, List, Type
 
 class BaseConstrs(nn.Module):
-    def __init__(self, T: int = 4, vthr: float = 8.0, regularizer: Type[ROE] = None, momentum=0.9):
+    def __init__(self, T: int = 4, L: int = 4, vthr: float = 8.0, regularizer: Type[ROE] = None, momentum=0.9):
         super().__init__()
         self.vthr = nn.Parameter(torch.tensor([vthr]), requires_grad=False)
         self.regularizer = regularizer

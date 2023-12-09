@@ -2,7 +2,7 @@
 
 python  ./scripts/training.py \
         base.epochs=300 \
-        base.gpu_id=\'1\' \
+        base.gpu_id=\'2\' \
         base.seed=1200 \
         base.port=\'14152\' \
         base.data=\'cifar10-dvs\' \
