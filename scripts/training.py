@@ -68,7 +68,7 @@ def main_worker(local_rank, args):
                                  args.lr,
                                  momentum=0.9,
                                  weight_decay=args.weight_decay)
-    #optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)#,weight_decay=1e-4)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, eta_min=0, T_max=args.epochs)
     cudnn.benchmark = True
 
@@ -174,6 +174,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
     # switch to train mode
     model.train()
     end = time.time()
+    snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
     
     for i, (images, target) in enumerate(train_loader):
         data_time.update(time.time() - end)
@@ -183,7 +184,6 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
 
         # inputs = images.transpose(0,1)
         # inputs = images[0]
-        snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
         inputs = snncase.preprocess(images)
 
         if args.regularizer != 'none':
@@ -210,7 +210,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
             # tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
             # tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
             
-            cs_loss = tan_phi_mean.sum() #change pow into abs
+            cs_loss = tan_phi_mean.mean() #change pow into abs
             # cs_loss = tan_phi_max.sum() #change pow into abs
 
             # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
@@ -266,17 +266,17 @@ def validate(val_loader, model, criterion, base_metrics, local_rank, args):
 
     # switch to evaluate mode
     model.eval()
+    
 
     with torch.no_grad():
         end = time.time()
+        snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
         for i, (images, target) in enumerate(val_loader):
             images = images.cuda(local_rank, non_blocking=True)
             target = target.cuda(local_rank, non_blocking=True)
-
             # compute output
             # inputs = images.transpose(0,1)
             # inputs = images[0]
-            snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
 
             inputs = snncase.preprocess(images)
             # inputs = images
@@ -324,7 +324,7 @@ def main(cfg: DictConfig):
     all_conf.nprocs = torch.cuda.device_count()
     all_conf.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
     #Model Name
-    all_conf.project = all_conf.data 
+    all_conf.project = all_conf.data + '-aideoserver' 
     
     if all_conf.wandb_logging:
         wandb.login()
