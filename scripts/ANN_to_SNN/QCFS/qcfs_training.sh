@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python /LOCAL2/dengyu/MySNN/easycutoff/scripts/training.py \
+python  ./scripts/training.py \
         base.epochs=300 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
