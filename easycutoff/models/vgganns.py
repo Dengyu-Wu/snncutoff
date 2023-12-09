@@ -64,6 +64,7 @@ class VGGANN(nn.Module):
             Conv2dLayer(512,512,3,1,1),
             Conv2dLayer(512,512,3,1,1),
             nn.AvgPool2d(2),
+            nn.Flatten(1,-1)
         )
         W = int(32/2/2/2/2)
         self.fc = LinearLayer(512*W*W,512)#OutputLayerCurrent
@@ -71,12 +72,9 @@ class VGGANN(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight.data, mode='fan_out', nonlinearity='relu')
-            # if isinstance(m, nn.Linear):
-            #     nn.init.kaiming_normal_(m.weight.data)# mode='fan_out', nonlinearity='relu')
+
     def forward(self, input):
-        #input = add_dimention(input, self.T)
         x = self.features(input)
-        x = torch.flatten(x, 1)
         x = self.fc(x)
         x = self.classifier(x)
         return x

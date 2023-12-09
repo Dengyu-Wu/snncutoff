@@ -18,6 +18,7 @@ regularizer = {
 ann_constrs = {
 'baseconstrs': BaseConstrs,
 'qcfsconstrs': QCFSConstrs,
+'clipconstrs': ClipConstrs,
 }
 
 def get_models(args):
@@ -27,7 +28,7 @@ def get_models(args):
     if InputSize(args.data.lower()) == '2-128-128':
         if args.method=='ann':
             model = ann_models(args.model,num_classes)
-            model = add_ann_constraints(model, args.T, ann_constrs=ann_constrs[args.ann_constrs.lower()], regularizer=regularizer[args.regularizer.lower()])
+            model = add_ann_constraints(model, args.T, ann_constrs=ann_constrs[args.ann_constrs.lower()], regularizer=regularizer[args.regularizer.lower()])          
             return model
         elif args.method=='snn':
             return snn_models(args.model,args.T, num_classes)
