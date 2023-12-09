@@ -12,6 +12,6 @@ python ./scripts/training.py \
         snn-train.method=\'ann\' \
         snn-train.ann_constrs=\'baseconstrs\' \
         snn-train.regularizer=\'roe\' \
-        snn-train.multistep=False \
-        snn-train.T=10 \
+        snn-train.multistep=True \
+        snn-train.T=1 \
         snn-train.alpha=0.001 

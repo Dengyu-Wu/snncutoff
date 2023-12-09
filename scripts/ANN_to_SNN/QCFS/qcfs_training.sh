@@ -12,6 +12,6 @@ python  ./scripts/training.py \
         snn-train.method=\'ann\' \
         snn-train.ann_constrs=\'qcfsconstrs\' \
         snn-train.regularizer=\'none\' \
-        snn-train.multistep=False \
+        snn-train.multistep=True \
         snn-train.T=10 \
         snn-train.alpha=0.00 
