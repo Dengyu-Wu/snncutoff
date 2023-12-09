@@ -8,6 +8,8 @@ import random
 import os
 import numpy as np
 from easycutoff.neuron import *
+from easycutoff.ann_constrs import PreConstrs, PostConstrs
+
 
 def seed_all(seed=1024):
     random.seed(seed)
@@ -48,6 +50,16 @@ def isContainer(name):
         return True
     return False
 
+def addPreConstrs(name):
+    if 'conv2d' == name.lower() or 'linear' == name.lower() or 'pool' in name.lower() or 'flatten' in name.lower():
+        return True
+    return False
+
+def addPostConstrs(name):
+    if 'pool' in name.lower() or 'flatten' in name.lower():
+        return True
+    return False
+
 def ann_to_snn_conversion(model,layers):
     for child in model.children():
         if hasattr(child,"children"):
@@ -83,12 +95,26 @@ def multi_to_single_step(model):
             # model._modules[name] = IFNeuron(vthr=module.thresh,tau=module.tau)
     return model
 
-def add_ann_constraints(model, T, ann_constrs, regularizer=None):
+
+
+def _add_ann_constraints(model, T, ann_constrs, regularizer=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = add_ann_constraints(module, T, ann_constrs,regularizer)
+            model._modules[name] = _add_ann_constraints(module, T, ann_constrs,regularizer)
         if  'relu' == module.__class__.__name__.lower():
             model._modules[name] = ann_constrs(T=T, regularizer=regularizer)
+        if  addPreConstrs(module.__class__.__name__.lower()):
+            model._modules[name] = PreConstrs(T=T, module=model._modules[name])
+        if  addPostConstrs(module.__class__.__name__.lower()):
+            model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
+    return model
+
+def add_ann_constraints(model, T, ann_constrs, regularizer=None):
+    model = _add_ann_constraints(model, T, ann_constrs, regularizer=regularizer)
+    model = nn.Sequential(
+        *list(model.children()),  
+        PostConstrs(T=T, module=None)    # Add the new layer
+        )
     return model
 
 
