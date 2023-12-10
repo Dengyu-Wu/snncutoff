@@ -14,6 +14,10 @@ class ClipConstrs(BaseConstrs):
         self.regularizer = regularizer
 
     def constraints(self, x):
+        # if self.training:
+        #     xmax = torch.mean(x.detach().abs())*100
+        #     vthr = (1-self.momentum)*xmax+self.momentum*self.vthr
+        #     self.vthr.copy_(vthr)
         x = self.relu(x)
         x = x / self.vthr
         x = torch.clamp(x, 0, 1)

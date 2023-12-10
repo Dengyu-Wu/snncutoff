@@ -118,6 +118,35 @@ def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     return model
 
 
+
+def addSNNLayers(name):
+    if 'relu' == name.lower():
+        return True
+    return False
+
+def _add_snn_layers(model, T, snn_layers, regularizer=None):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer)
+        if  addSNNLayers(module.__class__.__name__.lower()):
+            model._modules[name] = snn_layers(T=T, regularizer=regularizer)
+        if  addPreConstrs(module.__class__.__name__.lower()):
+            model._modules[name] = PreConstrs(T=T, module=model._modules[name])
+        if  addPostConstrs(module.__class__.__name__.lower()):
+            model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
+    return model
+
+def add_snn_layers(model, T, snn_layers, regularizer=None):
+    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer)
+    model = nn.Sequential(
+        *list(model.children()),  
+        PostConstrs(T=T, module=None)    # Add the new layer
+        ) 
+    return model
+
+
+
+
 # def multi_to_single_step(model,layers):
 #     for child in model.children():
 #         if hasattr(child,"children"):
@@ -327,7 +356,8 @@ class sethook(object):
                 model._modules[name] = self.get_module(module)
             # if module.__class__.__name__ == 'TempReLU':BatchNorm2d
             # if 'batchnorm' in module.__class__.__name__.lower():
-            if 'ROE' == module.__class__.__name__:
+            # if 'ROE' == module.__class__.__name__:
+            if hasattr(module, "add_loss"):
                 self.module_dict[str(self.k)] = module
                 self.k+=1
         return model

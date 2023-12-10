@@ -144,8 +144,8 @@ y_test = []
 x_test = []
 class_names = []
 random_mode = 0 # 1 or 0
-train_filename = '/LOCAL/dengyu/dvs_dataset/dvs-cifar10-2/train/{}.pt'
-test_filename = '/LOCAL/dengyu/dvs_dataset/dvs-cifar10-2/test/{}.pt'
+train_filename = '/LOCAL/dengyu/dvs_dataset/dvs-cifar10-1-1s/train/{}.pt'
+test_filename = '/LOCAL/dengyu/dvs_dataset/dvs-cifar10-1-1s/test/{}.pt'
 
 for root,dirs,files in os.walk('/opt/LOCAL/share/datasets/cifar10_dvs'):
     root = str(root)
@@ -179,12 +179,12 @@ for root,dirs,files in os.walk('/opt/LOCAL/share/datasets/cifar10_dvs'):
             #    continue
             data = loadaerdat(path)
             
-            N = 2
+            N = 1
             split_num = 1
             H = 128
             W = 128
-            t_start = 0.0e6
-            t_tot = t_start+split_num*1.3e6
+            t_start = 0.1e6
+            t_tot = t_start+split_num*1.1e6
             data_t = data['t']-data['t'][0]
             loc_tot = np.where(np.logical_and(data_t > t_start, data_t < t_tot))
             data_t = data_t[loc_tot[0]]-data_t[loc_tot[0]][0]
