@@ -52,11 +52,10 @@ class BaseLayer(nn.Module):
             return x, 0.0
 
     def mem_update(self,x):
-        return self._mem_update_multistep(x)
-        # if self.multistep:
-        #     return self._mem_update_multistep(x)
-        # else:
-        #     return self._mem_update_singlestep(x)   
+        if self.multistep:
+            return self._mem_update_multistep(x)
+        else:
+            return self._mem_update_singlestep(x)   
         
     def forward(self, x):    
         x = self.reshape(x)

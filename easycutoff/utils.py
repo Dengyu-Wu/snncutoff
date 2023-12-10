@@ -95,8 +95,6 @@ def multi_to_single_step(model):
             # model._modules[name] = IFNeuron(vthr=module.thresh,tau=module.tau)
     return model
 
-
-
 def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
@@ -177,7 +175,8 @@ def reset_neuron(model):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
             model._modules[name] = reset_neuron(module)
-        if 'neuron' in module.__class__.__name__.lower():
+        if hasattr(module, "neuron"):
+        # if 'neuron' in module.__class__.__name__.lower():
                 model._modules[name].reset()
     return model
 
@@ -191,9 +190,6 @@ def replace_activation_by_module(model, m):
             else:
                 model._modules[name] = m()
     return model
-
-
-
 
 def replace_activation_by_floor(model, t):
     for name, module in model._modules.items():
@@ -311,31 +307,7 @@ def regular_set(model, paras=([],[],[])):
             for name, para in module.named_parameters():
                 paras[1].append(para)
     return paras
-
-
-# class OutputHook(list):
-#     def __init__(self):
-#         self.mask = 0                
-#     def __call__(self, module, inputs, output):
-#         import numpy as np
-#         x = output
-#         rank = len(x.size())-1   # N,T,C,W,H
-#         rank = np.clip(rank,3,rank)
-#         dim = np.arange(rank-1)+2   
-#         dim = list(dim)
-
-        
-#         x_clone = torch.maximum(x.clone(),torch.tensor(0.0))
-#         xmax = torch.max(x_clone)
-#         sigma = (x_clone.pow(2).mean(dim=dim)+1e-5)**0.5
-#         r = xmax/torch.min(sigma)
-        
-#         r = torch.maximum(r,torch.tensor(1.0))
-#         loss = torch.log(r)
-#         # loss = (torch.max(sigma) - torch.min(sigma)).abs()
-#         # loss = r
-#         self.append(loss)      
-
+    
 
 class OutputHook(list):
     def __init__(self):
@@ -354,9 +326,6 @@ class sethook(object):
         for name, module in model._modules.items():
             if hasattr(module, "_modules"):
                 model._modules[name] = self.get_module(module)
-            # if module.__class__.__name__ == 'TempReLU':BatchNorm2d
-            # if 'batchnorm' in module.__class__.__name__.lower():
-            # if 'ROE' == module.__class__.__name__:
             if hasattr(module, "add_loss"):
                 self.module_dict[str(self.k)] = module
                 self.k+=1
@@ -373,7 +342,6 @@ class sethook(object):
         for y,x in self.module_dict.items():
             self.remove_all_hooks(self.module_dict[y])
             self.module_dict[y] = self.module_dict[y].register_forward_hook(self.output_hook) 
-            #self.module_dict[y] = self.module_dict[y].register_full_backward_hook(grad_hook) 
             
     def remove_all_hooks(self,module):
         from collections import OrderedDict
