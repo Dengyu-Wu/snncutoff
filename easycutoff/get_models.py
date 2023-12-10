@@ -3,23 +3,35 @@ from easycutoff.models.dvs_resnet_models import resnet19
 from easycutoff.models.vggsnns import *
 from easycutoff.models.vgganns import *
 from easycutoff.ann_constrs import *
+from easycutoff.snn_layers import *
 from easycutoff.regularizer import *
-from easycutoff.utils import add_ann_constraints
+from easycutoff.utils import add_ann_constraints, add_snn_layers
 from easycutoff.models.VGG import *
 from easycutoff.models.ResNet import *
 from easycutoff.models import sew_resnet
+
 
 
 regularizer = {
 'none': None,
 'roe': ROE(),
 }
+snn_regularizer = {
+'none': None,
+'roe': SNNROE(),
+} 
+
 
 ann_constrs = {
 'baseconstrs': BaseConstrs,
 'qcfsconstrs': QCFSConstrs,
 'clipconstrs': ClipConstrs,
 }
+
+snn_layers = {
+'baselayer': BaseLayer,
+}
+
 
 def get_models(args):
     num_classes  = OuputSize(args.data.lower())
@@ -33,15 +45,35 @@ def get_models(args):
                                         regularizer=regularizer[args.regularizer.lower()])    
             return model
         elif args.method=='snn':
-            return snn_models(args.model,args.T, num_classes)
+            model = ann_models(args.model,num_classes)
+            model = add_snn_layers(model, args.T,
+                                    snn_layers=snn_layers[args.snn_layers.lower()], 
+                                    regularizer=snn_regularizer[args.regularizer.lower()])  
+            return model
+            # return snn_models(args.model,args.T, num_classes)
     elif InputSize(args.data.lower()) == '3-32-32':
         if args.method=='ann':
-            return ann_models(args.model,num_classes)
+            model = ann_models(args.model,num_classes)
+            model = add_ann_constraints(model, args.T, args.L, 
+                                        ann_constrs=ann_constrs[args.ann_constrs.lower()], 
+                                        regularizer=regularizer[args.regularizer.lower()])   
+            return model
         elif args.method=='snn':
-            return snn_models(args.model,num_classes)
+            model = ann_models(args.model,num_classes)
+            model = nn.Sequential(
+                *list(model.children()),  
+                ) 
+            model = add_snn_layers(model, args.T,
+                                    snn_layers=snn_layers[args.snn_layers.lower()], 
+                                    regularizer=snn_regularizer[args.regularizer.lower()])  
+            return model
     elif InputSize(args.data.lower()) == '3-224-224':
         if args.method=='ann':
-            return ann_models(args.model,num_classes)
+            model = ann_models(args.model,num_classes)
+            model = add_ann_constraints(model, args.T, args.L, 
+                                        ann_constrs=ann_constrs[args.ann_constrs.lower()], 
+                                        regularizer=regularizer[args.regularizer.lower()])    
+            return model
         elif args.method=='snn':
             return snn_models(args.model,num_classes)
     elif InputSize(args.data.lower()) == '2-240-180':
@@ -62,15 +94,23 @@ def get_models(args):
 # model = replace_maxpool2d_by_avgpool2d(model)
 
 # model = sew_resnet.__dict__['sew_resnet34'](T=args.T, connect_f='ADD')
+def isVGG(name):
+    if name.lower() in ['vgg11','vgg13','vgg16','vgg19',]:
+        return True
+    return False
 
+def isResNet(name):
+    if name.lower() in ['resnet18','resnet20','resnet34','resnet50','resnet101','resnet152']:
+        return True
+    return False
 
 def ann_models( model_name, num_classes):
-    if model_name == 'vgg16':
-        return vgg16(num_classes=num_classes)
+    if isVGG(model_name):
+        return VGG(model_name.upper(), num_classes, dropout=0)
     elif model_name == 'resnet18':
         return resnet18(num_classes=num_classes)
-    elif model_name == 'resnet34':
-        return resnet34(num_classes=num_classes)
+    elif isResNet(model_name):
+        return get_resnet(model_name, num_classes=num_classes)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
     else:

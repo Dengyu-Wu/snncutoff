@@ -57,9 +57,11 @@ class VGG(nn.Module):
             self.classifier = nn.Sequential(
                 nn.Flatten(),
                 nn.Linear(512, 4096),
+                nn.BatchNorm1d(4096),
                 nn.ReLU(inplace=True),
                 nn.Dropout(dropout),
                 nn.Linear(4096, 4096),
+                nn.BatchNorm1d(4096),
                 nn.ReLU(inplace=True),
                 nn.Dropout(dropout),
                 nn.Linear(4096, num_classes)

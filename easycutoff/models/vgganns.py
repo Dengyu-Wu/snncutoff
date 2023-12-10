@@ -51,7 +51,9 @@ class VGGANN(nn.Module):
         #pool = APLayer(2)
         self.features = nn.Sequential(
             # NormLayer(),
-            Conv2dLayer(2,64,8,4,3),
+            # Conv2dLayer(2,64,8,4,4),
+            # nn.AvgPool2d(4),
+            Conv2dLayer(2,64,4,4,padding='valid'),
             Conv2dLayer(64,64,3,1,1),
             Conv2dLayer(64,128,3,1,1),
             nn.AvgPool2d(2),
@@ -69,6 +71,7 @@ class VGGANN(nn.Module):
         W = int(32/2/2/2/2)
         self.fc = LinearLayer(512*W*W,512)#OutputLayerCurrent
         self.classifier = nn.Linear(512,num_classes)#OutputLayerCurrent
+        # self.classifier = nn.Linear(512*W*W,num_classes)#OutputLayerCurrent
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight.data, mode='fan_out', nonlinearity='relu')
