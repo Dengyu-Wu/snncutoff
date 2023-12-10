@@ -5,7 +5,8 @@ import numpy as np
 class ROE(nn.Module):
     def __init__(self):
         super().__init__()
-
+        self.add_loss = True
+        
     def forward(self,x):
         rank = len(x.size())-2  # N,T,C,W,H
         dim = -np.arange(rank)-1

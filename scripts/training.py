@@ -102,7 +102,8 @@ def main_worker(local_rank, args):
             wandb.init(config=args,name=args.log, project=args.project)
         if args.tensorboard_logging:
             writer = SummaryWriter(args.log)
-    
+
+
     for epoch in range(args.start_epoch, args.epochs):
         t1 = time.time()
         train_sampler.set_epoch(epoch)
@@ -223,7 +224,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
         mean_out,loss = snncase.postprocess(outputs, target_onehot)
         if args.regularizer != 'none':
             loss = loss  + args.alpha*(cs_loss)
-
+        
         acc1, acc5 = accuracy(mean_out, target, topk=(1, 5))
 
         torch.distributed.barrier()
