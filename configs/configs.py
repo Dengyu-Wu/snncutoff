@@ -25,6 +25,7 @@ class BaseConfig(BaseModel):
 class SNNConfig(BaseModel):
     method: str
     ann_constrs: str
+    snn_layers: str
     T: int
     L: int
     evaluate: bool
@@ -34,6 +35,7 @@ class SNNConfig(BaseModel):
     lamb: float
     alpha: float
     multistep: bool
+    add_time_dim: bool
     
 class SNNTest(BaseModel):
     T: int
