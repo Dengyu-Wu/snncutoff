@@ -1,24 +1,6 @@
-import argparse
-import shutil
-import os
-import time
 import torch
-import warnings
 import torch.nn as nn
-import torch.nn.parallel
-import torch.optim
-from easycutoff.models.resnet_models import resnet19
-from easycutoff.models.vggsnns import *
-from easycutoff import data_loaders
-from easycutoff.functions import TET_loss
-import numpy as np
-from configs import *
-from omegaconf import DictConfig, OmegaConf
-import hydra
-from easycutoff.utils import replace_activation_by_neuron, ann_to_snn_conversion, reset_neuron
-from typing import Callable, List, Type
-from .cutoff import BaseCutoff
-from easycutoff.utils import  OutputHook, sethook
+
 
 class SNNCASE:
     def __init__(
