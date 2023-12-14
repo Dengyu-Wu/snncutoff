@@ -15,18 +15,21 @@ class BaseLayer(nn.Module):
                  neuron: Type[LIF]=LIF,
                  regularizer: Type[SNNROE] = None, 
                  surogate: Type[ZIF] = ZIF,
-                 multistep: bool=True
+                 multistep: bool=True,
+                 reset_mode: str = 'hard'
                  ):
         super(BaseLayer, self).__init__()
         
         self.vthr = vthr
+        self.tau = tau
         self.T = T
         self.neuron=neuron(vthr=vthr, tau=tau)
-        self.reset()
+        self.neuron.reset()
         self.regularizer = regularizer
         self.multistep = multistep
         self.surogate=ZIF.apply
         self.gamma = 1.0
+        self.reset_mode = reset_mode
 
     def mem_init(self,x):
         pass
@@ -38,19 +41,28 @@ class BaseLayer(nn.Module):
         for t in range(self.T):
             vmem = self.neuron.vmem + x[t]
             spike =  self.surogate(vmem - self.vthr, self.gamma)
-            vmem = vmem * (1-spike)
+            vmem = self.vmem_reset(vmem,spike)
             self.neuron.updateMem(vmem)
             spike_post.append(spike)
             mem_post.append(vmem)
         return torch.stack(spike_post,dim=0), torch.stack(mem_post,dim=0)
-
+    
+    def vmem_reset(self, x, spike):
+        if self.reset_mode == 'hard':
+            return x * (1-spike)
+        elif self.reset_mode == 'soft':  
+            return x - self.vthr*spike
+        
     def _mem_update_singlestep(self,x):
-            # self.mem_init(x)
-            mem = self.neuron.vmem + x 
-            x =  (mem > self.vthr).float()
-            mem = mem * (1-x)
-            self.neuron.updateMem(mem)
-            return x, 0.0
+        if self.neuron.t == 0:
+            self.neuron.initMem(0.5*self.vthr)
+        spike_post = []
+        vmem = self.neuron.vmem + x[0]
+        spike =  (vmem > self.vthr).float()
+        vmem = self.vmem_reset(vmem,spike)
+        self.neuron.updateMem(vmem)
+        spike_post.append(spike*self.vthr)
+        return torch.stack(spike_post,dim=0), 0.0
 
     def mem_update(self,x):
         if self.multistep:
@@ -58,19 +70,21 @@ class BaseLayer(nn.Module):
         else:
             return self._mem_update_singlestep(x)   
         
-    def forward(self, x):    
+    def forward(self, x):  
         x = self.reshape(x)
         spike_post, mem_post = self.mem_update(x)
         if self.regularizer is not None:
             loss = self.regularizer(spike_post.clone()*self.vthr, mem_post.clone())
-        return spike_post 
+        return spike_post
+         
     
     def reshape(self,x):
-        batch_size = int(x.shape[0]/self.T)
-        new_dim = [self.T, batch_size]
-        new_dim.extend(x.shape[1:])
-        return x.reshape(new_dim)
-
-    def reset(self):
-        self.neuron.reset()
+        if self.multistep:
+            batch_size = int(x.shape[0]/self.T)
+            new_dim = [self.T, batch_size]
+            new_dim.extend(x.shape[1:])
+            return x.reshape(new_dim)
+        else:
+            return x.unsqueeze(0)
+        
 

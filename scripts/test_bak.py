@@ -7,10 +7,10 @@ import warnings
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
-from easycutoff.models.resnet_models import resnet19
-from easycutoff.models.VGG_models import *
-from easycutoff import data_loaders
-from easycutoff.functions import TET_loss
+from snncutoff.models.resnet_models import resnet19
+from snncutoff.models.VGG_models import *
+from snncutoff import data_loaders
+from snncutoff.functions import TET_loss
 import numpy as np
 from configs import BaseConfig, SNNConfig, AllConfig
 from omegaconf import DictConfig, OmegaConf

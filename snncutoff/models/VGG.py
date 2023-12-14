@@ -57,11 +57,11 @@ class VGG(nn.Module):
             self.classifier = nn.Sequential(
                 nn.Flatten(),
                 nn.Linear(512, 4096),
-                nn.BatchNorm1d(4096),
+                # nn.BatchNorm1d(4096),
                 nn.ReLU(inplace=True),
                 nn.Dropout(dropout),
                 nn.Linear(4096, 4096),
-                nn.BatchNorm1d(4096),
+                # nn.BatchNorm1d(4096),
                 nn.ReLU(inplace=True),
                 nn.Dropout(dropout),
                 nn.Linear(4096, num_classes)
@@ -80,7 +80,8 @@ class VGG(nn.Module):
         layers = []
         for x in cfg:
             if x == 'M':
-                layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
+                layers.append(nn.AvgPool2d(kernel_size=2, stride=2))
+                # layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
             else:
                 layers.append(nn.Conv2d(self.init_channels, x, kernel_size=3, padding=1))
                 layers.append(nn.BatchNorm2d(x))

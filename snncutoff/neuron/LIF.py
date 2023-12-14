@@ -15,5 +15,5 @@ class LIF(object):
         self.vmem = x
 
     def updateMem(self,x):
-        self.mem = x*self.tau
+        self.vmem = x*self.tau
         self.t += 1 

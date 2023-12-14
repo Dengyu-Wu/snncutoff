@@ -1,5 +1,4 @@
 
-from snncutoff.models.dvs_resnet_models import resnet19
 from snncutoff.models.vggsnns import *
 from snncutoff.models.vgganns import *
 from snncutoff.ann_constrs import *
