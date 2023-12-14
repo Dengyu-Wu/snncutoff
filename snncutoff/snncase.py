@@ -14,6 +14,7 @@ class SNNCASE:
         self.method = method
         self.criterion = criterion
         self.args = args
+        
     def preprocess(self,x):
         if self.args.add_time_dim:
             x = x.unsqueeze(1)

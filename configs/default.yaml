@@ -35,8 +35,12 @@ snn-train:
   alpha: 0.002
   
 snn-test:
+  T: 10
+  sigma: 1.0
   mode: 'cutoff'
-  model_path: none
+  decay_factor: 0.5
+  reset_mode: 'soft'
+  model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
 
 ###Logging Configuration
 logging:

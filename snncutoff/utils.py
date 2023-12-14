@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-from torch.nn.parameter import Parameter
-from torch.nn import functional as F
 from .modules import TCL, MyFloor, ScaledNeuron, StraightThrough
 import logging
 import random
@@ -9,7 +7,7 @@ import os
 import numpy as np
 from snncutoff.neuron import *
 from snncutoff.ann_constrs import PreConstrs, PostConstrs
-
+from snncutoff.snn_layers import BaseLayer
 
 def seed_all(seed=1024):
     random.seed(seed)
@@ -60,6 +58,16 @@ def addPostConstrs(name):
         return True
     return False
 
+def addSingleStep(name):
+    if  'lifspike' in name:
+        return True
+    if 'constrs' in name:
+        if  'preconstrs' in name or 'postconstrs' in name:
+            return False
+        else:
+            return True
+    return False
+
 def ann_to_snn_conversion(model,layers):
     for child in model.children():
         if hasattr(child,"children"):
@@ -85,14 +93,22 @@ def ann_to_snn_conversion(model,layers):
         if 'normlayer' in child.__class__.__name__.lower():
             layers.append(child)
     return model,layers
-
-def multi_to_single_step(model):
+def multi_to_single_step(model,reset_mode):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = multi_to_single_step(module)
-        if  'lifspike' in module.__class__.__name__.lower() or 'constrs' in module.__class__.__name__.lower() :
-            model._modules[name] = IFNeuron(vthr=module.thresh)
-            # model._modules[name] = IFNeuron(vthr=module.thresh,tau=module.tau)
+            model._modules[name] = multi_to_single_step(module,reset_mode)
+        if addSingleStep(module.__class__.__name__.lower()):
+            model._modules[name] = BaseLayer(vthr=model._modules[name].vthr, 
+                                             tau=model._modules[name].tau, 
+                                             multistep=False, 
+                                             reset_mode=reset_mode)
+
+        if  'preconstrs' in module.__class__.__name__.lower():
+            model._modules[name].multistep=False  
+        # if  'dropout' in module.__class__.__name__.lower():
+        #     model._modules[name] = LinearConstrs(T=1)
+        if  'postconstrs' in module.__class__.__name__.lower():
+            model._modules[name].multistep=False  
     return model
 
 def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
@@ -114,8 +130,6 @@ def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
         PostConstrs(T=T, module=None)    # Add the new layer
         )
     return model
-
-
 
 def addSNNLayers(name):
     if 'relu' == name.lower():
@@ -176,8 +190,7 @@ def reset_neuron(model):
         if hasattr(module, "_modules"):
             model._modules[name] = reset_neuron(module)
         if hasattr(module, "neuron"):
-        # if 'neuron' in module.__class__.__name__.lower():
-                model._modules[name].reset()
+            model._modules[name].neuron.reset()
     return model
 
 def replace_activation_by_module(model, m):
@@ -356,4 +369,18 @@ class sethook(object):
     def remove(self):
         for y,x in self.module_dict.items():
             self.remove_all_hooks(self.module_dict[y])
-            
+
+import pickle
+import os
+
+def save_pickle(mdl, name, path):
+    pklout = open( os.path.join(path, name + '.pkl'), 'wb')
+    pickle.dump(mdl, pklout)
+    pklout.close()
+    
+def load_pickle(path):
+    pkl_file = open(path, 'rb')
+    mdl = pickle.load(pkl_file)
+    pkl_file.close()
+
+    return mdl
