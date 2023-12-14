@@ -12,17 +12,33 @@ base:
   log: none
   project: none
   port: '12345'
-  gpu_id: '1'
+  gpu_id: '0'
   data: cifar10-dvs
-  model: vgg
+  model: vggann
   # dataset_path: ./datasets
   dataset_path: /LOCAL/dengyu/dvs_dataset/dvs-cifar10-1
-  
+   
+snn-train:
+  method: 'ann'
+  ann_constrs: 'baseconstrs'
+  snn_layers: 'baselayer'
+  regularizer: 'none'
+  T: 4
+  L: 4
+  evaluate: 'False'
+  TET: 'False'
+  multistep: 'True'
+  add_time_dim: 'False'
+  means: 1.0
+  lamb: 1e-3
+  # lamb: 0.0
+  alpha: 0.002
 
 snn-test:
-  T: 10
   sigma: 1.0
+  decay_factor: 0.5
   mode: 'cutoff'
+  reset_mode: 'soft'
   model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
 
 logging:

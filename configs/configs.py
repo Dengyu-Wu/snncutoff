@@ -38,9 +38,10 @@ class SNNConfig(BaseModel):
     add_time_dim: bool
     
 class SNNTest(BaseModel):
-    T: int
     sigma: float
+    decay_factor: float
     mode: str
+    reset_mode: str
     model_path: str
 
 class LoggingConfig(BaseModel):
@@ -52,5 +53,5 @@ class LoggingConfig(BaseModel):
 class AllConfig(BaseConfig, SNNConfig,LoggingConfig):
     pass
 
-class TestConfig(BaseConfig, SNNTest):
+class TestConfig(BaseConfig, SNNConfig, SNNTest):
     pass

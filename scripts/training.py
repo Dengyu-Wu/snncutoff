@@ -18,14 +18,14 @@ import torch.utils.data
 import torch.utils.data.distributed
 
 from torch.utils.tensorboard import SummaryWriter
-from easycutoff import data_loaders
-from easycutoff.utils import seed_all, get_logger, OutputHook, sethook
-from easycutoff.ddp import reduce_mean, ProgressMeter, adjust_learning_rate, accuracy, AverageMeter
+from snncutoff import data_loaders
+from snncutoff.utils import seed_all, get_logger, OutputHook, sethook
+from snncutoff.ddp import reduce_mean, ProgressMeter, adjust_learning_rate, accuracy, AverageMeter
 
 from configs import BaseConfig, SNNConfig, AllConfig
 from omegaconf import DictConfig, OmegaConf
-from easycutoff import SNNCASE
-from easycutoff import get_models
+from snncutoff import SNNCASE
+from snncutoff import get_models
 
 def main_worker(local_rank, args):
     args.local_rank = local_rank

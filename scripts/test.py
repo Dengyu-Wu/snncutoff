@@ -7,15 +7,15 @@ import warnings
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
-from easycutoff.models.resnet_models import resnet19
-from easycutoff.models.vggsnns import *
-from easycutoff import data_loaders
-from easycutoff.functions import TET_loss
+from snncutoff.models.resnet_models import resnet19
+from snncutoff.models.vggsnns import *
+from snncutoff import data_loaders
+from snncutoff.functions import TET_loss
 import numpy as np
 from configs import *
 from omegaconf import DictConfig, OmegaConf
 import hydra
-from easycutoff.utils import replace_activation_by_neuron, ann_to_snn_conversion, reset_neuron
+from snncutoff.utils import replace_activation_by_neuron, ann_to_snn_conversion, reset_neuron
 
 class OutputHook(list):
     def __init__(self):
