@@ -113,7 +113,7 @@ class Evaluator:
         """
         self.net = net
         self.net.eval()
-        self.postprocessor=BaseCutoff(T=T,add_time_dim=add_time_dim)
+        self.postprocessor=postprocessor
         self.T = T
         self.sigma = sigma
 
@@ -153,26 +153,25 @@ class Evaluator:
         loss = torch.nn.MSELoss()(outputs_list,outputs_last) # to ground truth
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
-    def cutoff_evaluation(self,data_loader):
+    def cutoff_evaluation(self,data_loader,train_loader):
+        beta = self.postprocessor.setup(net=self.net, data_loader=train_loader)
         outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
-        # print(acc)
         outputs_last = torch.softmax(outputs_list[-1],dim=-1)
-        index = (outputs_list.max(-1)[1] == new_label).float()
-        for t in range(self.T-1,0,-1):
-            index[t-1] = index[t]*index[t-1]
+        topk = torch.topk(outputs_list,2,dim=-1)
+        topk_gap_t = topk[0][...,0] - topk[0][...,1] 
+        index = (topk_gap_t>beta.unsqueeze(-1)).float()
         index[-1] = 1.0
+        index[:,-1] = 1.0
         index = torch.argmax(index,dim=0)
-        print((index+1).float().mean())
-        index = torch.nn.functional.one_hot(index, num_classes=self.T)
-        outputs_list = outputs_list*index.transpose(0,1).unsqueeze(-1)
+        mask = torch.nn.functional.one_hot(index, num_classes=self.T)
+        outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
         outputs_list = outputs_list.sum(0)
-        acc =(outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
+        acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
         outputs_list = torch.softmax(outputs_list,dim=-1)
         new_label  = torch.nn.functional.one_hot(label_list, num_classes=10) 
-        # loss = torch.nn.CrossEntropyLoss()(outputs_list,new_label.float()) # to ground truth
         loss = torch.nn.MSELoss()(outputs_list,outputs_last) # to ground truth
-        return acc.cpu().numpy().item(), loss.cpu().numpy().item()
+        return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def MOPS(self):
             model = self.net

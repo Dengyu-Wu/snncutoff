@@ -27,8 +27,8 @@ class BaseConstrs(nn.Module):
         return x.reshape(new_dim)
 
     def forward(self, x):
+        if self.regularizer is not None:
+            loss = self.regularizer(self.reshape(x.clone()))
         x = self.constraints(x)
         x = self.reshape(x)
-        if self.regularizer is not None:
-            loss = self.regularizer(x)
         return x 
