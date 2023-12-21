@@ -102,7 +102,6 @@ def multi_to_single_step(model,reset_mode):
                                              tau=model._modules[name].tau, 
                                              multistep=False, 
                                              reset_mode=reset_mode)
-
         if  'preconstrs' in module.__class__.__name__.lower():
             model._modules[name].multistep=False  
         # if  'dropout' in module.__class__.__name__.lower():

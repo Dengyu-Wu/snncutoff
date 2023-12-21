@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python  ./scripts/evaluation.py \
+python  ./scripts/training.py \
         base.epochs=300 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
@@ -12,13 +12,8 @@ python  ./scripts/evaluation.py \
         snn-train.method=\'ann\' \
         snn-train.ann_constrs=\'qcfsconstrs\' \
         snn-train.regularizer=\'none\' \
-        snn-train.multistep=False \
+        snn-train.multistep=True \
         snn-train.add_time_dim=True \
         snn-train.L=8 \
-        snn-train.T=8 \
-        snn-train.alpha=0.00 \
-        \
-        snn-test.sigma=1.0 \
-        snn-test.reset_mode='soft' \
-        snn-test.model_path=\'outputs/cifar10-vgg16-ann1T8L-qcfsconstrs-none-alpha0.0-seed1200-epochs300/cifar10-aideoserver.pth\'
-        
+        snn-train.T=1 \
+        snn-train.alpha=0.00 

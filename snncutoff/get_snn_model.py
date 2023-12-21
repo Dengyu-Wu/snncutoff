@@ -14,6 +14,7 @@ from snncutoff.models import sew_resnet
 regularizer = {
 'none': None,
 'roe': ROE(),
+'l2min': L2Min(),
 }
 snn_regularizer = {
 'none': None,
@@ -32,7 +33,7 @@ snn_layers = {
 }
 
 
-def get_models(args):
+def get_snn_model(args):
     num_classes  = OuputSize(args.data.lower())
     if args.method !='ann' and args.method !='snn':
         AssertionError('Training method is wrong!')

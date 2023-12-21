@@ -20,5 +20,5 @@ python  ./scripts/evaluation.py \
         \
         snn-test.sigma=1.0 \
         snn-test.reset_mode='soft' \
-        snn-test.model_path=\'outputs/cifar10-vgg16-ann1T8L-qcfsconstrs-none-alpha0.0-seed1200-epochs300/cifar10-aideoserver.pth\'
+        snn-test.model_path=\'/LOCAL2/dengyu/MySNN/easycutoff/outputs/reg-before-act-positive-mask-cifar10-vgg16-ann1T8L-qcfsconstrs-roe-alpha0.001-seed1200-epochs300/cifar10-aideoserver.pth\'
         
