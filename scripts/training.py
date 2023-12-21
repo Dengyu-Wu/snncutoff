@@ -25,7 +25,7 @@ from snncutoff.ddp import reduce_mean, ProgressMeter, adjust_learning_rate, accu
 from configs import BaseConfig, SNNConfig, AllConfig
 from omegaconf import DictConfig, OmegaConf
 from snncutoff import SNNCASE
-from snncutoff import get_models
+from snncutoff import get_snn_model
 
 def main_worker(local_rank, args):
     args.local_rank = local_rank
@@ -48,7 +48,7 @@ def main_worker(local_rank, args):
     save_names = None
 
     save_names = args.log+'/'+args.project + '.pth'
-    model = get_models(args)
+    model = get_snn_model(args)
     if load_names != None:
         state_dict = torch.load(load_names)
         model.load_state_dict(state_dict, strict=False)
@@ -200,21 +200,21 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
 
         if args.regularizer != 'none':
 
-            # _target = torch.unsqueeze(target,dim=0)  # T N C 
-            # right_predict_mask = outputs.max(-1)[1].eq(_target).to(torch.float32)
-            # tan_phi_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() # T*N L C
-            tan_phi_mean = torch.stack(output_hook,dim=0)# T*N L C
-            # right_predict_mask = torch.unsqueeze(right_predict_mask,dim=2).flatten(0, 1).contiguous().detach()
-            # tan_phi_mean_masked = tan_phi_mean*right_predict_mask
+            _target = torch.unsqueeze(target,dim=0)  # T N C 
+            right_predict_mask = outputs.max(-1)[1].eq(_target).to(torch.float32)
+            tan_phi_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() # T*N L C
+            # tan_phi_mean = torch.stack(output_hook,dim=0)# T*N L C
+            right_predict_mask = torch.unsqueeze(right_predict_mask,dim=2).flatten(0, 1).contiguous().detach()
+            tan_phi_mean_masked = tan_phi_mean*right_predict_mask
             # tan_phi_mean_masked = tan_phi_mean*1.0
-            # tan_phi_max = tan_phi_mean_masked.max(dim=0)[0] # find max
-            # tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
-            # tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
+            tan_phi_max = tan_phi_mean_masked.max(dim=0)[0] # find max
+            tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
+            tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
             
-            cs_loss = tan_phi_mean.mean() #change pow into abs
+            # cs_loss = tan_phi_mean.mean() #change pow into abs
             # cs_loss = tan_phi_max.sum() #change pow into abs
 
-            # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
+            cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
 
 
             # tan_phi_mean = torch.stack(output_hook,dim=0).contiguous() # T*N L C
