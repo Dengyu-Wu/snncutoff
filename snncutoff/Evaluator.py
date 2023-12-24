@@ -154,7 +154,7 @@ class Evaluator:
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def cutoff_evaluation(self,data_loader,train_loader):
-        beta = self.postprocessor.setup(net=self.net, data_loader=train_loader)
+        beta, conf = self.postprocessor.setup(net=self.net, data_loader=train_loader)
         outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         outputs_last = torch.softmax(outputs_list[-1],dim=-1)
@@ -171,7 +171,7 @@ class Evaluator:
         outputs_list = torch.softmax(outputs_list,dim=-1)
         new_label  = torch.nn.functional.one_hot(label_list, num_classes=10) 
         loss = torch.nn.MSELoss()(outputs_list,outputs_last) # to ground truth
-        return acc.cpu().numpy().item(), (index+1).cpu().numpy()
+        return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
 
     def MOPS(self):
             model = self.net
