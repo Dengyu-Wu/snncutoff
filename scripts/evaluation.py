@@ -46,11 +46,12 @@ def main(cfg: DictConfig):
     print(np.mean(loss))
     save_pickle(loss,name='aoi_timestep',path=os.path.dirname(path))
 
-    acc, loss = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
+    acc, loss, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
     # loss
     print(acc)
     print(np.mean(loss))
     # acc, loss = evaluator.aoi_evaluation(test_loader)
     save_pickle(loss,name='cutoff_timestep',path=os.path.dirname(path))
+    save_pickle(conf,name='conf_timestep',path=os.path.dirname(path))
 if __name__ == '__main__':
    main()
