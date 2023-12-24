@@ -53,21 +53,27 @@ class TopKCutoff:
             ygaps_disrete = (ygaps_max - ygaps_min)/self.bin_size
             conf = []
             beta = []
+            sample = []
             for m in range(self.bin_size):
                 beta_m = m*ygaps_disrete+ygaps_min
                 cont_m = []
+                sample_m = []
                 for t in range(self.T):
                     cutoff_sample = (ygaps[t] > beta_m).float()
                     conf_t = (cutoff_sample * pred[t]).sum()/cutoff_sample.sum()
                     cont_m.append(conf_t)
+                    sample_m.append(torch.tensor([(cutoff_sample * pred[t]).sum(),cutoff_sample.sum()]))
                 cont_m = torch.stack(cont_m,dim=0)
+                sample_m = torch.stack(sample_m,dim=0)
                 conf.append(cont_m)
                 beta.append(beta_m)
+                sample.append(sample_m)
             conf = torch.stack(conf,dim=0)
             beta = torch.stack(beta,dim=0)
+            sample = torch.stack(sample,dim=0)
             conf[-1] = 1.0 
             self.beta = beta[(conf>=self.sigma).float().argmax(0)]
-        return self.beta
+        return self.beta, [conf.cpu().numpy(), beta.cpu().numpy(), sample.cpu().numpy()]
         
 
     @torch.no_grad()

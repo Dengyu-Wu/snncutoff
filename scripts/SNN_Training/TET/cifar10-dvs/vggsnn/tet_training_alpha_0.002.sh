@@ -2,7 +2,7 @@
 
 python  ./scripts/training.py \
         base.batch_size=128 \
-        base.epochs=300 \
+        base.epochs=100 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
         base.port=\'11152\' \
@@ -13,8 +13,8 @@ python  ./scripts/training.py \
         snn-train.method=\'snn\' \
         snn-train.ann_constrs=\'none\' \
         snn-train.snn_layers=\'baselayer\' \
-        snn-train.regularizer=\'none\' \
+        snn-train.regularizer=\'roe\' \
         snn-train.TET=True \
         snn-train.multistep=True \
         snn-train.T=10 \
-        snn-train.alpha=0.00
+        snn-train.alpha=0.002
