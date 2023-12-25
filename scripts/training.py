@@ -201,7 +201,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
         if args.regularizer != 'none':
 
             _target = torch.unsqueeze(target,dim=0)  # T N C 
-            right_predict_mask = outputs.max(-1)[1].eq(_target).to(torch.float32)
+            right_predict_mask = outputs.mean(0,keepdim=True).max(-1)[1].eq(_target).to(torch.float32)
             tan_phi_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() # T*N L C
             # tan_phi_mean = torch.stack(output_hook,dim=0)# T*N L C
             right_predict_mask = torch.unsqueeze(right_predict_mask,dim=2).flatten(0, 1).contiguous().detach()

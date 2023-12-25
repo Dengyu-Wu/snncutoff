@@ -61,7 +61,7 @@ def addPostConstrs(name):
 def addSingleStep(name):
     if  'lifspike' in name:
         return True
-    if 'constrs' in name:
+    if 'constrs' in name or 'baselayer' in name:
         if  'preconstrs' in name or 'postconstrs' in name:
             return False
         else:

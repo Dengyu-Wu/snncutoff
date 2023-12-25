@@ -35,8 +35,9 @@ def main(cfg: DictConfig):
     models.load_state_dict(state_dict, strict=False)
     models = multi_to_single_step(models,reset_mode=args.reset_mode)
     models.to(device)
-    from snncutoff.cutoff import TopKCutoff
-    evaluator = Evaluator(models,postprocessor=TopKCutoff(T=args.T, bin_size=100,add_time_dim=True,sigma=0.9),T=args.T,add_time_dim=args.add_time_dim)
+    from snncutoff.cutoff import TopKCutoff, BaseCutoff,TopKTETCutoff
+    evaluator = Evaluator(models,postprocessor=TopKTETCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma),T=args.T,add_time_dim=args.add_time_dim)
+    # evaluator = Evaluator(models,postprocessor=BaseCutoff(T=args.T, add_time_dim=args.add_time_dim),T=args.T,add_time_dim=args.add_time_dim)
     acc, loss = evaluator.evaluation(test_loader)
     print(acc)
     print(np.mean(loss))
