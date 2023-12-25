@@ -12,6 +12,7 @@ class BaseLayer(nn.Module):
                  L: int = 4, 
                  vthr: float = 1.0, 
                  tau: float = 0.5, 
+                 mem_init: float = 0., 
                  neuron: Type[LIF]=LIF,
                  regularizer: Type[SNNROE] = None, 
                  surogate: Type[ZIF] = ZIF,
@@ -23,6 +24,7 @@ class BaseLayer(nn.Module):
         self.vthr = vthr
         self.tau = tau
         self.T = T
+        self.mem_init = mem_init 
         self.neuron=neuron(vthr=vthr, tau=tau)
         self.neuron.reset()
         self.regularizer = regularizer
@@ -30,9 +32,6 @@ class BaseLayer(nn.Module):
         self.surogate=ZIF.apply
         self.gamma = 1.0
         self.reset_mode = reset_mode
-
-    def mem_init(self,x):
-        pass
 
     def _mem_update_multistep(self,x):
         spike_post = []
@@ -55,7 +54,7 @@ class BaseLayer(nn.Module):
         
     def _mem_update_singlestep(self,x):
         if self.neuron.t == 0:
-            self.neuron.initMem(0.5*self.vthr)
+            self.neuron.initMem(self.mem_init*self.vthr)
         spike_post = []
         vmem = self.neuron.vmem + x[0]
         spike =  (vmem > self.vthr).float()
@@ -74,7 +73,7 @@ class BaseLayer(nn.Module):
         x = self.reshape(x)
         spike_post, mem_post = self.mem_update(x)
         if self.regularizer is not None:
-            loss = self.regularizer(spike_post.clone()*self.vthr, mem_post.clone())
+            loss = self.regularizer(spike_post.clone(), mem_post.clone()/self.vthr)
         return spike_post
          
     
