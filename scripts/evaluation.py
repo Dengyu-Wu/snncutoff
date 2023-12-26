@@ -16,17 +16,27 @@ from snncutoff.utils import multi_to_single_step,add_ann_constraints
 from snncutoff import get_snn_model
 from snncutoff.snncase import SNNCASE
 from snncutoff.utils import save_pickle
+import torch.backends.cudnn as cudnn
+from snncutoff.utils import seed_all
 
 @hydra.main(version_base=None, config_path='../configs', config_name='test')
 def main(cfg: DictConfig):
     args = TestConfig(**cfg['base'], **cfg['snn-train'], **cfg['snn-test'])
-    # args.nprocs = torch.cuda.device_count()
+    if args.seed is not None:
+        seed_all(args.seed)
+        cudnn.deterministic = True
+        warnings.warn('You have chosen to seed training. '
+                      'This will turn on the CUDNN deterministic setting, '
+                      'which can slow down your training considerably! '
+                      'You may see unexpected behavior when restarting '
+                      'from checkpoints.')
+        
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_dataset, val_dataset = data_loaders.get_data_loaders(path=args.dataset_path, data=args.data, resize=False)
+    train_dataset, test_dataset = data_loaders.get_data_loaders(path=args.dataset_path, data=args.data, resize=False)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
-    test_loader = torch.utils.data.DataLoader(val_dataset, batch_size=args.batch_size,
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
     models = get_snn_model(args)
     i= 0
@@ -35,8 +45,7 @@ def main(cfg: DictConfig):
     models.load_state_dict(state_dict, strict=False)
     models = multi_to_single_step(models,reset_mode=args.reset_mode)
     models.to(device)
-    from snncutoff.cutoff import TopKCutoff, BaseCutoff,TopKTETCutoff
-    evaluator = Evaluator(models,postprocessor=TopKTETCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma),T=args.T,add_time_dim=args.add_time_dim)
+    evaluator = Evaluator(models,args=args)
     # evaluator = Evaluator(models,postprocessor=BaseCutoff(T=args.T, add_time_dim=args.add_time_dim),T=args.T,add_time_dim=args.add_time_dim)
     acc, loss = evaluator.evaluation(test_loader)
     print(acc)
