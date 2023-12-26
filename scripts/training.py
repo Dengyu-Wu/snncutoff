@@ -74,7 +74,6 @@ def main_worker(local_rank, args):
 
     # Data loading code
     train_dataset, val_dataset = data_loaders.get_data_loaders(path=args.dataset_path, data=args.data)
-
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                shuffle=False,
@@ -82,6 +81,9 @@ def main_worker(local_rank, args):
                                                num_workers=args.workers,
                                                pin_memory=True,
                                                sampler=train_sampler)
+    
+
+
     val_sampler = torch.utils.data.distributed.DistributedSampler(val_dataset, shuffle=False, drop_last=True)
     val_loader = torch.utils.data.DataLoader(val_dataset,
                                              batch_size=args.batch_size,
@@ -212,9 +214,9 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
             tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
             
             # cs_loss = tan_phi_mean.mean() #change pow into abs
-            # cs_loss = tan_phi_max.sum() #change pow into abs
+            cs_loss = tan_phi_max.sum() #change pow into abs
 
-            cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
+            # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
 
 
             # tan_phi_mean = torch.stack(output_hook,dim=0).contiguous() # T*N L C
