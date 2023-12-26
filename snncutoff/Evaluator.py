@@ -4,6 +4,8 @@ import torch.nn as nn
 from typing import Callable, List, Type
 from .cutoff import BaseCutoff
 from .snncase import SNNCASE
+from pydantic import BaseModel
+from snncutoff.cutoff import TopKCutoff, BaseCutoff
 
 class OutputHook(list):
     def __init__(self):
@@ -64,13 +66,13 @@ class Evaluator:
         net: nn.Module,
         data_root: str = './data',
         config_root: str = './configs',
+        args=None,
         T: int = 10,
         sigma: float = 1.0,
         postprocessor: Type[BaseCutoff] = None,
         batch_size: int = 200,
         shuffle: bool = False,
         num_workers: int = 4,
-        add_time_dim: bool = False
     ) -> None:
         """A unified, easy-to-use API for evaluating (most) discriminative OOD
         detection methods.
@@ -112,10 +114,12 @@ class Evaluator:
                 If the passed postprocessor does not inherit BasePostprocessor.
         """
         self.net = net
+        self.args = args
         self.net.eval()
-        self.postprocessor=postprocessor
+        self.postprocessor=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma)
         self.T = T
         self.sigma = sigma
+        self.add_time_dim = args.add_time_dim
 
 
     def evaluation(self,data_loader):
@@ -160,7 +164,7 @@ class Evaluator:
         outputs_last = torch.softmax(outputs_list[-1],dim=-1)
         topk = torch.topk(outputs_list,2,dim=-1)
         topk_gap_t = topk[0][...,0] - topk[0][...,1] 
-        index = (topk_gap_t>beta.unsqueeze(-1)).float()
+        index = (topk_gap_t>2*beta.unsqueeze(-1)).float()
         index[-1] = 1.0
         index[:,-1] = 1.0
         index = torch.argmax(index,dim=0)
