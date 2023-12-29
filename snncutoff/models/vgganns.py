@@ -45,6 +45,39 @@ class LinearLayer(nn.Module):
 
 
 
+class VGG_Gesture(nn.Module):
+    def __init__(self,output_dim = 11):
+        super(VGG_Gesture, self).__init__()
+        pool = nn.MaxPool2d(2)
+        #pool = APLayer(2)
+        self.features = nn.Sequential(
+            Conv2dLayer(2,64,4,4,padding='valid'),
+            Conv2dLayer(64,128,3,1,1),
+            pool,
+            Conv2dLayer(128,128,3,1,1),
+            pool,
+            Conv2dLayer(128,128,3,1,1),
+            pool,
+            Conv2dLayer(128,128,3,1,1),
+            pool,
+            Conv2dLayer(128,128,3,1,1),
+            pool,
+            nn.Flatten(1,-1)
+        )
+        W = int(32/2/2/2/2/2)
+        self.fc =  LinearLayer(128*W*W,512,droprate=0.0)
+        self.classifier = nn.Linear(512,output_dim)
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+
+    def forward(self, input):
+        x = self.features(input)
+        x = self.fc(x)
+        x = self.classifier(x)
+        return x
+
+
 class VGGANN(nn.Module):
     def __init__(self, num_classes):
         super(VGGANN, self).__init__()
@@ -83,7 +116,7 @@ class VGGANN(nn.Module):
         return x
 
 class VGGANN_NCaltech101(nn.Module):
-    def __init__(self, output_dim):
+    def __init__(self, output_dim=101):
         super(VGGANN_NCaltech101, self).__init__()
         pool = nn.AvgPool2d(2)
         self.features = nn.Sequential(
@@ -101,7 +134,6 @@ class VGGANN_NCaltech101(nn.Module):
             nn.Conv2d(512,512,3,1,1),
             pool,
         )
-        output_dim = 101 
         self.fc = nn.Linear(512*2*3,output_dim)
 
         for m in self.modules():
