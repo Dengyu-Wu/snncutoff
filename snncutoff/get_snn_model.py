@@ -113,6 +113,10 @@ def ann_models( model_name, num_classes):
         return get_resnet(model_name, num_classes=num_classes)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
+    elif model_name == 'vgg-gesture':
+        return VGG_Gesture()
+    elif model_name == 'vggann-ncaltech101':
+        return VGGANN_NCaltech101()
     else:
         AssertionError('The network is not suported!')
         exit(0)
