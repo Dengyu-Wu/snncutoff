@@ -108,6 +108,7 @@ class TopKCutoff:
             # pred, conf = [], []
             outputs = []
             self.output = 0.0
+
             for t in range(self.T):
                 output_t = self.postprocess(net, data[t:t+1])
                 outputs.append(output_t)

@@ -27,25 +27,28 @@ class BasicBlock(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels * BasicBlock.expansion, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_channels * BasicBlock.expansion),
-            nn.ReLU(inplace=True),
         )
 
         #shortcut
         self.shortcut = nn.Sequential()
-
+        self.a = nn.Sequential()
+        self.shortcut_true = False
         #the shortcut output dimension is not the same with residual function
         #use 1*1 convolution to match the dimension
         if stride != 1 or in_channels != BasicBlock.expansion * out_channels:
+            self.shortcut_true = True
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels * BasicBlock.expansion, kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(out_channels * BasicBlock.expansion),
-                nn.ReLU(inplace=True),
             )
-        
-        # self.relu = nn.ReLU(inplace=True)
+
+        self.relu =  nn.ReLU()
 
     def forward(self, x):
-        return self.residual_function(x) + self.shortcut(x)
+        a = self.residual_function(x) 
+        b = self.shortcut(x)  if self.shortcut_true else 0.0 
+        x =  a + b
+        return self.relu(x)
 
 class BottleNeck(nn.Module):
     """Residual block for resnet over 50 layers
@@ -62,7 +65,6 @@ class BottleNeck(nn.Module):
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels * BottleNeck.expansion, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_channels * BottleNeck.expansion),
-            nn.ReLU(inplace=True),
 
         )
         self.shortcut = nn.Sequential()
@@ -70,7 +72,6 @@ class BottleNeck(nn.Module):
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels * BottleNeck.expansion, stride=stride, kernel_size=1, bias=False),
                 nn.BatchNorm2d(out_channels * BottleNeck.expansion),
-                nn.ReLU(inplace=True),
             )
         # self.relu = nn.ReLU(inplace=True)
     def forward(self, x):
