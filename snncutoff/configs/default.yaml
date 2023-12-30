@@ -1,0 +1,60 @@
+base:
+  epochs: 100
+  batch_size: 128
+  start_epoch: 0
+  weight_decay: 5e-4
+  lr: 0.1
+  print_freq: 1000
+  seed: 2000
+  nprocs: 0
+  local_rank: 0
+  workers: 8
+  log: none
+  project: none
+  port: '12345'
+  gpu_id: '0'
+  data: cifar10-dvs
+  model: vggann
+  dataset_path: datasets
+  checkpoint_save: False
+  checkpoint_path: none
+  
+snn-train:
+  method: 'ann'
+  ann_constrs: 'baseconstrs'
+  snn_layers: 'baselayer'
+  regularizer: 'none'
+  TBN: False
+  T: 4
+  L: 4
+  evaluate: 'False'
+  TET: 'False'
+  multistep: 'True'
+  add_time_dim: 'False'
+  means: 1.0
+  lamb: 1e-3
+  # lamb: 0.0
+  alpha: 0.002
+  
+snn-test:
+  sigma: 1.0
+  decay_factor: 0.5
+  mode: 'cutoff'
+  reset_mode: 'soft'
+  model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
+
+###Logging Configuration
+logging:
+  wandb_logging: 'False'
+  tensorboard_logging: 'False'
+  comet_logging: 'False'
+  run_dir: none
+
+###  Disable Hydra Logging ###
+defaults:
+  - override hydra/hydra_logging: none
+  - override hydra/job_logging: none
+
+hydra:  
+  run:  
+    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TBN${snn-train.TBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
