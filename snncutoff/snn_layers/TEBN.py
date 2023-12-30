@@ -7,7 +7,8 @@ class TEBN(BaseLayer):
         super(TEBN, self).__init__()
         self.bn = nn.BatchNorm3d(num_features)
         self.p = nn.Parameter(torch.ones(T, 1, 1, 1, 1))
-
+        self.T = T
+        
     def forward(self, input):
         y = self.reshape(input)
         y = y.transpose(0, 1).contiguous()  # T N C H W ,  N T C H W
