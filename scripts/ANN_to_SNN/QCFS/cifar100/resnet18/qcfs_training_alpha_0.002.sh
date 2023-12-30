@@ -5,17 +5,18 @@ python  ./scripts/training.py \
         base.epochs=300 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
-        base.port=\'11152\' \
-        base.data=\'cifar10\' \
+        base.port=\'14152\' \
+        base.data=\'cifar100\' \
         base.model=\'resnet18\' \
         base.dataset_path=\'datasets\' \
         \
-        snn-train.method=\'snn\' \
-        snn-train.ann_constrs=\'baseconstrs\' \
-        snn-train.snn_layers=\'baselayer\' \
+        snn-train.method=\'ann\' \
+        snn-train.ann_constrs=\'qcfsconstrs\' \
         snn-train.regularizer=\'roe\' \
-        snn-train.TET=True \
+        snn-train.TET=False \
+        snn-train.TBN=False \
         snn-train.multistep=True \
         snn-train.add_time_dim=True \
-        snn-train.T=4 \
-        snn-train.alpha=0.00
+        snn-train.T=1 \
+        snn-train.L=8 \
+        snn-train.alpha=0.002
