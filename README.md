@@ -21,10 +21,18 @@ git clone https://github.com/TACPSLab/easycutoff.git
 
 ### Training Example
 ```sh
-python scripts/training.py base.gpu_id=\'0\'
+sh examples/ANN_to_SNN/qcfs/cifar10/vgg16/training.sh
+```
+or
+```sh
+sh examples/SNN_Training/tet/cifar10-dvs/vggsnn/training.sh
 ```
 
 ### Test Example
 ```sh
-python scripts/test.py base.gpu_id=\'0\' snn.mode=cutoff
+python examples/SNN_Training/qcfs/cifar10-dvs/vggsnn/evaluation.sh
+```
+or
+```sh
+python examples/SNN_Training/tet/cifar10-dvs/vggsnn/evaluation.sh
 ```
