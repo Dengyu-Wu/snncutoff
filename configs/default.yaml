@@ -23,6 +23,7 @@ snn-train:
   ann_constrs: 'baseconstrs'
   snn_layers: 'baselayer'
   regularizer: 'none'
+  TBN: False
   T: 4
   L: 4
   evaluate: 'False'
@@ -56,4 +57,4 @@ defaults:
 
 hydra:  
   run:  
-    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
+    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TBN${snn-train.TBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/

@@ -93,6 +93,7 @@ def ann_to_snn_conversion(model,layers):
         if 'normlayer' in child.__class__.__name__.lower():
             layers.append(child)
     return model,layers
+
 def multi_to_single_step(model,reset_mode):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
@@ -135,20 +136,25 @@ def addSNNLayers(name):
         return True
     return False
 
-def _add_snn_layers(model, T, snn_layers, regularizer=None):
+from snncutoff.snn_layers import TEBN
+
+def _add_snn_layers(model, T, snn_layers, regularizer=None, TBN=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer)
+            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer, TBN=TBN)
         if  addSNNLayers(module.__class__.__name__.lower()):
             model._modules[name] = snn_layers(T=T, regularizer=regularizer)
         if  addPreConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PreConstrs(T=T, module=model._modules[name])
         if  addPostConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
+        if TBN:
+            if  'norm2d' in module.__class__.__name__.lower():
+                model._modules[name] = TEBN(T=T, num_features=model._modules[name].num_features)  
     return model
 
-def add_snn_layers(model, T, snn_layers, regularizer=None):
-    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer)
+def add_snn_layers(model, T, snn_layers, TBN=False, regularizer=None):
+    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer,TBN=TBN)
     model = nn.Sequential(
         *list(model.children()),  
         PostConstrs(T=T, module=None)    # Add the new layer
@@ -192,44 +198,6 @@ def reset_neuron(model):
             model._modules[name].neuron.reset()
     return model
 
-def replace_activation_by_module(model, m):
-    for name, module in model._modules.items():
-        if hasattr(module, "_modules"):
-            model._modules[name] = replace_activation_by_module(module, m)
-        if isActivation(module.__class__.__name__.lower()):
-            if hasattr(module, "up"):
-                model._modules[name] = m(module.up.item())
-            else:
-                model._modules[name] = m()
-    return model
-
-def replace_activation_by_floor(model, t):
-    for name, module in model._modules.items():
-        if hasattr(module, "_modules"):
-            model._modules[name] = replace_activation_by_floor(module, t)
-        if isActivation(module.__class__.__name__.lower()):
-            if hasattr(module, "up"):
-                if t == 0:
-                    model._modules[name] = TCL()
-                else:
-                    model._modules[name] = MyFloor(module.up.item(), t)
-            else:
-                if t == 0:
-                    model._modules[name] = TCL()
-                else:
-                    model._modules[name] = MyFloor(8., t)
-    return model
-
-def replace_activation_by_neuron(model):
-    for name, module in model._modules.items():
-        if hasattr(module,"_modules"):
-            model._modules[name] = replace_activation_by_neuron(module)
-        if isActivation(module.__class__.__name__.lower()):
-            if hasattr(module, "up"):
-                model._modules[name] = ScaledNeuron(scale=module.up.item())
-            else:
-                model._modules[name] = ScaledNeuron(scale=1.)
-    return model
 
 def replace_maxpool2d_by_avgpool2d(model):
     for name, module in model._modules.items():
