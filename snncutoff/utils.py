@@ -8,6 +8,7 @@ import numpy as np
 from snncutoff.neuron import *
 from snncutoff.ann_constrs import PreConstrs, PostConstrs
 from snncutoff.snn_layers import BaseLayer
+from snncutoff.snn_layers import TEBN
 
 def seed_all(seed=1024):
     random.seed(seed)
@@ -136,7 +137,6 @@ def addSNNLayers(name):
         return True
     return False
 
-from snncutoff.snn_layers import TEBN
 
 def _add_snn_layers(model, T, snn_layers, regularizer=None, TBN=None):
     for name, module in model._modules.items():

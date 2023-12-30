@@ -42,7 +42,7 @@ class BasicBlock(nn.Module):
                 nn.BatchNorm2d(out_channels * BasicBlock.expansion),
             )
 
-        self.relu =  nn.ReLU()
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         a = self.residual_function(x) 
@@ -73,9 +73,12 @@ class BottleNeck(nn.Module):
                 nn.Conv2d(in_channels, out_channels * BottleNeck.expansion, stride=stride, kernel_size=1, bias=False),
                 nn.BatchNorm2d(out_channels * BottleNeck.expansion),
             )
-        # self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)
     def forward(self, x):
-        return self.residual_function(x) + self.shortcut(x)
+        a = self.residual_function(x) 
+        b = self.shortcut(x)  if self.shortcut_true else 0.0 
+        x =  a + b
+        return self.relu(x)
 
 class ResNet(nn.Module):
     def __init__(self, block, num_block, num_classes=100):
@@ -204,4 +207,5 @@ cfg = {
 
 
 def get_resnet(name, num_classes=10, **kargs):
-    return ResNet(BottleNeck, cfg[name],num_classes=num_classes)
+    Block = BasicBlock if name == 'resnet18' or name =='resnet34' else BottleNeck
+    return ResNet(Block, cfg[name],num_classes=num_classes)

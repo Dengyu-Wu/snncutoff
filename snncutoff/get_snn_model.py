@@ -109,8 +109,6 @@ def isResNet(name):
 def ann_models( model_name, num_classes):
     if isVGG(model_name):
         return VGG(model_name.upper(), num_classes, dropout=0)
-    elif model_name == 'resnet18':
-        return resnet18(num_classes=num_classes)
     elif isResNet(model_name):
         return get_resnet(model_name, num_classes=num_classes)
     elif model_name == 'vggann':
@@ -149,15 +147,15 @@ def InputSize(name):
         NameError('This dataset name is not supported!')
 
 def OuputSize(name):
-    if 'cifar10-dvs' in name.lower() or 'cifar10' in name.lower() :
+    if 'cifar10-dvs' == name.lower() or 'cifar10' == name.lower() :
         return 10
-    elif  'dvs128-gesture' in name.lower():
+    elif  'dvs128-gesture' == name.lower():
         return 11
-    elif 'cifar100' in name.lower():
+    elif 'cifar100' == name.lower():
         return 100
-    elif 'imagenet' in name.lower():
+    elif 'imagenet' == name.lower():
         return 1000
-    elif  'ncaltech101' in name.lower():
+    elif  'ncaltech101' == name.lower():
         return 101
     else:
         NameError('This dataset name is not supported!')
