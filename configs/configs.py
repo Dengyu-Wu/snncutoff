@@ -26,6 +26,7 @@ class SNNConfig(BaseModel):
     method: str
     ann_constrs: str
     snn_layers: str
+    TBN: bool
     T: int
     L: int
     evaluate: bool
