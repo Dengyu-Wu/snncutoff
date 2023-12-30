@@ -44,14 +44,15 @@ def main_worker(local_rank, args):
                             init_method="tcp://localhost:"+args.port,
                             world_size=args.nprocs,
                             rank=args.local_rank)
-    load_names = None
-    save_names = None
 
     save_names = args.log+'/'+args.project + '.pth'
+    checkpoint_names = args.log+'/'+args.project + '_checkpoint.pth'
+    bestpoint_names = args.log+'/'+args.project + '_bestpoint.pth'
+
     model = get_snn_model(args)
-    if load_names != None:
-        state_dict = torch.load(load_names)
-        model.load_state_dict(state_dict, strict=False)
+    if args.checkpoint_path != 'none':
+        checkpoint = torch.load(checkpoint_names)
+        model.load_state_dict(checkpoint['state_dict'])
 
     torch.cuda.set_device(local_rank)
     model.cuda(local_rank)
@@ -70,6 +71,11 @@ def main_worker(local_rank, args):
                                  weight_decay=args.weight_decay)
     # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, eta_min=0, T_max=args.epochs)
+    if args.checkpoint_path != 'none':
+        checkpoint = torch.load(checkpoint_names)
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler'])
+        args.start_epoch = checkpoint['epoch']
     cudnn.benchmark = True
 
     # Data loading code
@@ -110,7 +116,6 @@ def main_worker(local_rank, args):
         t1 = time.time()
         train_sampler.set_epoch(epoch)
         val_sampler.set_epoch(epoch)
-        # adjust_learning_rate(optimizer, epoch, args)
         # Create metric list
         training_metric_dic = {'Loss': [], 'Acc@1': [], 'Acc@5': []}
         custome_metric_dic  = {'cs_loss': []}
@@ -125,7 +130,7 @@ def main_worker(local_rank, args):
 
         test_metrics = validate(val_loader, model, criterion, test_metric_dic, local_rank, args)
         scheduler.step()
-        # remember best acc@1 and save checkpoint
+
         for name,training_metric in zip(list(training_metric_dic.keys()),training_metrics):
             training_metric_dic[name] = training_metric.avg
 
@@ -152,14 +157,17 @@ def main_worker(local_rank, args):
         if is_best:
             if args.local_rank == 0:
                 torch.save(model.module.state_dict(), save_names)
-                #torch.save(model, './saved_models/Cifar10DVS/'+args.log+'.pt')
-        # save_checkpoint(
-        #     {
-        #         'epoch': epoch + 1,
-        #         'arch': args.arch,
-        #         'state_dict': model.module.state_dict(),
-        #         'best_acc1': best_acc1,
-        #     }, is_best)
+
+        if args.checkpoint_save:
+            if args.local_rank == 0:
+                save_checkpoint(
+                    {
+                        'epoch': epoch + 1,
+                        'state_dict': model.module.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'scheduler': scheduler.state_dict(),
+                        'best_acc': best_acc,
+                    }, is_best,checkpoint_names=checkpoint_names,bestpoint_names=bestpoint_names)
 
 
 def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_rank, args):
@@ -185,8 +193,6 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
         images = images.cuda(local_rank, non_blocking=True)
         target = target.cuda(local_rank, non_blocking=True)
 
-        # inputs = images.transpose(0,1)
-        # inputs = images[0]
         inputs = snncase.preprocess(images)
 
         if args.regularizer != 'none':
@@ -195,13 +201,10 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
 
         # compute output
         outputs = model(inputs)
-        # mean_out = outputs.mean(0)
-        # mean_out = outputs
         target_onehot  = torch.nn.functional.one_hot(target, num_classes=outputs.size()[-1]) 
         target_onehot  = target_onehot.to(torch.float32)
 
         if args.regularizer != 'none':
-
             _target = torch.unsqueeze(target,dim=0)  # T N C 
             right_predict_mask = outputs.mean(0,keepdim=True).max(-1)[1].eq(_target).to(torch.float32)
             tan_phi_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() # T*N L C
@@ -231,7 +234,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
 
         torch.distributed.barrier()
 
-        reduced_list = [loss,acc1,acc5]#,cs2_mean]
+        reduced_list = [loss,acc1,acc5]
         #custom value
         if args.regularizer != 'none':
             reduced_list.append(cs_loss)
@@ -278,14 +281,9 @@ def validate(val_loader, model, criterion, base_metrics, local_rank, args):
             images = images.cuda(local_rank, non_blocking=True)
             target = target.cuda(local_rank, non_blocking=True)
             # compute output
-            # inputs = images.transpose(0,1)
-            # inputs = images[0]
-
             inputs = snncase.preprocess(images)
-            # inputs = images
             outputs = model(inputs)            
             mean_out,loss = snncase.postprocess(outputs, target)
-            # loss = criterion(mean_out, target)
             # measure accuracy and record loss
             acc1, acc5 = accuracy(mean_out, target, topk=(1, 5))
 
@@ -306,32 +304,27 @@ def validate(val_loader, model, criterion, base_metrics, local_rank, args):
             if i % args.print_freq == 0:
                 progress.display(i)
 
-        # TODO: this should also be done with the ProgressMeter
-        # print(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'.format(top1=top1,
-        #                                                             top5=top5))
-
-
     return metrics
 
 
-def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
-    torch.save(state, filename)
+def save_checkpoint(state, is_best, checkpoint_names='checkpoint.pth',bestpoint_names='best_model.pth'):
+    torch.save(state, checkpoint_names)
     if is_best:
-        shutil.copyfile(filename, 'model_best.pth.tar')
+        shutil.copyfile(checkpoint_names, bestpoint_names)
 
 
 @hydra.main(version_base=None, config_path='../configs', config_name='default')
 def main(cfg: DictConfig):   
-    all_conf = AllConfig(**cfg['base'],**cfg['snn-train'],**cfg['logging'])
-    os.environ['CUDA_VISIBLE_DEVICES'] = all_conf.gpu_id
-    all_conf.nprocs = torch.cuda.device_count()
-    all_conf.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    args = AllConfig(**cfg['base'],**cfg['snn-train'],**cfg['logging'])
+    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
+    args.nprocs = torch.cuda.device_count()
+    args.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
     #Model Name
-    all_conf.project = all_conf.data + '-aideoserver' 
+    args.project = args.data + '-aideoserver' 
     
-    if all_conf.wandb_logging:
+    if args.wandb_logging:
         wandb.login()
-    mp.spawn(main_worker, nprocs=all_conf.nprocs, args=(all_conf,))
+    mp.spawn(main_worker, nprocs=args.nprocs, args=(args,))
 
 
 if __name__ == '__main__':
