@@ -316,7 +316,8 @@ def save_checkpoint(state, is_best, checkpoint_names='checkpoint.pth',bestpoint_
 @hydra.main(version_base=None, config_path='../configs', config_name='default')
 def main(cfg: DictConfig):   
     args = AllConfig(**cfg['base'],**cfg['snn-train'],**cfg['logging'])
-    os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
+    if args.gpu_id != 'none':
+        os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
     args.nprocs = torch.cuda.device_count()
     args.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
     #Model Name
