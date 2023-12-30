@@ -2,18 +2,14 @@
 
 Welcome to the SNNCutoff repository! This project is dedicated to advancing the capabilities of Spiking Neural Networks (SNNs) through innovative cutoff mechanisms and regularisation techniques. SNNCutoff aims to optimise SNNs for efficient and accurate performance, particularly focusing on both optimising training and inference stage for reliable classification.
 
-## Key Features
+## A New Metric
+- **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
 
-- **Optimal Cutoff Technique (OCT)**: A new metric that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
-
-- **Regularization Methodology**: Our custom-designed regularizer influences activation distributions during ANN or SNN training. It addresses 'worst-case' input scenarios that typically lead to early-timestep inference failures, enhancing overall network robustness.
-
-- **Adaptable Framework**: Compatible with various SNN training methods, including Quantised Clip-Flip-Shift (QCFS) and Temporal Efficient Training (TET). The framework is versatile across different datasets and network architectures, with a focus on both frame-based and event-based inputs.
-
-- **Comprehensive Evaluation**: Extensive testing across multiple standard datasets and network models to demonstrate the effectiveness of our approach in enhancing SNN performance.
+## Cutoff Approximation 
+- **Time-based (Baseline)**: Cutoff triggered using fixed timestep. 
+- **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
 
 ## Getting Started
-
 To begin using SNNCutoff, clone this repository and follow the setup instructions provided in [Installation.md](/Installation.md). Detailed documentation can be found in [Documentation.md](/Documentation.md), which includes guidelines for training, evaluation, and customization.
 
 <!-- GETTING STARTED -->
