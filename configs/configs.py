@@ -20,6 +20,8 @@ class BaseConfig(BaseModel):
     data: str
     model: str
     dataset_path: str
+    checkpoint_save: bool
+    checkpoint_path: str
 
 
 class SNNConfig(BaseModel):
