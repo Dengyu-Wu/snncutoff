@@ -62,4 +62,11 @@ This project is licensed under the [MIT License](/LICENSE) - see the license fil
 
 ## Acknowledgments
 
-This work was inspired by research presented in the paper: [Your Paper Title Here](link-to-your-paper). We extend our gratitude to all contributors and collaborators who have made this project possible.
+This work is supported by our research presented in the paper: [preprint](https://arxiv.org/abs/2301.09522). 
+The coding style is inspired by [OpenOOD](https://github.com/Jingkang50/OpenOOD), [SNN-QCFS](https://github.com/putshua/SNN_conversion_QCFS) and [SpKeras](https://github.com/Dengyu-Wu/spkeras).
+
+## Citation
+
+
+
+We extend our gratitude to all contributors and collaborators who have made this project possible.
