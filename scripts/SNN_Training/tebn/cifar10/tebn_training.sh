@@ -14,7 +14,8 @@ python  ./scripts/training.py \
         snn-train.ann_constrs=\'baseconstrs\' \
         snn-train.snn_layers=\'baselayer\' \
         snn-train.regularizer=\'roe\' \
-        snn-train.TET=True \
+        snn-train.TET=False \
+        snn-train.TBN=True \
         snn-train.multistep=True \
         snn-train.add_time_dim=True \
         snn-train.T=4 \

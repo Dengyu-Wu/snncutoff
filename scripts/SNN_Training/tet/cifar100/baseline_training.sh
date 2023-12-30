@@ -6,7 +6,7 @@ python  ./scripts/training.py \
         base.gpu_id=\'1\' \
         base.seed=1200 \
         base.port=\'11152\' \
-        base.data=\'cifar10\' \
+        base.data=\'cifar100\' \
         base.model=\'resnet18\' \
         base.dataset_path=\'datasets\' \
         \
