@@ -15,8 +15,9 @@ base:
   gpu_id: '0'
   data: cifar10-dvs
   model: vggann
-  # dataset_path: ./datasets
-  dataset_path: /LOCAL/dengyu/dvs_dataset/dvs-cifar10-1
+  dataset_path: datasets
+  checkpoint_save: False
+  checkpoint_path: none
   
 snn-train:
   method: 'ann'
