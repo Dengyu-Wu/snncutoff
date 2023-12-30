@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python  ./snncutoff/scripts/evaluation.py \
+python  ./snncutoff/scripts/training.py \
         base.batch_size=128 \
         base.epochs=300 \
         base.gpu_id=\'2\' \
