@@ -60,14 +60,19 @@ We welcome contributions from the community! If you have suggestions for improve
 
 This project is licensed under the [MIT License](/LICENSE) - see the license file for details.
 
+## Research Paper
+
+This project is supported by our research presented in the paper: [preprint](https://arxiv.org/abs/2301.09522). The methodologies and findings outlined in our paper provide the foundational framework for the SNNCutoff project.
+
+
 ## Acknowledgments
+Special acknowledgment is given to the following projects for their influence on our coding style and structure:
 
-This work is supported by our research presented in the paper: [preprint](https://arxiv.org/abs/2301.09522). 
+- [OpenOOD](https://github.com/Jingkang50/OpenOOD) for its robust and versatile framework.
+- [SNN-QCFS](https://github.com/putshua/SNN_conversion_QCFS), [SpKeras](https://github.com/Dengyu-Wu/spkeras)  for their innovative approaches in SNN conversion.
 
-The coding style is inspired by [OpenOOD](https://github.com/Jingkang50/OpenOOD), [SNN-QCFS](https://github.com/putshua/SNN_conversion_QCFS) and [SpKeras](https://github.com/Dengyu-Wu/spkeras).
-
-## Citation
-
+We extend our appreciation to all those who have contributed, directly or indirectly, to the success of this endeavor. Your contributions are deeply valued and have played a significant role in advancing the field of Spiking Neural Networks.
 
 
-We extend our gratitude to all contributors and collaborators who have made this project possible.
+
+
