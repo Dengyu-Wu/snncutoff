@@ -58,7 +58,7 @@ We welcome contributions from the community! If you have suggestions for improve
 
 ## License
 
-This project is licensed under the [MIT License](/LICENSE.md) - see the license file for details.
+This project is licensed under the [MIT License](/LICENSE) - see the license file for details.
 
 ## Acknowledgments
 
