@@ -1,5 +1,8 @@
 # SNNCutoff
-<img src="./doc/pic/SNNCutoff.png">
+<p align="center">
+<img src="./doc/pic/SNNCutoff.png" width="400" height="360">
+</p>
+
 
 Welcome to the SNNCutoff repository! This project is dedicated to advancing the capabilities of Spiking Neural Networks (SNNs) through innovative cutoff mechanisms and regularisation techniques. SNNCutoff aims to optimise SNNs for efficient and accurate performance, particularly focusing on both optimising training and inference stage for reliable classification.
 
