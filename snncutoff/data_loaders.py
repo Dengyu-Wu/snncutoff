@@ -1,13 +1,10 @@
 import torch
 import random
 import torchvision.transforms as transforms
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import warnings
 import os
-import torchvision
 from os import listdir
-import numpy as np
-import time
 from os.path import isfile, join
 from textwrap import fill
 from torchvision import datasets, transforms
