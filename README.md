@@ -29,23 +29,8 @@ git clone https://github.com/TACPSLab/easycutoff.git
 pip pip install -r requirements. txt 
 ``` 
 
-### Training Example
-```sh
-sh examples/ANN_to_SNN/qcfs/cifar10/vgg16/training.sh
-```
-or
-```sh
-sh examples/SNN_Training/tet/cifar10-dvs/vggsnn/training.sh
-```
-
-### Evaluation Example
-```sh
-python examples/SNN_Training/qcfs/cifar10-dvs/vggsnn/evaluation.sh
-```
-or
-```sh
-python examples/SNN_Training/tet/cifar10-dvs/vggsnn/evaluation.sh
-```
+### Training and evaluation scripts
+We provide training and evaluation scripts for all the methods we support in [examples](/examples) folder. 
 
 ## Contributing
 
