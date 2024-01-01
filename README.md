@@ -1,8 +1,7 @@
 # SNNCutoff
 <p align="center">
-<img src="./doc/pic/SNNCutoff.png" width="400" height="360">
+<img src="./doc/pic/SNNCutoff.png" width="365">
 </p>
-
 
 Welcome to the SNNCutoff repository! This project is dedicated to advancing the capabilities of Spiking Neural Networks (SNNs) through innovative cutoff mechanisms and regularisation techniques. SNNCutoff aims to optimise SNNs for efficient and accurate performance, particularly focusing on both optimising training and inference stage for reliable classification.
 
@@ -13,11 +12,10 @@ Welcome to the SNNCutoff repository! This project is dedicated to advancing the 
 - **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
 - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
 
-## Getting Started
-To begin using SNNCutoff, clone this repository and follow the setup instructions provided in [Installation.md](/Installation.md). Detailed documentation can be found in [Documentation.md](/Documentation.md), which includes guidelines for training, evaluation, and customization.
 
 <!-- GETTING STARTED -->
 ## Getting Started
+To begin using SNNCutoff, clone this repository and follow the setup instructions below. 
 The package is tested in Python 3.9.10 and Pytorch 1.13.1.
 
 ### Prerequisites
