@@ -29,8 +29,8 @@ git clone https://github.com/TACPSLab/easycutoff.git
 pip pip install -r requirements. txt 
 ``` 
 
-### Training and evaluation scripts
-We provide training and evaluation scripts for all the methods we support in [examples](/examples) folder. 
+### Training and Evaluation 
+We provide training and evaluation scripts in [examples](/examples). 
 
 ## Contributing
 
