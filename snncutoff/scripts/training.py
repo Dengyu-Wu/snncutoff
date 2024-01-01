@@ -220,8 +220,6 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
             cs_loss = tan_phi_max.sum() #change pow into abs
 
             # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
-
-
             # tan_phi_mean = torch.stack(output_hook,dim=0).contiguous() # T*N L C
             # cs_loss = tan_phi_mean.mean() #change pow into abs
 
@@ -321,7 +319,7 @@ def main(cfg: DictConfig):
     args.nprocs = torch.cuda.device_count()
     args.log = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
     #Model Name
-    args.project = args.data + '-aideoserver' 
+    args.project = args.data
     
     if args.wandb_logging:
         wandb.login()
