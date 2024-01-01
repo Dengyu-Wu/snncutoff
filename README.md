@@ -3,7 +3,7 @@
 <img src="./doc/pic/SNNCutoff.png" width="365">
 </p>
 
-Welcome to the SNNCutoff repository! This project is dedicated to advancing the capabilities of Spiking Neural Networks (SNNs) through innovative cutoff mechanisms and regularisation techniques. SNNCutoff aims to optimise SNNs for efficient and accurate performance, particularly focusing on both optimising training and inference stage for reliable classification.
+Welcome to the SNNCutoff repository! Our initiative is centered on advancing the training and evaluation of Spiking Neural Networks (SNNs) with an eye towards innovative cutoff mechanisms. SNNCutoff aims to refine the efficiency of SNNs, ensuring robust computing that does not compromise on performance accuracy. It is particularly dedicated to optimizing both the training and inference phases to secure reliable classification outcomes.
 
 ## A New Metric
 - **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
@@ -11,7 +11,6 @@ Welcome to the SNNCutoff repository! This project is dedicated to advancing the 
 ## Cutoff Approximation 
 - **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
 - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
