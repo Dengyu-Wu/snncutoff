@@ -18,19 +18,17 @@ Welcome to the SNNCutoff repository! This project is dedicated to advancing the 
 To begin using SNNCutoff, clone this repository and follow the setup instructions below. 
 The package is tested in Python 3.9.10 and Pytorch 1.13.1.
 
-### Prerequisites
-
-1. Install Pytorch
-```sh
-pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
-```
-
 ### Installation
 
 1. Clone the repo
 ```sh
 git clone https://github.com/TACPSLab/easycutoff.git
 ```
+
+2. Install Pytorch
+```sh
+pip pip install -r requirements. txt 
+``` 
 
 ### Training Example
 ```sh
@@ -41,7 +39,7 @@ or
 sh examples/SNN_Training/tet/cifar10-dvs/vggsnn/training.sh
 ```
 
-### Test Example
+### Evaluation Example
 ```sh
 python examples/SNN_Training/qcfs/cifar10-dvs/vggsnn/evaluation.sh
 ```
@@ -77,6 +75,7 @@ Special acknowledgment is given to the following projects for their influence on
 
 - [OpenOOD](https://github.com/Jingkang50/OpenOOD) for its robust and versatile framework.
 - [SNN-QCFS](https://github.com/putshua/SNN_conversion_QCFS), [SpKeras](https://github.com/Dengyu-Wu/spkeras)  for their innovative approaches in SNN conversion.
+- [ChatGPT](https://chat.openai.com/auth/login) for the genatrative logo.
 
 We extend our appreciation to all those who have contributed, directly or indirectly, to the success of this endeavor. Your contributions are deeply valued and have played a significant role in advancing the field of Spiking Neural Networks.
 

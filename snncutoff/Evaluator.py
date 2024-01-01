@@ -1,10 +1,7 @@
-import argparse
 import torch
 import torch.nn as nn
 from typing import Callable, List, Type
 from .cutoff import BaseCutoff
-from .snncase import SNNCASE
-from pydantic import BaseModel
 from snncutoff.cutoff import TopKCutoff, BaseCutoff
 
 class OutputHook(list):
@@ -43,7 +40,6 @@ class sethook(object):
         for y,x in self.module_dict.items():
             self.remove_all_hooks(self.module_dict[y])
             self.module_dict[y] = self.module_dict[y].register_forward_hook(self.output_hook) 
-            #self.module_dict[y] = self.module_dict[y].register_full_backward_hook(grad_hook) 
             
     def remove_all_hooks(self,module):
         from collections import OrderedDict
@@ -125,23 +121,13 @@ class Evaluator:
     def evaluation(self,data_loader):
         outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
-        # outputs_last = torch.softmax(outputs_list[-1],dim=-1)
         outputs_list = torch.softmax(outputs_list,dim=-1)
         acc =(outputs_list.max(-1)[1] == new_label).float().sum(1)/label_list.size()[0]
-        # new_label  = torch.nn.functional.one_hot(new_label[0], num_classes=10) 
-        # loss = []
-        # outputs_list = torch.softmax(outputs_list,dim=-1)
-        # for t in range(self.T):
-        #     # loss_t = torch.nn.CrossEntropyLoss()(outputs_list[t],new_label.float()) # to ground truth
-        #     loss_t = torch.nn.MSELoss()(outputs_list[t],outputs_last)  # to last timestep
-        #     loss.append(loss_t.cpu().numpy().item())
         return acc.cpu().numpy().tolist(), 0.0
     
     def aoi_evaluation(self,data_loader):
         outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
-        # print(acc)
-        outputs_last = torch.softmax(outputs_list[-1],dim=-1)
         index = (outputs_list.max(-1)[1] == new_label).float()
         for t in range(self.T-1,0,-1):
             index[t-1] = index[t]*index[t-1]
@@ -151,17 +137,12 @@ class Evaluator:
         outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
         outputs_list = outputs_list.sum(0)
         acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
-        # outputs_list = torch.softmax(outputs_list,dim=-1)
-        # new_label  = torch.nn.functional.one_hot(label_list, num_classes=outputs_list.size()[-1]) 
-        # # loss = torch.nn.CrossEntropyLoss()(outputs_list,new_label.float()) # to ground truth
-        # loss = torch.nn.MSELoss()(outputs_list,outputs_last) # to ground truth
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def cutoff_evaluation(self,data_loader,train_loader):
         beta, conf = self.postprocessor.setup(net=self.net, data_loader=train_loader)
         outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
-        outputs_last = torch.softmax(outputs_list[-1],dim=-1)
         topk = torch.topk(outputs_list,2,dim=-1)
         topk_gap_t = topk[0][...,0] - topk[0][...,1] 
         index = (topk_gap_t>2*beta.unsqueeze(-1)).float()
@@ -172,9 +153,6 @@ class Evaluator:
         outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
         outputs_list = outputs_list.sum(0)
         acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
-        # outputs_list = torch.softmax(outputs_list,dim=-1)
-        # new_label  = torch.nn.functional.one_hot(label_list, num_classes=outputs_list.shape[-1]) 
-        # loss = torch.nn.MSELoss()(outputs_list,outputs_last) # to ground truth
         return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
 
     def MOPS(self):

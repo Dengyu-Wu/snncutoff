@@ -69,32 +69,6 @@ def addSingleStep(name):
             return True
     return False
 
-def ann_to_snn_conversion(model,layers):
-    for child in model.children():
-        if hasattr(child,"children"):
-            model,layers = ann_to_snn_conversion(child,layers)
-                # if isActivation(module.__class__.__name__.lower()):
-        # else:
-        #     print(child.__class__.__name__.lower())
-        if isContainer(child.__class__.__name__.lower()):
-            layers.append(child)
-        if  'clip' in child.__class__.__name__.lower() or 'temprelu' in child.__class__.__name__.lower():
-            # print(child.__class__.__name__.lower())
-            if hasattr(child,"moving_max"):
-                # layers.append(nn.ReLU())
-                # layers.append(child)
-                layers.append(IFNeuron(vthr=child.moving_max.item()))
-        # if 'vggann' in child.__class__.__name__.lower():
-        #     layers.append(child)
-        # if 'clip' in child.__class__.__name__.lower():
-        #     layers.append(child)
-
-        if 'flatten' in child.__class__.__name__.lower():
-            layers.append(child)
-        if 'normlayer' in child.__class__.__name__.lower():
-            layers.append(child)
-    return model,layers
-
 def multi_to_single_step(model,reset_mode):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
@@ -161,35 +135,6 @@ def add_snn_layers(model, T, snn_layers, TBN=False, regularizer=None):
         ) 
     return model
 
-
-
-
-# def multi_to_single_step(model,layers):
-#     for child in model.children():
-#         if hasattr(child,"children"):
-#             model,layers = multi_to_single_step(child,layers)
-#                 # if isActivation(module.__class__.__name__.lower()):
-#         # else:
-#         #     print(child.__class__.__name__.lower())
-#         if isContainer(child.__class__.__name__.lower()):
-#             layers.append(child)
-#         if  'lifspike' in child.__class__.__name__.lower():
-#             # print(child.__class__.__name__.lower())
-#             # if hasattr(child,"moving_max"):
-#                 # layers.append(nn.ReLU())
-#                 # layers.append(child)
-#             layers.append(LIFNeuronReg(vthr=child.thresh.item(),tau=child.tau.item()))
-#         # if 'vggann' in child.__class__.__name__.lower():
-#         #     layers.append(child)
-#         # if 'clip' in child.__class__.__name__.lower():
-#         #     layers.append(child)
-
-#         if 'flatten' in child.__class__.__name__.lower():
-#             layers.append(child)
-#         if 'normlayer' in child.__class__.__name__.lower():
-#             layers.append(child)
-#     return model,layers
-
 def reset_neuron(model):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
@@ -208,86 +153,6 @@ def replace_maxpool2d_by_avgpool2d(model):
                                                 stride=module.stride,
                                                 padding=module.padding)
     return model
-
-def reset_net(model):
-    for name, module in model._modules.items():
-        if hasattr(module,"_modules"):
-            reset_net(module)
-        if 'Neuron' in module.__class__.__name__:
-            module.reset()
-    return model
-
-def _fold_bn(conv_module, bn_module, avg=False):
-    w = conv_module.weight.data
-    y_mean = bn_module.running_mean
-    y_var = bn_module.running_var
-    safe_std = torch.sqrt(y_var + bn_module.eps)
-    w_view = (conv_module.out_channels, 1, 1, 1)
-    if bn_module.affine:
-        weight = w * (bn_module.weight / safe_std).view(w_view)
-        beta = bn_module.bias - bn_module.weight * y_mean / safe_std
-        if conv_module.bias is not None:
-            bias = bn_module.weight * conv_module.bias / safe_std + beta
-        else:
-            bias = beta
-    else:
-        weight = w / safe_std.view(w_view)
-        beta = -y_mean / safe_std
-        if conv_module.bias is not None:
-            bias = conv_module.bias / safe_std + beta
-        else:
-            bias = beta
-    return weight, bias
-
-
-def fold_bn_into_conv(conv_module, bn_module, avg=False):
-    w, b = _fold_bn(conv_module, bn_module, avg)
-    if conv_module.bias is None:
-        conv_module.bias = nn.Parameter(b)
-    else:
-        conv_module.bias.data = b
-    conv_module.weight.data = w
-    # set bn running stats
-    bn_module.running_mean = bn_module.bias.data
-    bn_module.running_var = bn_module.weight.data ** 2
-
-def is_bn(m):
-    return isinstance(m, nn.BatchNorm2d) or isinstance(m, nn.BatchNorm1d)
-
-def is_absorbing(m):
-    return (isinstance(m, nn.Conv2d)) or isinstance(m, nn.Linear)
-
-
-def search_fold_and_remove_bn(model):
-    model.eval()
-    prev = None
-    for n, m in model.named_children():
-        if is_bn(m) and is_absorbing(prev):
-            fold_bn_into_conv(prev, m)
-            # set the bn module to straight through
-            setattr(model, n, StraightThrough())
-        elif is_absorbing(m):
-            prev = m
-        else:
-            prev = search_fold_and_remove_bn(m)
-    return prev
-
-
-def regular_set(model, paras=([],[],[])):
-    for n, module in model._modules.items():
-        if isActivation(module.__class__.__name__.lower()) and hasattr(module, "up"):
-            for name, para in module.named_parameters():
-                paras[0].append(para)
-        elif 'batchnorm' in module.__class__.__name__.lower():
-            for name, para in module.named_parameters():
-                paras[2].append(para)
-        elif len(list(module.children())) > 0:
-            paras = regular_set(module, paras)
-        elif module.parameters() is not None:
-            for name, para in module.named_parameters():
-                paras[1].append(para)
-    return paras
-    
 
 class OutputHook(list):
     def __init__(self):
