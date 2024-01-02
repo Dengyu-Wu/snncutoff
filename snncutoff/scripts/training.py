@@ -51,7 +51,7 @@ def main_worker(local_rank, args):
 
     model = get_snn_model(args)
     if args.checkpoint_path != 'none':
-        checkpoint = torch.load(checkpoint_names)
+        checkpoint = torch.load(args.checkpoint_path)
         model.load_state_dict(checkpoint['state_dict'])
 
     torch.cuda.set_device(local_rank)
@@ -72,7 +72,7 @@ def main_worker(local_rank, args):
     # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr,weight_decay=args.weight_decay)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, eta_min=0, T_max=args.epochs)
     if args.checkpoint_path != 'none':
-        checkpoint = torch.load(checkpoint_names)
+        checkpoint = torch.load(args.checkpoint_path)
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler'])
         args.start_epoch = checkpoint['epoch']

@@ -43,6 +43,7 @@ class BaseCutoff:
             label = label.cuda()
             # pred, conf = [], []
             outputs = []
+            self.output = 0.0
 
             if self.multistep:
                 output_t = net(data)
