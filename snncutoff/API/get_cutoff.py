@@ -6,7 +6,5 @@ cutoff_list = {
 'topk': TopKCutoff,
 }
 
-
-
 def get_cutoff(name):
     return cutoff_list[name]
