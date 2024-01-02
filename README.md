@@ -7,7 +7,7 @@ Welcome to the SNNCutoff! This repository is centered on advancing the training 
 
 ## Framework 
 
-SNNCutoff provides a model-conversion-based training flow. ANN architecture with ReLU can be directly converted into SNN model or with additional ANN constraints before training. Same process will happen to evlaution stage and cutoff features is added to evaluate SNN dynamic performance. 
+SNNCutoff provides a training workflow leveraging PyTorch for model conversion. It enables the seamless transformation of Artificial Neural Network (ANN) architectures with ReLU activation into intermediate models. These models can be tailored with specific constraints optimising ANN training for SNN, as well as equipped with spiking layers for direct SNN training optimisation.
 
 <p align="center">
 <img src="./doc/pic/framework.png" width="800">
