@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
-from snncutoff.layers import *
+from snncutoff.external.layers import *
 
-# from spikingjelly.activation_based import layer
-# from spikingjelly.activation_based import  neuron
 
 
 
@@ -263,3 +261,6 @@ def sew_resnet101(**kwargs):
 
 def sew_resnet152(**kwargs):
     return _sew_resnet(Bottleneck, [3, 8, 36, 3], **kwargs)
+
+
+
