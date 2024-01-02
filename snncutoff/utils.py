@@ -5,7 +5,7 @@ import random
 import os
 import numpy as np
 from snncutoff.neuron import *
-from snncutoff.constrs import PreConstrs, PostConstrs
+from snncutoff.constrs.ann import PreConstrs, PostConstrs
 from snncutoff.constrs.snn import BaseLayer
 from snncutoff.constrs.snn import TEBN
 
