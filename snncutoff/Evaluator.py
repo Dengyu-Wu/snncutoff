@@ -83,7 +83,7 @@ class Evaluator:
         self.net = net
         self.args = args
         self.net.eval()
-        cutoff=get_cutoff(args)
+        cutoff=get_cutoff(args.cutoff_name)
         self.cutoff = cutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma,multistep=args.multistep)
         self.T = args.T
         self.sigma = args.sigma

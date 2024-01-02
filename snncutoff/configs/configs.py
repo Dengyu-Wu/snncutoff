@@ -41,7 +41,7 @@ class SNNConfig(BaseModel):
 class SNNTest(BaseModel):
     sigma: float
     decay_factor: float
-    mode: str
+    cutoff_name: str
     reset_mode: str
     model_path: str
 
