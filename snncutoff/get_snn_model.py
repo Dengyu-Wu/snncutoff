@@ -2,34 +2,11 @@
 from snncutoff.models.vgglike import *
 from snncutoff.ann_constrs import *
 from snncutoff.snn_layers import *
-from snncutoff.regularizer import *
 from snncutoff.utils import add_ann_constraints, add_snn_layers
 from snncutoff.models.VGG import *
 from snncutoff.models.ResNet import *
 from snncutoff.models import sew_resnet
-
-regularizer = {
-'none': None,
-'roe': ROE(),
-'l2min': L2Min(),
-}
-snn_regularizer = {
-'none': None,
-'roe': SNNROE(),
-'rcs': SNNRCS(),
-} 
-
-
-ann_constrs = {
-'baseconstrs': BaseConstrs,
-'qcfsconstrs': QCFSConstrs,
-'clipconstrs': ClipConstrs,
-}
-
-snn_layers = {
-'baselayer': BaseLayer,
-}
-
+from snncutoff.API import get_regularizer, get_constrs
 
 def get_snn_model(args):
     num_classes  = OuputSize(args.data.lower())
@@ -39,23 +16,23 @@ def get_snn_model(args):
         if args.method=='ann':
             model = ann_models(args.model,num_classes)
             model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=ann_constrs[args.ann_constrs.lower()], 
-                                        regularizer=regularizer[args.regularizer.lower()])    
+                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
+                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))    
             return model
         elif args.method=='snn':
             model = ann_models(args.model,num_classes)
             model = add_snn_layers(model, args.T, 
-                                    snn_layers=snn_layers[args.snn_layers.lower()], 
+                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                     TBN=args.TBN,
-                                    regularizer=snn_regularizer[args.regularizer.lower()])  
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
             return model
             # return snn_models(args.model,args.T, num_classes)
     elif InputSize(args.data.lower()) == '3-32-32':
         if args.method=='ann':
             model = ann_models(args.model,num_classes)
             model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=ann_constrs[args.ann_constrs.lower()], 
-                                        regularizer=regularizer[args.regularizer.lower()])   
+                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
+                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))   
             return model
         elif args.method=='snn':
             model = ann_models(args.model,num_classes)
@@ -63,16 +40,16 @@ def get_snn_model(args):
                 *list(model.children()),  
                 ) 
             model = add_snn_layers(model, args.T,
-                                    snn_layers=snn_layers[args.snn_layers.lower()], 
+                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                     TBN=args.TBN,
-                                    regularizer=snn_regularizer[args.regularizer.lower()])  
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
             return model
     elif InputSize(args.data.lower()) == '3-224-224':
         if args.method=='ann':
             model = ann_models(args.model,num_classes)
             model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=ann_constrs[args.ann_constrs.lower()], 
-                                        regularizer=regularizer[args.regularizer.lower()])    
+                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
+                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))    
             return model
         elif args.method=='snn':
             return snn_models(args.model,num_classes)
@@ -80,7 +57,7 @@ def get_snn_model(args):
         if args.method=='ann':
             return VGGANN_NCaltech101()
         elif args.method=='snn':
-            return VGGSNN_NCaltech101()
+            return VGGANN_NCaltech101()
     else:
         NameError("The dataset name is not support!")
         exit(0)
@@ -89,11 +66,6 @@ def get_snn_model(args):
     return model
 
 
-# model = resnet19()
-# model = modelpool(args.model, args.data)
-# model = replace_maxpool2d_by_avgpool2d(model)
-
-# model = sew_resnet.__dict__['sew_resnet34'](T=args.T, connect_f='ADD')
 def isVGG(name):
     if name.lower() in ['vgg11','vgg13','vgg16','vgg19',]:
         return True
