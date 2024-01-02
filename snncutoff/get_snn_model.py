@@ -17,6 +17,7 @@ regularizer = {
 snn_regularizer = {
 'none': None,
 'roe': SNNROE(),
+'rcs': SNNRCS(),
 } 
 
 
