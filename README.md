@@ -5,7 +5,7 @@
 
 Welcome to the SNNCutoff! This repository is centered on advancing the training and evaluation of Spiking Neural Networks (SNNs) with an eye towards innovative cutoff mechanisms. SNNCutoff aims to refine the efficiency of SNNs, ensuring robust computing that does not compromise on performance accuracy. It is particularly dedicated to optimizing both the training and inference phases to secure reliable classification outcomes.
 
-## SNNCutoff Framework 
+## Framework 
 
 SNNCutoff provides a model-conversion-based training flow. ANN architecture with ReLU can be directly converted into SNN model or with additional ANN constraints before training. Same process will happen to evlaution stage and cutoff features is added to evaluate SNN dynamic performance. 
 
