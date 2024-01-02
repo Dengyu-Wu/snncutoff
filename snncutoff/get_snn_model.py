@@ -9,8 +9,6 @@ from snncutoff.models.VGG import *
 from snncutoff.models.ResNet import *
 from snncutoff.models import sew_resnet
 
-
-
 regularizer = {
 'none': None,
 'roe': ROE(),

@@ -102,16 +102,16 @@ class VGGANN(nn.Module):
             nn.Flatten(1,-1)
         )
         W = int(32/2/2/2/2)
-        self.fc = LinearLayer(512*W*W,512)#OutputLayerCurrent
-        self.classifier = nn.Linear(512,num_classes)#OutputLayerCurrent
-        # self.classifier = nn.Linear(512*W*W,num_classes)#OutputLayerCurrent
+        # self.fc = LinearLayer(512*W*W,512)#OutputLayerCurrent
+        self.classifier = nn.Linear(512*W*W,num_classes)#OutputLayerCurrent
+        # self.classifier = nn.Linear(512,num_classes)#OutputLayerCurrent
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight.data, mode='fan_out', nonlinearity='relu')
 
     def forward(self, input):
         x = self.features(input)
-        x = self.fc(x)
+        # x = self.fc(x)
         x = self.classifier(x)
         return x
 
