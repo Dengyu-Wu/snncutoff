@@ -1,6 +1,6 @@
-import random
+import torch
 import torch.nn as nn
- 
+
 class Conv2dLayer(nn.Module):
     def __init__(self,in_plane,out_plane,kernel_size,stride,padding,droprate=0.0,bias=True,batch_norm=True):
         super(Conv2dLayer, self).__init__()
