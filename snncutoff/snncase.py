@@ -9,8 +9,6 @@ class SNNCASE:
         criterion: nn.Module,
         args: dict
     ) -> None:
-        """A unified, easy-to-use API for SNN training
-        """
         self.method = method
         self.criterion = criterion
         self.args = args

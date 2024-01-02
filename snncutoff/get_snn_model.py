@@ -1,6 +1,5 @@
 
-from snncutoff.models.vggsnns import *
-from snncutoff.models.vgganns import *
+from snncutoff.models.vgglike import *
 from snncutoff.ann_constrs import *
 from snncutoff.snn_layers import *
 from snncutoff.regularizer import *
