@@ -5,9 +5,9 @@ import random
 import os
 import numpy as np
 from snncutoff.neuron import *
-from snncutoff.ann_constrs import PreConstrs, PostConstrs
-from snncutoff.snn_layers import BaseLayer
-from snncutoff.snn_layers import TEBN
+from snncutoff.constrs import PreConstrs, PostConstrs
+from snncutoff.constrs.snn import BaseLayer
+from snncutoff.constrs.snn import TEBN
 
 def seed_all(seed=1024):
     random.seed(seed)
