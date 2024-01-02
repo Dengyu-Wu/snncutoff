@@ -8,11 +8,12 @@ from torch.utils.data import DataLoader
 from snncutoff.utils import reset_neuron
 
 class BaseCutoff:
-    def __init__(self, T, add_time_dim=False):
+    def __init__(self, T, add_time_dim=False, multistep=False):
         # self.config = config
         self.T = T
         self.add_time_dim = add_time_dim
-
+        self.multistep = multistep
+        
     def setup(self, net: nn.Module, id_loader_dict, ood_loader_dict):
         pass
 
@@ -28,11 +29,12 @@ class BaseCutoff:
             x = x.repeat(1,self.T,1,1,1)
         return x.transpose(0,1)
     
+    @torch.no_grad()
     def inference(self,
                   net: nn.Module,
                   data_loader: DataLoader,
                   progress: bool = True):
-        # pred_list, conf_list, label_list = [], [], []
+
         outputs_list, label_list = [], []
         for data, label in tqdm(data_loader,
                           disable=not progress):
@@ -41,16 +43,18 @@ class BaseCutoff:
             label = label.cuda()
             # pred, conf = [], []
             outputs = []
-            self.output = 0.0
-            for t in range(self.T):
-                output_t = self.postprocess(net, data[t:t+1])
-                outputs.append(output_t)
+            self.output = 0.
 
-                # conf.append(conf_t.cpu())
-            net = reset_neuron(net)
-            outputs = torch.stack(outputs,dim=0)
-            outputs_list.append(outputs)
-            label_list.append(label)
+            if self.multistep:
+                outputs = net(data)
+            else:
+                for t in range(self.T):
+                    output_t = self.postprocess(net, data[t:t+1])
+                    outputs.append(output_t)
+                net = reset_neuron(net)
+                outputs = torch.stack(outputs,dim=0)
+                outputs_list.append(outputs)
+                label_list.append(label)
 
         outputs_list = torch.cat(outputs_list,dim=1)
         label_list = torch.cat(label_list)

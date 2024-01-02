@@ -43,7 +43,8 @@ def main(cfg: DictConfig):
     path = args.model_path
     state_dict = torch.load(path, map_location=torch.device('cpu'))
     models.load_state_dict(state_dict, strict=False)
-    models = multi_to_single_step(models,reset_mode=args.reset_mode)
+    if not args.multistep:
+        models = multi_to_single_step(models,reset_mode=args.reset_mode)
     models.to(device)
     evaluator = Evaluator(models,args=args)
     acc, loss = evaluator.evaluation(test_loader)
