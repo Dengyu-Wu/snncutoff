@@ -108,21 +108,21 @@ class Evaluator:
         self.net = net
         self.args = args
         self.net.eval()
-        self.cutoffprocessor=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma)
+        self.cutoff=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma,multistep=args.multistep)
         self.T = args.T
         self.sigma = args.sigma
         self.add_time_dim = args.add_time_dim
 
 
     def evaluation(self,data_loader):
-        outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
+        outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         outputs_list = torch.softmax(outputs_list,dim=-1)
         acc =(outputs_list.max(-1)[1] == new_label).float().sum(1)/label_list.size()[0]
         return acc.cpu().numpy().tolist(), 0.0
     
     def aoi_evaluation(self,data_loader):
-        outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
+        outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         index = (outputs_list.max(-1)[1] == new_label).float()
         for t in range(self.T-1,0,-1):
@@ -136,8 +136,8 @@ class Evaluator:
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def cutoff_evaluation(self,data_loader,train_loader):
-        beta, conf = self.postprocessor.setup(net=self.net, data_loader=train_loader)
-        outputs_list, label_list = self.postprocessor.inference(net=self.net, data_loader=data_loader)
+        beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader)
+        outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         topk = torch.topk(outputs_list,2,dim=-1)
         topk_gap_t = topk[0][...,0] - topk[0][...,1] 

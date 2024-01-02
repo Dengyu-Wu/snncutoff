@@ -35,8 +35,8 @@ class TopKCutoff:
 
             if self.multistep:
                 outputs = net(data)
-                pred = (output_t.softmax(-1).max(-1)[1] == label).float()
-                topk = torch.topk(output_t,2,dim=-1)
+                pred = (outputs.softmax(-1).max(-1)[1] == label).float()
+                topk = torch.topk(outputs,2,dim=-1)
                 ygaps = topk[0][...,0] - topk[0][...,1]
             else:
                 for t in range(self.T):
@@ -49,9 +49,9 @@ class TopKCutoff:
                     ygaps.append(topk_gap_t)
                 net = reset_neuron(net)
             
-            outputs = torch.stack(outputs,dim=0)
-            pred = torch.stack(pred,dim=0)
-            ygaps = torch.stack(ygaps,dim=0)
+                outputs = torch.stack(outputs,dim=0)
+                pred = torch.stack(pred,dim=0)
+                ygaps = torch.stack(ygaps,dim=0)
             for t in range(self.T-1,0,-1):
                 pred[t-1] = pred[t]*pred[t-1]
                 
@@ -100,11 +100,11 @@ class TopKCutoff:
             x = x.repeat(1,self.T,1,1,1)
         return x.transpose(0,1)
     
+    @torch.no_grad()
     def inference(self,
                   net: nn.Module,
                   data_loader: DataLoader,
                   progress: bool = True):
-        # pred_list, conf_list, label_list = [], [], []
         outputs_list, label_list = [], []
         net.eval()
         for data, label in tqdm(data_loader,
@@ -112,10 +112,8 @@ class TopKCutoff:
             data = data.cuda()
             data = self.preprocess(data)
             label = label.cuda()
-            # pred, conf = [], []
             outputs = []
             self.output = 0.0
-
             if self.multistep:
                 outputs = net(data)
             else:
@@ -124,7 +122,7 @@ class TopKCutoff:
                     outputs.append(output_t)
                 net = reset_neuron(net)
             
-            outputs = torch.stack(outputs,dim=0)
+                outputs = torch.stack(outputs,dim=0)
             outputs_list.append(outputs)
             label_list.append(label)
 
