@@ -1,5 +1,5 @@
-from snncutoff.snn_layers import *
-from snncutoff.ann_constrs import *
+from snncutoff.constrs.ann import *
+from snncutoff.constrs.snn import *
 
 
 ann_constrs = {
