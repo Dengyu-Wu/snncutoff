@@ -39,7 +39,7 @@ snn-train:
 snn-test:
   sigma: 1.0
   decay_factor: 0.5
-  mode: 'cutoff'
+  cutoff_name: 'topk'
   reset_mode: 'soft'
   model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
 

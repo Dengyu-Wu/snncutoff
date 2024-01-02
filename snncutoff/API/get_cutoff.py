@@ -1,12 +1,12 @@
 from snncutoff.cutoff import *
 
 
-cutoff = {
+cutoff_list = {
 'timestep': BaseCutoff,
 'topk': TopKCutoff,
 }
 
 
 
-def get_cutoff(args):
-    return cutoff[args.cutoff]
+def get_cutoff(name):
+    return cutoff_list[name]
