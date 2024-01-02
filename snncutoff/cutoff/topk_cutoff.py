@@ -113,6 +113,8 @@ class TopKCutoff:
             data = self.preprocess(data)
             label = label.cuda()
             outputs = []
+            self.output = 0.0
+
             if self.multistep:
                 output_t = net(data)
                 for t in range(output_t.shape[0]):

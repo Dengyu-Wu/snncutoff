@@ -5,7 +5,7 @@ from .base_layer import BaseLayer
 class TEBN(BaseLayer):
     def __init__(self, T, num_features, eps=1e-5, momentum=0.1):
         super(TEBN, self).__init__()
-        self.bn = nn.BatchNorm2d(num_features)
+        self.bn = nn.BatchNorm3d(num_features)
         self.p = nn.Parameter(torch.ones(T, 1, 1, 1, 1))
         self.T = T
         
