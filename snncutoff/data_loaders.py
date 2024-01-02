@@ -36,13 +36,9 @@ class DVS_Dataset(Dataset):
             if self.resize:
                 new_data.append(self.tensorx(self._resize(self.imgx(data[t,...]))))
             else:
-                # new_data.append(self.tensorx(self.imgx(data[t,...])))
                 new_data.append(torch.tensor(data[t,...]))
         data = torch.stack(new_data, dim=0)
         if self.transform:
-            # flip = random.random() > 0.5
-            # if flip:
-            #     data = torch.flip(data, dims=(3,))
             off1 = random.randint(-25, 25)
             off2 = random.randint(-25, 25)
             data = transforms.functional.affine(data, angle = 0.0, scale=1.0, shear=0.0, translate=(off1, off2))
