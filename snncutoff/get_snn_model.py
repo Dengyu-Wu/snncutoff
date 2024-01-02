@@ -1,7 +1,7 @@
 
 from snncutoff.models.vgglike import *
-from snncutoff.ann_constrs import *
-from snncutoff.snn_layers import *
+from snncutoff.constrs.ann import *
+from snncutoff.constrs.snn import *
 from snncutoff.utils import add_ann_constraints, add_snn_layers
 from snncutoff.models.VGG import *
 from snncutoff.models.ResNet import *
