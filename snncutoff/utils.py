@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-from .modules import TCL, MyFloor, ScaledNeuron, StraightThrough
 import logging
 import random
 import os

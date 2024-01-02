@@ -49,17 +49,28 @@ def main(cfg: DictConfig):
     acc, loss = evaluator.evaluation(test_loader)
     print(acc)
     print(np.mean(loss))
-    acc, loss = evaluator.aoi_evaluation(test_loader)
-    print(acc)
-    print(np.mean(loss))
-    save_pickle(loss,name='aoi_timestep',path=os.path.dirname(path))
+    save_pickle(acc,name='timestep_cutoff',path=os.path.dirname(path))
 
-    acc, loss, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
+    acc, timesteps = evaluator.aoi_evaluation(test_loader)
+    print(acc)
+    print(np.mean(timesteps))
+    save_pickle(timesteps,name='aoi_timestep',path=os.path.dirname(path))
+
+    acc, timesteps, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
     # loss
     print(acc)
-    print(np.mean(loss))
+    print(np.mean(timesteps))
     # acc, loss = evaluator.aoi_evaluation(test_loader)
-    save_pickle(loss,name='cutoff_timestep',path=os.path.dirname(path))
+    save_pickle(timesteps,name='topk_cutoff_sampels',path=os.path.dirname(path))
     save_pickle(conf,name='conf_timestep',path=os.path.dirname(path))
+
+    acc=[]
+    for i in range(10):
+        evaluator.args.sigma = 1-0.01*i
+        _acc, timesteps, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
+        acc.append(_acc)
+    acc = np.array(acc)
+    save_pickle(acc,name='topk_cutoff',path=os.path.dirname(path))
+
 if __name__ == '__main__':
    main()

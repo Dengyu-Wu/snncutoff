@@ -63,12 +63,8 @@ class Evaluator:
         data_root: str = './data',
         config_root: str = './configs',
         args=None,
-        T: int = 10,
         sigma: float = 1.0,
-        postprocessor: Type[BaseCutoff] = None,
-        batch_size: int = 200,
-        shuffle: bool = False,
-        num_workers: int = 4,
+        cutoffprocessor: Type[BaseCutoff] = None,
     ) -> None:
         """A unified, easy-to-use API for evaluating (most) discriminative OOD
         detection methods.
@@ -112,9 +108,9 @@ class Evaluator:
         self.net = net
         self.args = args
         self.net.eval()
-        self.postprocessor=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma)
+        self.cutoffprocessor=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma)
         self.T = args.T
-        self.sigma = sigma
+        self.sigma = args.sigma
         self.add_time_dim = args.add_time_dim
 
 

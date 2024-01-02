@@ -5,7 +5,7 @@ python  ./snncutoff/scripts/training.py \
         base.epochs=300 \
         base.gpu_id=\'2\' \
         base.seed=1200 \
-        base.port=\'12152\' \
+        base.port=\'23152\' \
         base.data=\'cifar10\' \
         base.model=\'resnet18\' \
         base.dataset_path=\'datasets\' \

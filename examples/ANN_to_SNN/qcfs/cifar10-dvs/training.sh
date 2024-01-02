@@ -1,7 +1,7 @@
 #!/bin/bash
 
 python  ./snncutoff/scripts/training.py \
-        base.epochs=300 \
+        base.epochs=100 \
         base.gpu_id=\'1\' \
         base.seed=1200 \
         base.port=\'13152\' \
