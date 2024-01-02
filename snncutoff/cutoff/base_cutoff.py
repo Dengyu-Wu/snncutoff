@@ -43,18 +43,19 @@ class BaseCutoff:
             label = label.cuda()
             # pred, conf = [], []
             outputs = []
-            self.output = 0.
 
             if self.multistep:
-                outputs = net(data)
+                output_t = net(data)
+                for t in range(output_t.shape[0]):
+                    outputs.append(output_t[:t+1].sum(0))
             else:
                 for t in range(self.T):
                     output_t = self.postprocess(net, data[t:t+1])
                     outputs.append(output_t)
                 net = reset_neuron(net)
-                outputs = torch.stack(outputs,dim=0)
-                outputs_list.append(outputs)
-                label_list.append(label)
+            outputs = torch.stack(outputs,dim=0)
+            outputs_list.append(outputs)
+            label_list.append(label)
 
         outputs_list = torch.cat(outputs_list,dim=1)
         label_list = torch.cat(label_list)
