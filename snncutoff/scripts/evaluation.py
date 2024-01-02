@@ -1,12 +1,9 @@
 import os
 import torch
 import warnings
-import torch.nn as nn
-import torch.nn.parallel
 import torch.optim
 import hydra
 
-from snncutoff.models.vggsnns import *
 from snncutoff import data_loaders
 import numpy as np
 from snncutoff.configs import *
@@ -14,7 +11,6 @@ from omegaconf import DictConfig
 from snncutoff.Evaluator import Evaluator
 from snncutoff.utils import multi_to_single_step
 from snncutoff import get_snn_model
-from snncutoff.snncase import SNNCASE
 from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
 from snncutoff.utils import seed_all
