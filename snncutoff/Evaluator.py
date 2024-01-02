@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from typing import Callable, List, Type
 from .cutoff import BaseCutoff
-from snncutoff.cutoff import TopKCutoff, BaseCutoff
+from snncutoff.API import get_cutoff
 
 class OutputHook(list):
     def __init__(self):
@@ -60,11 +60,8 @@ class Evaluator:
     def __init__(
         self,
         net: nn.Module,
-        data_root: str = './data',
-        config_root: str = './configs',
         args=None,
-        sigma: float = 1.0,
-        cutoffprocessor: Type[BaseCutoff] = None,
+        cutoff: Type[BaseCutoff] = None,
     ) -> None:
         """A unified, easy-to-use API for evaluating (most) discriminative OOD
         detection methods.
@@ -72,31 +69,9 @@ class Evaluator:
         Args:
             net (nn.Module):
                 The base classifier.
-            id_name (str):
-                The name of the in-distribution dataset.
-            data_root (str, optional):
-                The path of the data folder. Defaults to './data'.
-            config_root (str, optional):
-                The path of the config folder. Defaults to './configs'.
-            preprocessor (Callable, optional):
-                The preprocessor of input images.
-                Passing None will use the default preprocessor
-                following convention. Defaults to None.
-            postprocessor_name (str, optional):
-                The name of the postprocessor that obtains OOD score.
-                Ignored if an actual postprocessor is passed.
-                Defaults to None.
-            postprocessor (Type[BasePostprocessor], optional):
-                An actual postprocessor instance which inherits
-                OpenOOD's BasePostprocessor. Defaults to None.
-            batch_size (int, optional):
-                The batch size of samples. Defaults to 200.
-            shuffle (bool, optional):
-                Whether shuffling samples. Defaults to False.
-            num_workers (int, optional):
-                The num_workers argument that will be passed to
-                data loaders. Defaults to 4.
-
+            cutoff (Type[BaseCutoff], optional):
+                An actual cutoff instance which inherits
+                SNNCutoff's BaseCutoff. Defaults to None.
         Raises:
             ValueError:
                 If both postprocessor_name and postprocessor are None.
@@ -108,11 +83,11 @@ class Evaluator:
         self.net = net
         self.args = args
         self.net.eval()
-        self.cutoff=TopKCutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma,multistep=args.multistep)
+        cutoff=get_cutoff(args)
+        self.cutoff = cutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma,multistep=args.multistep)
         self.T = args.T
         self.sigma = args.sigma
         self.add_time_dim = args.add_time_dim
-
 
     def evaluation(self,data_loader):
         outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
