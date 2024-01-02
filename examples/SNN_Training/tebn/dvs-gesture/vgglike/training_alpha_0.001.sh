@@ -6,9 +6,9 @@ python  ./snncutoff/scripts/training.py \
         base.gpu_id=\'1\' \
         base.seed=1200 \
         base.port=\'27052\' \
-        base.data=\'cifar10\' \
-        base.model=\'resnet18\' \
-        base.dataset_path=\'datasets\' \
+        base.data=\'cifar10-dvs\' \
+        base.model=\'vggann\' \
+        base.dataset_path=\'/LOCAL/dengyu/dvs_dataset/dvs-cifar10\'\
         \
         snn-train.method=\'snn\' \
         snn-train.ann_constrs=\'baseconstrs\' \
