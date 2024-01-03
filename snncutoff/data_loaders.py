@@ -8,7 +8,7 @@ from os import listdir
 from os.path import isfile, join
 from textwrap import fill
 from torchvision import datasets, transforms
-from snncutoff.preprocessing.utils import Cutout, CIFAR10Policy
+from snncutoff.augmentation import Cutout, CIFAR10Policy, ImageNetPolicy
 
 warnings.filterwarnings('ignore')
 
@@ -107,6 +107,7 @@ def GetImageNet(dataset_path, attack=False):
     trans_t = transforms.Compose([transforms.RandomResizedCrop(224),
                                 transforms.RandomHorizontalFlip(),
                                 transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                                ImageNetPolicy(),
                                 transforms.ToTensor(),
                                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
                                 ])

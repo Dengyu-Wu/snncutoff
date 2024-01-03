@@ -1,60 +1,9 @@
 import torch
 import torch.nn as nn
-from typing import Callable, List, Type
-from .cutoff import BaseCutoff
+from typing import Type
+from snncutoff.cutoff import BaseCutoff
 from snncutoff.API import get_cutoff
-
-class OutputHook(list):
-    def __init__(self):
-        self.mask = 0                
-    def __call__(self, module, inputs, output):
-        loss = []
-        loss.append(output[0])
-        layer_size = torch.tensor(list(output[0].shape[2:]))
-        layer_size = torch.prod(layer_size)
-        loss.append(layer_size)
-        self.append(loss)          
-                
-class sethook(object):
-    def __init__(self,output_hook):
-        self.module_dict = {}
-        self.k = 0
-        self.output_hook = output_hook
-    def get_module(self,model):
-        for name, module in model._modules.items():
-            if hasattr(module, "_modules"):
-                model._modules[name] = self.get_module(module)
-            if module.__class__.__name__ == 'LIFSpike':
-                self.module_dict[str(self.k)] = module
-                self.k+=1
-        return model
-    
-    def __call__(self,model,remove=False):
-        model = self.get_module(model)
-        if remove:
-            self.remove()
-        else:
-            self.set_hook()
-        return model                       
-    def set_hook(self):
-        for y,x in self.module_dict.items():
-            self.remove_all_hooks(self.module_dict[y])
-            self.module_dict[y] = self.module_dict[y].register_forward_hook(self.output_hook) 
-            
-    def remove_all_hooks(self,module):
-        from collections import OrderedDict
-        child = module
-        if child is not None:
-            if hasattr(child, "_forward_hooks"):
-                child._forward_hooks: Dict[int, Callable] = OrderedDict()
-            elif hasattr(child, "_forward_pre_hooks"):
-                child._forward_pre_hooks: Dict[int, Callable] = OrderedDict()
-            elif hasattr(child, "_backward_hooks"):
-                child._backward_hooks: Dict[int, Callable] = OrderedDict()
-    def remove(self):
-        for y,x in self.module_dict.items():
-            self.remove_all_hooks(self.module_dict[y])
-            
+from snncutoff.utils import OutputHook, sethook
 
 class Evaluator:
     def __init__(
@@ -126,32 +75,47 @@ class Evaluator:
         acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
         return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
 
-    def MOPS(self):
-            model = self.net
-            device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
-
-            connections = []
+    def ANN_OPS(self):
+            net = self.net
             print('MOPS.......')
 
             output_hook = OutputHook()
-            model = sethook(output_hook)(model)
+            net = sethook(output_hook)(net)
             input_size = (3,32,32)
-            inputs = torch.randn(input_size).unsqueeze(0).to(device)
-            outputs = model(inputs)
+            inputs = torch.randn(input_size).unsqueeze(0).to(net.device)
+            outputs = net(inputs)
             connections = list(output_hook)
-            model = sethook(output_hook)(model,remove=True)
+            net = sethook(output_hook)(net,remove=True)
 
             tot_fp = 0
             tot_bp = 0
             for name,w,output in connections:
-                # name = connection[0]
-                # w = connection[1]
-                # output = connection[2]
                 fin = torch.prod(torch.tensor(w))
                 N_neuron = torch.prod(torch.tensor(output))
                 tot_fp += (fin*2+1)*N_neuron
                 tot_bp += 2*fin + (fin*2+1)*N_neuron
             tot_op = self.Nops[0]*tot_fp + self.Nops[1]*tot_bp
-            print(tot_op)
-            print(tot_fp)
-            print(tot_bp)
+            return [tot_op, tot_fp, tot_bp]
+    
+    def SNN_Spike_Count(self):
+            net = self.net
+            connections = []
+            print('MOPS.......')
+
+            output_hook = OutputHook()
+            net = sethook(output_hook)(net)
+            input_size = (3,32,32)
+            inputs = torch.randn(input_size).unsqueeze(0).to(net.device)
+            outputs = net(inputs)
+            connections = list(output_hook)
+            net = sethook(output_hook)(net,remove=True)
+
+            tot_fp = 0
+            tot_bp = 0
+            for name,w,output in connections:
+                fin = torch.prod(torch.tensor(w))
+                N_neuron = torch.prod(torch.tensor(output))
+                tot_fp += (fin*2+1)*N_neuron
+                tot_bp += 2*fin + (fin*2+1)*N_neuron
+            tot_op = self.Nops[0]*tot_fp + self.Nops[1]*tot_bp
+            return [tot_op, tot_fp, tot_bp]
