@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import numpy as np
 
+
 class ROE(nn.Module):
     def __init__(self):
         super().__init__()
@@ -14,7 +15,6 @@ class ROE(nn.Module):
         x_clone = torch.maximum(x,torch.tensor(0.0))
         xmax = torch.max(x_clone)
         sigma = (x_clone.pow(2).mean(dim=dim)+1e-5)**0.5
-        # r = xmax/torch.min(sigma)
         r = xmax/sigma
         return r
 

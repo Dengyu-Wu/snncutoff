@@ -213,11 +213,10 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
             tan_phi_mean_masked = tan_phi_mean*right_predict_mask
             # tan_phi_mean_masked = tan_phi_mean*1.0
             tan_phi_max = tan_phi_mean_masked.max(dim=0)[0] # find max
-            tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
-            tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
+            # tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
+            # tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
             
-            # cs_loss = tan_phi_mean.mean() #change pow into abs
-            cs_loss = tan_phi_max.sum() #change pow into abs
+            cs_loss = tan_phi_max.mean() #change pow into abs
 
             # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
             # tan_phi_mean = torch.stack(output_hook,dim=0).contiguous() # T*N L C
