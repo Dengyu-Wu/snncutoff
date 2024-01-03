@@ -154,12 +154,21 @@ def replace_maxpool2d_by_avgpool2d(model):
     return model
 
 class OutputHook(list):
-    def __init__(self):
-        self.mask = 0                
+    def __init__(self, get_connection=False):
+        self.mask = 0  
+        self.get_connection = get_connection
     def __call__(self, module, inputs, output):
-        loss = output
-        self.append(loss)      
-                
+        if self.get_connection:
+            loss = []
+            loss.append(output[0])
+            layer_size = torch.tensor(list(output[0].shape[2:]))
+            layer_size = torch.prod(layer_size)
+            loss.append(layer_size)
+            self.append(loss)                  
+        else:
+            loss = output
+            self.append(loss)        
+
 
 class sethook(object):
     def __init__(self,output_hook):

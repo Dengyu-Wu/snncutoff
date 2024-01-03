@@ -24,7 +24,7 @@ class SNNROE(nn.Module):
         # x_norm = (r.pow(2).sum(dim=dim)+1e-5)**0.5
         # cs = (r[1:,...]*r[-1:,...]).sum(dim=dim)/(x_norm[1:,...]*x_norm[:-1,...])
         x_norm = (r.pow(2).sum(dim=dim)+1e-5)**0.5
-        cs = (r*r[-1]).sum(dim=dim)/(x_norm*x_norm[-1,...])
+        cs = (r[:-1]*r[-1:].detach()).sum(dim=dim)/(x_norm[:-1]*x_norm[-1:,...].detach())
         cs = cs.mean(0,keepdim=True)
         cs = 1/(cs+1e-5)
         # cs = torch.cat((torch.zeros_like(cs[0:1]), cs),dim=0)
