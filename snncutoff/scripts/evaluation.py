@@ -15,7 +15,7 @@ from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
 from snncutoff.utils import seed_all
 
-@hydra.main(version_base=None, config_path='../configs', config_name='default')
+@hydra.main(version_base=None, config_path='../configs', config_name='test')
 def main(cfg: DictConfig):
     args = TestConfig(**cfg['base'], **cfg['snn-train'], **cfg['snn-test'])
     if args.seed is not None:
