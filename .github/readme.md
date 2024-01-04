@@ -45,19 +45,6 @@ We provide training and evaluation scripts in [examples](/examples).
 
 We welcome contributions from the community! If you have suggestions for improvement or want to contribute to the codebase, please read our [Contributing Guidelines](./contributing.md) for more information on submitting pull requests.
 
-## Research Paper
-
-This project originated from our research presented in the paper: [preprint](https://arxiv.org/abs/2301.09522). 
-
-```
-@article{wu2023optimising,
-  title={Optimising Event-Driven Spiking Neural Network with Regularisation and Cutoff},
-  author={Wu, Dengyu and Jin, Gaojie and Yu, Han and Yi, Xinping and Huang, Xiaowei},
-  journal={arXiv preprint arXiv:2301.09522},
-  year={2023}
-}
-```
-
 
 ## Acknowledgments
 Special acknowledgment is given to the following projects for their influence on our coding style and structure:
