@@ -53,7 +53,8 @@ class BaseLayer(nn.Module):
             return x - self.vthr*spike
         
     def _mem_update_singlestep(self,x):
-        if self.reset_mode == 'soft' and self.neuron.t == 0:
+        if self.neuron.t == 0:
+            self.mem_init = 0.5 if self.reset_mode == 'soft' else self.mem_init
             self.neuron.initMem(self.mem_init*self.vthr)
         spike_post = []
         vmem = self.neuron.vmem + x[0]
