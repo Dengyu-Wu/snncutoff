@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+type: software
+title: SNNCutoff
+authors:
+- family-names: Wu
+  given-names: Dengyu
+- family-names: Xu
+  given-names: Minghong
+# TODO: Issue a DOI for the repo, e.g. 10.5281/zenodo.1234. See:
+# https://docs.github.com/en/repositories/archiving-a-github-repository/referencing-and-citing-content
+license: MIT
+repository-code: https://github.com/Dengyu-Wu/snncutoff
+preferred-citation:
+  type: article
+  title: Optimising Event-Driven Spiking Neural Network with Regularisation and Cutoff
+  authors:
+  - family-names: Wu
+    given-names: Dengyu
+  - family-names: Jin
+    given-names: Gaojie
+  - family-names: Yu
+    given-names: Han
+  - family-names: Yi
+    given-names: Xinping
+  - family-names: Huang
+    given-names: Xiaowei
+  year: 2023
+  identifiers:
+  - type: other
+    value: arXiv.2301.09522 [cs.CV]
+    description: The ArXiv preprint of the paper
+  - type: doi
+    value: 10.48550/arXiv.2301.09522
+    description: The ArXiv preprint of the paper
