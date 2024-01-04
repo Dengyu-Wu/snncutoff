@@ -45,10 +45,6 @@ We provide training and evaluation scripts in [examples](/examples).
 
 We welcome contributions from the community! If you have suggestions for improvement or want to contribute to the codebase, please read our [Contributing Guidelines](./contributing.md) for more information on submitting pull requests.
 
-## License
-
-This project is licensed under the [MIT License](/LICENSE) - see the license file for details.
-
 ## Research Paper
 
 This project originated from our research presented in the paper: [preprint](https://arxiv.org/abs/2301.09522). 
