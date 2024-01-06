@@ -9,23 +9,25 @@ class SNNROE(nn.Module):
         self.add_loss = True
 
     def forward(self,x,mem):
-        rank = len(x.size())-2  # N,T,C,W,H
+        rank = len(x.size())-2  # T,N,C,W,H
         dim = -np.arange(rank)-1
         dim = list(dim)
-        x_clone = torch.relu(x)
         # x_norm = (x_clone.pow(2).sum(dim=dim)+1e-5)**0.5
         # cs = (x_clone[1:,...]*x_clone[-1:,...]).sum(dim=dim)/(x_norm[1:,...]*x_norm[:-1,...])
-        r = []
-        for t in range(x_clone.size()[0]):
-            t += 1
-            r_t = x_clone[0:t].mean(0)
-            r.append(r_t)
-        r = torch.stack(r, dim=0)
+        r_t = x+torch.relu(mem)
+        # r_d = r_t.mean(0,keepdim=True).detach()
+        r_d = r_t[-1:].detach()
+
+        # r_d = r_t.mean(0,keepdim=True).detach()
         # x_norm = (r.pow(2).sum(dim=dim)+1e-5)**0.5
         # cs = (r[1:,...]*r[-1:,...]).sum(dim=dim)/(x_norm[1:,...]*x_norm[:-1,...])
-        x_norm = (r.pow(2).sum(dim=dim)+1e-5)**0.5
-        cs = (r[:-1]*r[-1:].detach()).sum(dim=dim)/(x_norm[:-1]*x_norm[-1:,...].detach())
+        r_d_norm = (r_d.pow(2).sum(dim=dim)+1e-5)**0.5
+        r_t_norm = (r_t.pow(2).sum(dim=dim)+1e-5)**0.5
+        cs = (r_t*r_d).sum(dim=dim)/(r_t_norm*r_d_norm)
+        # weight = (torch.arange(cs.size()[0])+1).to(cs.device)
+        # cs = cs*(weight.unsqueeze(1))/weight.sum()
         cs = cs.mean(0,keepdim=True)
+        # cs = cs.sum(0,keepdim=True)
         cs = 1/(cs+1e-5)
         # cs = torch.cat((torch.zeros_like(cs[0:1]), cs),dim=0)
 

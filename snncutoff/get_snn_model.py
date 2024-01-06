@@ -57,7 +57,12 @@ def get_snn_model(args):
         if args.method=='ann':
             return VGGANN_NCaltech101()
         elif args.method=='snn':
-            return VGGANN_NCaltech101()
+            model = ann_models(args.model,num_classes)
+            model = add_snn_layers(model, args.T, 
+                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
+                                    TBN=args.TBN,
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
+            return model
     else:
         NameError("The dataset name is not support!")
         exit(0)
@@ -85,7 +90,7 @@ def ann_models( model_name, num_classes):
         return VGGANN(num_classes=num_classes)
     elif model_name == 'vgg-gesture':
         return VGG_Gesture()
-    elif model_name == 'vggann-ncaltech101':
+    elif model_name == 'vgg-ncaltech101':
         return VGGANN_NCaltech101()
     else:
         AssertionError('The network is not suported!')
