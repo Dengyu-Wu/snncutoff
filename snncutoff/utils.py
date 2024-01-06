@@ -7,7 +7,7 @@ import numpy as np
 from snncutoff.neuron import *
 from snncutoff.constrs.ann import PreConstrs, PostConstrs
 from snncutoff.constrs.snn import BaseLayer
-from snncutoff.constrs.snn import TEBN
+from snncutoff.constrs.snn import TEBNLayer
 
 def seed_all(seed=1024):
     random.seed(seed)
@@ -111,23 +111,23 @@ def addSNNLayers(name):
     return False
 
 
-def _add_snn_layers(model, T, snn_layers, regularizer=None, TBN=None):
+def _add_snn_layers(model, T, snn_layers, regularizer=None, TEBN=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer, TBN=TBN)
+            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer, TEBN=TEBN)
         if  addSNNLayers(module.__class__.__name__.lower()):
             model._modules[name] = snn_layers(T=T, regularizer=regularizer)
         if  addPreConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PreConstrs(T=T, module=model._modules[name])
         if  addPostConstrs(module.__class__.__name__.lower()):
             model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
-        if TBN:
+        if TEBN:
             if  'norm2d' in module.__class__.__name__.lower():
-                model._modules[name] = TEBN(T=T, num_features=model._modules[name].num_features)  
+                model._modules[name] = TEBNLayer(T=T, num_features=model._modules[name].num_features)  
     return model
 
-def add_snn_layers(model, T, snn_layers, TBN=False, regularizer=None):
-    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer,TBN=TBN)
+def add_snn_layers(model, T, snn_layers, TEBN=False, regularizer=None):
+    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer,TEBN=TEBN)
     model = nn.Sequential(
         *list(model.children()),  
         PostConstrs(T=T, module=None)    # Add the new layer
