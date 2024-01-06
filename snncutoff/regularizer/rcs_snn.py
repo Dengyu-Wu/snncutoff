@@ -3,13 +3,13 @@ from torch import nn
 import numpy as np
 
 
-class SNNRCS(nn.Module):
+class RCSSNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.add_loss = True
 
     def forward(self,x,mem):
-        rank = len(x.size())-2  # N,T,C,W,H
+        rank = len(x.size())-2  # T,N,C,W,H
         dim = -np.arange(rank)-1
         dim = list(dim)
         r_t = x+torch.relu(mem)

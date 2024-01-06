@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from snncutoff.regularizer import SNNROE
 from typing import Type
 from snncutoff.gradients import ZIF
 from snncutoff.neuron import LIF
@@ -14,7 +13,7 @@ class BaseLayer(nn.Module):
                  tau: float = 0.5, 
                  mem_init: float = 0., 
                  neuron: Type[LIF]=LIF,
-                 regularizer: Type[SNNROE] = None, 
+                 regularizer: Type[nn.Module] = None, 
                  surogate: Type[ZIF] = ZIF,
                  multistep: bool=True,
                  reset_mode: str = 'hard'

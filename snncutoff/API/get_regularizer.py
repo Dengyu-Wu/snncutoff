@@ -3,13 +3,11 @@ from snncutoff.regularizer import *
 
 regularizer = {
 'none': None,
-'roe': RCS(),
-'l2min': L2Min(),
+'rcs': RCSANN(),
 }
 snn_regularizer = {
 'none': None,
-'roe': SNNROE(),
-'rcs': SNNRCS(),
+'rcs': RCSSNN(),
 } 
 
 

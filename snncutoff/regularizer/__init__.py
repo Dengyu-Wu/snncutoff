@@ -1,4 +1,2 @@
-from .rcs import RCS
-from .snn_roe import SNNROE
-from .snn_rcs import SNNRCS
-from .l2_min import L2Min
+from .rcs_ann import RCSANN
+from .rcs_snn import RCSSNN
