@@ -63,7 +63,7 @@ class VGG_Gesture(nn.Module):
             pool,
             nn.Flatten(1,-1)
         )
-        W = int(128/4/2/2/2/2)
+        W = int(128/4/2/2/2/2/2)
         self.fc =  LinearLayer(128*W*W,512,droprate=0.0)
         self.classifier = nn.Linear(512,output_dim)
         for m in self.modules():
