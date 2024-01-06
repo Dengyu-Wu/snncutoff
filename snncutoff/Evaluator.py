@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from typing import Type
+from pydantic import BaseModel
 from snncutoff.cutoff import BaseCutoff
 from snncutoff.API import get_cutoff
 from snncutoff.utils import OutputHook, sethook
@@ -9,7 +10,7 @@ class Evaluator:
     def __init__(
         self,
         net: nn.Module,
-        args=None,
+        args: Type[BaseModel]=None,
         cutoff: Type[BaseCutoff] = None,
     ) -> None:
         """A unified, easy-to-use API for evaluating (most) discriminative OOD

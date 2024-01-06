@@ -24,7 +24,7 @@ snn-train:
   ann_constrs: 'baseconstrs'
   snn_layers: 'baselayer'
   regularizer: 'none'
-  TBN: False
+  TEBN: False
   T: 4
   L: 4
   evaluate: 'False'

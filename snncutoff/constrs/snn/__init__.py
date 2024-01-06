@@ -1,2 +1,2 @@
 from .base_layer import BaseLayer
-from .tebn_layer import TEBN
+from .tebn_layer import TEBNLayer
