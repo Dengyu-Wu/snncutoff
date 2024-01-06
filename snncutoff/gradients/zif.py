@@ -1,6 +1,7 @@
 import torch
+from torch.autograd import Function
 
-class ZIF(torch.autograd.Function):
+class ZIF(Function):
     @staticmethod
     def forward(ctx, input, gama):
         out = (input > 0).float()

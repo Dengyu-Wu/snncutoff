@@ -1,7 +1,5 @@
 import torch
 from torch import nn
-from torch.autograd import Function
-from snncutoff.regularizer import ROE
 from typing import Callable, List, Type
 from .base_constrs import BaseConstrs
 
