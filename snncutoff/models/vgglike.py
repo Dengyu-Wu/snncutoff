@@ -107,24 +107,26 @@ class VGGANN(nn.Module):
         x = self.classifier(x)
         return x
 
+
 class VGGANN_NCaltech101(nn.Module):
     def __init__(self, output_dim=101):
         super(VGGANN_NCaltech101, self).__init__()
         pool = nn.AvgPool2d(2)
         self.features = nn.Sequential(
-            nn.Conv2d(2,64,8,4,1),
-            nn.Conv2d(64,64,3,1,1),
-            nn.Conv2d(64,128,3,1,1),
-            pool,
-            nn.Conv2d(128,256,3,1,1),
-            nn.Conv2d(256,256,3,1,1),
-            pool,
-            nn.Conv2d(256,512,3,1,1),
-            nn.Conv2d(512,512,3,1,1),
-            pool,
-            nn.Conv2d(512,512,3,1,1),
-            nn.Conv2d(512,512,3,1,1),
-            pool,
+            Conv2dLayer(2,64,4,4,padding='valid'),
+            Conv2dLayer(64,64,3,1,1),
+            Conv2dLayer(64,128,3,1,1),
+            nn.AvgPool2d(2),
+            Conv2dLayer(128,256,3,1,1),
+            Conv2dLayer(256,256,3,1,1),
+            nn.AvgPool2d(2),
+            Conv2dLayer(256,512,3,1,1),
+            Conv2dLayer(512,512,3,1,1),
+            nn.AvgPool2d(2),
+            Conv2dLayer(512,512,3,1,1),
+            Conv2dLayer(512,512,3,1,1),
+            nn.AvgPool2d(2),
+            nn.Flatten(1,-1)
         )
         self.fc = nn.Linear(512*2*3,output_dim)
 
@@ -134,6 +136,5 @@ class VGGANN_NCaltech101(nn.Module):
 
     def forward(self, input):
         x = self.features(input)
-        x = torch.flatten(x, 2)
         x = self.fc(x)
         return x
