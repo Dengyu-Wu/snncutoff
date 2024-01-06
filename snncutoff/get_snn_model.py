@@ -23,7 +23,7 @@ def get_snn_model(args):
             model = ann_models(args.model,num_classes)
             model = add_snn_layers(model, args.T, 
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TBN=args.TBN,
+                                    TEBN=args.TEBN,
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))  
             return model
             # return snn_models(args.model,args.T, num_classes)
@@ -41,7 +41,7 @@ def get_snn_model(args):
                 ) 
             model = add_snn_layers(model, args.T,
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TBN=args.TBN,
+                                    TEBN=args.TEBN,
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))  
             return model
     elif InputSize(args.data.lower()) == '3-224-224':
@@ -60,7 +60,7 @@ def get_snn_model(args):
             model = ann_models(args.model,num_classes)
             model = add_snn_layers(model, args.T, 
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TBN=args.TBN,
+                                    TEBN=args.TEBN,
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))  
             return model
     else:
