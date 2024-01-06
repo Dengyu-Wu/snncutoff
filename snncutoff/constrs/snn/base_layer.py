@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from typing import Type
+from torch.autograd import Function
 from snncutoff.gradients import ZIF
 from snncutoff.neuron import LIF
 
@@ -12,9 +13,9 @@ class BaseLayer(nn.Module):
                  vthr: float = 1.0, 
                  tau: float = 0.5, 
                  mem_init: float = 0., 
-                 neuron: Type[LIF]=LIF,
+                 neuron: Type[object]=LIF,
                  regularizer: Type[nn.Module] = None, 
-                 surogate: Type[ZIF] = ZIF,
+                 surogate: Type[Function] = ZIF,
                  multistep: bool=True,
                  reset_mode: str = 'hard'
                  ):
@@ -28,7 +29,7 @@ class BaseLayer(nn.Module):
         self.neuron.reset()
         self.regularizer = regularizer
         self.multistep = multistep
-        self.surogate=ZIF.apply
+        self.surogate=surogate.apply
         self.gamma = 1.0
         self.reset_mode = reset_mode
 
