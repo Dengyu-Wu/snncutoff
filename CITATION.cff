@@ -32,3 +32,5 @@ preferred-citation:
   - type: doi
     value: 10.48550/arXiv.2301.09522
     description: The ArXiv preprint of the paper
+  doi: 10.48550/arXiv.2301.09522
+  url: https://arxiv.org/abs/2301.09522
