@@ -3,7 +3,7 @@ from torch import nn
 import numpy as np
 
 
-class ROE(nn.Module):
+class RCS(nn.Module):
     def __init__(self):
         super().__init__()
         self.add_loss = True
