@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snncutoff"
+version = "0.0.0"
+description = ""
+requires-python = ">=3.9"
+readme  = { file = ".github/readme.md", content-type='text/markdown' }
+license = { file = "LICENSE" }
+authors = [
+  { name = "Dengyu Wu" },
+  { name = "Minghong Xu" },
+]
+classifiers = [
+  "Private :: Do Not Upload",
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+  "numpy",
+  "torch",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+tests = []
+docs = [
+  "sphinx",
+  "sphinx-book-theme",
+]
+dev = [
+  "snncutoff[tests,docs]",
+  "build",
+  "twine",
+]
