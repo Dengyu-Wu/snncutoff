@@ -45,10 +45,13 @@ class BasicBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        a = self.residual_function(x) 
-        b = self.shortcut(x)  if self.shortcut_true else 0.0 
-        x =  a + b
-        return self.relu(x)
+        shortcut = x 
+        out = self.residual_function(x) 
+        new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
+        new_shape.extend(shortcut.size()[2:])
+        shortcut = self.shortcut(x) if self.shortcut_true else shortcut.view(new_shape)
+        out =  out + shortcut
+        return self.relu(out)
 
 class BottleNeck(nn.Module):
     """Residual block for resnet over 50 layers
@@ -75,10 +78,13 @@ class BottleNeck(nn.Module):
             )
         self.relu = nn.ReLU(inplace=True)
     def forward(self, x):
-        a = self.residual_function(x) 
-        b = self.shortcut(x)  if self.shortcut_true else 0.0 
-        x =  a + b
-        return self.relu(x)
+        shortcut = x 
+        out = self.residual_function(x) 
+        new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
+        new_shape.extend(shortcut.size()[2:])
+        shortcut = self.shortcut(x) if self.shortcut_true else shortcut.view(new_shape)
+        out =  out + shortcut
+        return self.relu(out)
 
 class ResNet(nn.Module):
     def __init__(self, block, num_block, num_classes=100):
@@ -198,7 +204,7 @@ def resnet152(num_classes=10, **kargs):
 
 cfg = {
     'resnet18': [2, 2, 2, 2],
-    'resnet34': [3, 4, 6, 3],
+    'resnet34': [3, 8, 36, 3],
     'resnet50': [3, 4, 6, 3],
     'resnet101': [3, 4, 23, 3],
     'resnet152': [3, 8, 36, 3]
