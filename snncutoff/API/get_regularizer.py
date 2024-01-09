@@ -8,7 +8,6 @@ regularizer = {
 snn_regularizer = {
 'none': None,
 'rcs': RCSSNN(),
-'rcsplus': RCSPLUSSNN(),
 } 
 
 
