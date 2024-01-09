@@ -11,7 +11,8 @@ class SNNCASE:
         args: dict
     ) -> None:
         self.criterion = criterion
-        self.snn_loss = get_loss('tet',method='snn')(criterion, args.means,args.lamb)
+        name = 'tet' if args.TET else 'mean'
+        self.snn_loss = get_loss(name,method=args.method)(criterion, args.means,args.lamb)
         self.args = args
         self.net = net
         
@@ -20,9 +21,6 @@ class SNNCASE:
             x = x.unsqueeze(1)
             x = x.repeat(1,self.args.T,1,1,1)
         return x.transpose(0,1)
-
-    def postprocess(self, x, y):
-        return self.snn_loss(x,y)
 
     def _forward(self,x,y):
         x = self.preprocess(x)
@@ -50,7 +48,7 @@ class SNNCASE:
             return self._forward(x,y)
 
     def output_mask(self, x, y):
-        _target = torch.unsqueeze(y,dim=0)  # T N C 
+        _target = torch.unsqueeze(y,dim=0) 
         index = -int(x.shape[0]*0.3)
         right_predict_mask = x[index:].max(-1)[1].eq(_target).to(torch.float32)
         right_predict_mask = right_predict_mask.prod(0,keepdim=True)
