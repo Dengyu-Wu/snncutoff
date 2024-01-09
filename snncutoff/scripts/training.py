@@ -19,11 +19,11 @@ import torch.utils.data.distributed
 
 from torch.utils.tensorboard import SummaryWriter
 from snncutoff import data_loaders
-from snncutoff.utils import seed_all, get_logger, OutputHook, sethook
-from snncutoff.ddp import reduce_mean, ProgressMeter, adjust_learning_rate, accuracy, AverageMeter
+from snncutoff.utils import seed_all, get_logger
+from snncutoff.ddp import reduce_mean, ProgressMeter, accuracy, AverageMeter
 
-from snncutoff.configs import BaseConfig, SNNConfig, AllConfig
-from omegaconf import DictConfig, OmegaConf
+from snncutoff.configs import AllConfig
+from omegaconf import DictConfig
 from snncutoff import SNNCASE
 from snncutoff import get_snn_model
 
