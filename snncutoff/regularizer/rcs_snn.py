@@ -4,8 +4,9 @@ import numpy as np
 
 
 class RCSSNN(nn.Module):
-    def __init__(self):
+    def __init__(self,beta=0.3):
         super().__init__()
+        self.beta = beta
         self.add_loss = True
 
     def forward(self,x,mem):
@@ -13,7 +14,8 @@ class RCSSNN(nn.Module):
         dim = -np.arange(rank)-1
         dim = list(dim)
         r_t = x+torch.relu(mem)
-        r_d = r_t.mean(0,keepdim=True).detach()
+        index = -int(r_t.shape[0]*self.beta)
+        r_d = r_t[index:,...].mean(0,keepdim=True).detach()
         r_d_norm = (r_d.pow(2).sum(dim=dim)+1e-5)**0.5
         r_t_norm = (r_t.pow(2).sum(dim=dim)+1e-5)**0.5
         cs = (r_t*r_d).sum(dim=dim)/(r_t_norm*r_d_norm)

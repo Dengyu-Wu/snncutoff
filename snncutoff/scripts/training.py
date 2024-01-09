@@ -76,6 +76,7 @@ def main_worker(local_rank, args):
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler'])
         args.start_epoch = checkpoint['epoch']
+        best_acc = checkpoint['best_acc']
     cudnn.benchmark = True
 
     # Data loading code
@@ -185,47 +186,16 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
     # switch to train mode
     model.train()
     end = time.time()
-    snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
-    
+    snncase = SNNCASE(net=model, criterion=criterion, args=args)
     for i, (images, target) in enumerate(train_loader):
         data_time.update(time.time() - end)
 
         images = images.cuda(local_rank, non_blocking=True)
         target = target.cuda(local_rank, non_blocking=True)
-
-        inputs = snncase.preprocess(images)
-
-        if args.regularizer != 'none':
-            output_hook = OutputHook()
-            model = sethook(output_hook)(model)
-
-        # compute output
-        outputs = model(inputs)
-        target_onehot  = torch.nn.functional.one_hot(target, num_classes=outputs.size()[-1]) 
-        target_onehot  = target_onehot.to(torch.float32)
-
-        if args.regularizer != 'none':
-            _target = torch.unsqueeze(target,dim=0)  # T N C 
-            right_predict_mask = outputs.mean(0,keepdim=True).max(-1)[1].eq(_target).to(torch.float32)
-            tan_phi_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() # T*N L C
-            # tan_phi_mean = torch.stack(output_hook,dim=0)# T*N L C
-            right_predict_mask = torch.unsqueeze(right_predict_mask,dim=2).flatten(0, 1).contiguous().detach()
-            tan_phi_mean_masked = tan_phi_mean*right_predict_mask
-            # tan_phi_mean_masked = tan_phi_mean*1.0
-            tan_phi_max = tan_phi_mean_masked.max(dim=0)[0] # find max
-            # tan_phi_min = (tan_phi_mean_masked+(1-right_predict_mask)*1000.0).min(dim=0)[0] # find min, exclude zero value
-            # tan_phi_min = tan_phi_min*tan_phi_min.lt(torch.tensor(1000.0)).to(torch.float32) # set wrong prediction to zero
-            
-            cs_loss = tan_phi_max.mean() #change pow into abs
-
-            # cs_loss = (tan_phi_max -tan_phi_min.detach()).abs().mean()#change pow into abs
-            # tan_phi_mean = torch.stack(output_hook,dim=0).contiguous() # T*N L C
-            # cs_loss = tan_phi_mean.mean() #change pow into abs
-
-
-        mean_out,loss = snncase.postprocess(outputs, target_onehot)
-        if args.regularizer != 'none':
-            loss = loss  + args.alpha*(cs_loss)
+        
+        regularization = args.regularizer != 'none'
+        mean_out, loss = snncase.forward(images, target, regularization=regularization) 
+        cs_loss = snncase.get_loss_reg()
         
         acc1, acc5 = accuracy(mean_out, target, topk=(1, 5))
 
@@ -233,7 +203,7 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
 
         reduced_list = [loss,acc1,acc5]
         #custom value
-        if args.regularizer != 'none':
+        if regularization:
             reduced_list.append(cs_loss)
         
         reduced_metrics = []
@@ -250,8 +220,9 @@ def train(train_loader, model, criterion, base_metrics, optimizer, epoch, local_
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-        if args.regularizer != 'none':
-            model = sethook(output_hook)(model,remove=True)
+        if regularization:
+            snncase.remove_hook()
+            
 
         if i % args.print_freq == 0:
             progress.display(i)
@@ -273,14 +244,13 @@ def validate(val_loader, model, criterion, base_metrics, local_rank, args):
 
     with torch.no_grad():
         end = time.time()
-        snncase = SNNCASE(method=args.method, criterion=criterion, args=args)
+        snncase = SNNCASE(net=model, criterion=criterion, args=args)
         for i, (images, target) in enumerate(val_loader):
             images = images.cuda(local_rank, non_blocking=True)
             target = target.cuda(local_rank, non_blocking=True)
             # compute output
-            inputs = snncase.preprocess(images)
-            outputs = model(inputs)            
-            mean_out,loss = snncase.postprocess(outputs, target)
+ 
+            mean_out,loss = snncase.forward(images, target,regularization=False)
             # measure accuracy and record loss
             acc1, acc5 = accuracy(mean_out, target, topk=(1, 5))
 
