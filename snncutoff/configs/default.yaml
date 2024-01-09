@@ -57,4 +57,4 @@ defaults:
 
 hydra:  
   run:  
-    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TEBN${snn-train.TEBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
+    dir: outputs-rcs-0.3/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TEBN${snn-train.TEBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/

@@ -3,18 +3,18 @@ import numpy as np
 import os
 import torch 
 
-path_to_dataset = '/LOCAL2/dengyu/dvs_dataset/gesture_train'   #Path to the directory of dataset
+path_to_dataset = '/LOCAL/dengyu/dvs_dataset/GestureNP'   #Path to the directory of dataset
 split_ratio = 0.9   # 90% samples for training
 
-N = 16                  # Frame number of single sample
-split_num = 10          # Split one sample into samples
+N = 10                  # Frame number of single sample
+split_num = 1          # Split one sample into samples
 H = 128     
 W = 128
 t_start = 0.0e6        # start time 
-t_tot = t_start+0.6e6*split_num  # compute total time of spike train
+t_tot = t_start+1.3e6*split_num  # compute total time of spike train
 
-train_filename = '/LOCAL2/dengyu/dvs_dataset/dvs-gesture-10000/train/{}.pt'
-test_filename = '/LOCAL2/dengyu/dvs_dataset/dvs-gesture-10000/test/{}.pt'
+train_filename = '/LOCAL/dengyu/dvs_dataset/dvs-gesture-10/train/{}.pt'
+test_filename = '/LOCAL/dengyu/dvs_dataset/dvs-gesture-10/test/{}.pt'
 
 file_num = 0
 y_train = []
