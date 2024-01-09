@@ -7,6 +7,7 @@ class SNNCASE:
     def __init__(
         self,
         net: nn.Module,
+        net: nn.Module,
         criterion: nn.Module,
         args: dict
     ) -> None:
@@ -14,6 +15,7 @@ class SNNCASE:
         name = 'tet' if args.TET else 'mean'
         self.snn_loss = get_loss(name,method=args.method)(criterion, args.means,args.lamb)
         self.args = args
+        self.net = net
         self.net = net
         
     def preprocess(self,x):
