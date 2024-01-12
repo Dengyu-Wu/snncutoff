@@ -6,7 +6,8 @@ from snncutoff.utils import add_ann_constraints, add_snn_layers
 from snncutoff.models.VGG import *
 from snncutoff.models.ResNet import *
 from snncutoff.models import sew_resnet
-from snncutoff.API import get_regularizer, get_constrs
+from .get_constrs import get_constrs
+from .get_regularizer import get_regularizer
 
 def get_model(args):
     num_classes  = OuputSize(args.data.lower())
