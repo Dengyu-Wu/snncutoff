@@ -8,7 +8,7 @@ from snncutoff.models.ResNet import *
 from snncutoff.models import sew_resnet
 from snncutoff.API import get_regularizer, get_constrs
 
-def get_snn_model(args):
+def get_model(args):
     num_classes  = OuputSize(args.data.lower())
     if args.method !='ann' and args.method !='snn':
         AssertionError('Training method is wrong!')

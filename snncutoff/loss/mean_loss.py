@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 class MeanLoss(nn.Module):
-    def __init__(self, criterion):
+    def __init__(self, criterion, *args, **kwargs):
         super(MeanLoss, self).__init__()
         self.criterion=criterion
 
