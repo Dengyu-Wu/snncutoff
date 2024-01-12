@@ -106,33 +106,36 @@ def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     return model
 
 def addSNNLayers(name):
-    if 'relu' == name.lower():
+    if 'relu' == name.lower() or 'lifspike' == name.lower():
         return True
     return False
 
 
-def _add_snn_layers(model, T, snn_layers, regularizer=None, TEBN=None):
+def _add_snn_layers(model, T, snn_layers, regularizer=None, TEBN=None, arch_conversion=True):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer, TEBN=TEBN)
+            model._modules[name] = _add_snn_layers(module, T, snn_layers,regularizer, TEBN=TEBN, arch_conversion=arch_conversion)
         if  addSNNLayers(module.__class__.__name__.lower()):
             model._modules[name] = snn_layers(T=T, regularizer=regularizer)
-        if  addPreConstrs(module.__class__.__name__.lower()):
+        if  addPreConstrs(module.__class__.__name__.lower()) and arch_conversion:
             model._modules[name] = PreConstrs(T=T, module=model._modules[name])
-        if  addPostConstrs(module.__class__.__name__.lower()):
+        if  addPostConstrs(module.__class__.__name__.lower()) and arch_conversion:
             model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
         if TEBN:
             if  'norm2d' in module.__class__.__name__.lower():
                 model._modules[name] = TEBNLayer(T=T, num_features=model._modules[name].num_features)  
     return model
 
-def add_snn_layers(model, T, snn_layers, TEBN=False, regularizer=None):
-    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer,TEBN=TEBN)
-    model = nn.Sequential(
-        *list(model.children()),  
-        PostConstrs(T=T, module=None)    # Add the new layer
-        ) 
+def add_snn_layers(model, T, snn_layers, TEBN=False, regularizer=None, arch_conversion=True):
+    model = _add_snn_layers(model, T, snn_layers, regularizer=regularizer,TEBN=TEBN, arch_conversion=arch_conversion)
+    if arch_conversion:
+        model = nn.Sequential(
+            *list(model.children()),  
+            PostConstrs(T=T, module=None)    # Add the new layer
+            ) 
     return model
+
+
 
 def reset_neuron(model):
     for name, module in model._modules.items():

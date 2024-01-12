@@ -50,6 +50,7 @@ def main_worker(local_rank, args):
     bestpoint_names = args.log+'/'+args.project + '_bestpoint.pth'
 
     model = get_model(args)
+    print(model)
     if args.checkpoint_path != 'none':
         checkpoint = torch.load(args.checkpoint_path)
         model.load_state_dict(checkpoint['state_dict'])
