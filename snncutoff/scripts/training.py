@@ -25,7 +25,7 @@ from snncutoff.ddp import reduce_mean, ProgressMeter, accuracy, AverageMeter
 from snncutoff.configs import AllConfig
 from omegaconf import DictConfig
 from snncutoff import SNNCASE
-from snncutoff import get_snn_model
+from snncutoff.API import get_model
 
 def main_worker(local_rank, args):
     args.local_rank = local_rank
@@ -49,7 +49,7 @@ def main_worker(local_rank, args):
     checkpoint_names = args.log+'/'+args.project + '_checkpoint.pth'
     bestpoint_names = args.log+'/'+args.project + '_bestpoint.pth'
 
-    model = get_snn_model(args)
+    model = get_model(args)
     if args.checkpoint_path != 'none':
         checkpoint = torch.load(args.checkpoint_path)
         model.load_state_dict(checkpoint['state_dict'])
