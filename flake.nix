@@ -11,7 +11,8 @@
     utils,
     ...
   }:
-    utils.lib.eachDefaultSystem (system: let
+    utils.lib.eachDefaultSystem (system: # FIXME: outputs for multiple systems
+    let
       pkgs = import nixpkgs {
         inherit system;
       };
