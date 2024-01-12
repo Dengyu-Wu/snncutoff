@@ -32,8 +32,14 @@
         postShellHook = ''
         '';
 
-        # Enable python libraries to discover libstdc++.so.6
-        LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [ stdenv.cc.cc ];
+        LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [
+          # Enable python libraries to discover libstdc++.so.6
+          stdenv.cc.cc
+
+          # FIXME: workaround for finding libcuda.so on non-NixOS systems
+          "/usr"  # General location
+          "/usr/lib/wsl"  # On WSL
+        ];
       };
     });
 }
