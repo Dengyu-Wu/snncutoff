@@ -38,7 +38,6 @@ class BasicBlock(nn.Module):
             conv3x3(inplanes, planes, stride),
             norm_layer(planes)
         )
-        # self.sn1 =  neuron.LIFNode(step_mode='m')
         self.sn1 = LIFSpike()
 
         self.conv2 = SeqToANNContainer(
@@ -47,15 +46,14 @@ class BasicBlock(nn.Module):
         )
         self.downsample = downsample
         self.stride = stride
-        # self.sn2 = neuron.LIFNode(step_mode='m')
         self.sn2 = LIFSpike()
 
     def forward(self, x):
         identity = x
 
-        out = self.sn1(self.conv1(x))[0]
+        out = self.sn1(self.conv1(x))
 
-        out = self.sn2(self.conv2(out))[0]
+        out = self.sn2(self.conv2(out))
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -107,11 +105,11 @@ class Bottleneck(nn.Module):
     def forward(self, x):
         identity = x
 
-        out = self.sn1(self.conv1(x))[0]
+        out = self.sn1(self.conv1(x))
 
-        out = self.sn2(self.conv2(out))[0]
+        out = self.sn2(self.conv2(out))
 
-        out = self.sn3(self.conv3(out))[0]
+        out = self.sn3(self.conv3(out))
 
         if self.downsample is not None:
             identity = self.downsample(x)
@@ -165,7 +163,6 @@ class SEWResNet(nn.Module):
         self.bn1 = SeqToANNContainer(norm_layer(self.inplanes))
 
 
-        # self.sn1 = neuron.LIFNode(step_mode='m')
         self.sn1 = LIFSpike() 
         self.maxpool = SeqToANNContainer(nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
 
@@ -203,8 +200,7 @@ class SEWResNet(nn.Module):
                     norm_layer(planes * block.expansion),
                 ),
                 LIFSpike()
-                # neuron.LIFNode(step_mode='m')
-            )[0]
+            )
 
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample, self.groups,
@@ -220,8 +216,8 @@ class SEWResNet(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.sn1(x)[0]
-        x = self.maxpool(x)
+        x = self.sn1(x)
+        # x = self.maxpool(x)
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
@@ -231,12 +227,6 @@ class SEWResNet(nn.Module):
         x = torch.flatten(x, 2)
         x = self.fc(x)
         return x
-        #return self.fc(x.mean(dim=0))
-
-    # def forward(self, x):
-    #     x, impt = self._forward_impl(x)
-    #     return x, impt
-
 
 def _sew_resnet(block, layers, **kwargs):
     model = SEWResNet(block, layers, **kwargs)
@@ -263,4 +253,11 @@ def sew_resnet152(**kwargs):
     return _sew_resnet(Bottleneck, [3, 8, 36, 3], **kwargs)
 
 
+cfg = {
+    'sewresnet18': [2, 2, 2, 2],
+    'sewresnet34': [3, 4, 6, 3],
+    'sewresnet50': [3, 4, 6, 3],
+    'sewresnet101': [3, 4, 23, 3],
+    'sewresnet152': [3, 8, 36, 3]
 
+}

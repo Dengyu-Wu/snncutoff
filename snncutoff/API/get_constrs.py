@@ -10,8 +10,8 @@ ann_constrs = {
 
 snn_layers = {
 'baselayer': BaseLayer,
+'simplebaselayer': SimpleBaseLayer,
 }
-
 
 def get_constrs(name: str, method: str):
     if method == 'ann':

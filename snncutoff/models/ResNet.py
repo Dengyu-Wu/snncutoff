@@ -207,13 +207,12 @@ def resnet152(num_classes=10, **kargs):
 
 cfg = {
     'resnet18': [2, 2, 2, 2],
-    'resnet34': [3, 8, 36, 3],
+    'resnet34': [3, 4, 6, 3],
     'resnet50': [3, 4, 6, 3],
     'resnet101': [3, 4, 23, 3],
     'resnet152': [3, 8, 36, 3]
 
 }
-
 
 def get_resnet(name, num_classes=10, **kargs):
     Block = BasicBlock if name == 'resnet18' or name =='resnet34' else BottleNeck

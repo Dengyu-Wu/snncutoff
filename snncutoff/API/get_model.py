@@ -1,10 +1,11 @@
 
 from snncutoff.models.vgglike import *
+from snncutoff.models.vggsnn import *
 from snncutoff.constrs.ann import *
 from snncutoff.constrs.snn import *
 from snncutoff.utils import add_ann_constraints, add_snn_layers
-from snncutoff.models.VGG import *
-from snncutoff.models.ResNet import *
+from snncutoff.models.VGG import VGG
+from snncutoff.models.ResNet import get_resnet
 from snncutoff.models import sew_resnet
 from .get_constrs import get_constrs
 from .get_regularizer import get_regularizer
@@ -21,13 +22,14 @@ def get_model(args):
                                         regularizer=get_regularizer(args.regularizer.lower(),args.method))    
             return model
         elif args.method=='snn':
-            model = ann_models(args.model,num_classes)
-            model = add_snn_layers(model, args.T, 
+            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+            model = add_snn_layers(model, args.T,
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                     TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
+                                    arch_conversion=args.arch_conversion,
+                                    )  
             return model
-            # return snn_models(args.model,args.T, num_classes)
     elif InputSize(args.data.lower()) == '3-32-32':
         if args.method=='ann':
             model = ann_models(args.model,num_classes)
@@ -36,14 +38,13 @@ def get_model(args):
                                         regularizer=get_regularizer(args.regularizer.lower(),args.method))   
             return model
         elif args.method=='snn':
-            model = ann_models(args.model,num_classes)
-            model = nn.Sequential(
-                *list(model.children()),  
-                ) 
+            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
             model = add_snn_layers(model, args.T,
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                     TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
+                                    arch_conversion=args.arch_conversion,
+                                    )  
             return model
     elif InputSize(args.data.lower()) == '3-224-224':
         if args.method=='ann':
@@ -53,39 +54,46 @@ def get_model(args):
                                         regularizer=get_regularizer(args.regularizer.lower(),args.method))    
             return model
         elif args.method=='snn':
-            return snn_models(args.model,num_classes)
+            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+            model = add_snn_layers(model, args.T,
+                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
+                                    TEBN=args.TEBN,
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
+                                    arch_conversion=args.arch_conversion,
+                                    )  
+            return model
     elif InputSize(args.data.lower()) == '2-240-180':
         if args.method=='ann':
             return VGGANN_NCaltech101()
         elif args.method=='snn':
-            model = ann_models(args.model,num_classes)
-            model = add_snn_layers(model, args.T, 
+            model = ann_models(args.model,num_classes)  if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+            model = add_snn_layers(model, args.T,
                                     snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                     TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))  
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
+                                    arch_conversion=args.arch_conversion,
+                                    )  
             return model
     else:
         NameError("The dataset name is not support!")
         exit(0)
-        
-    
     return model
 
-
-def isVGG(name):
+def get_basemodel(name):
     if name.lower() in ['vgg11','vgg13','vgg16','vgg19',]:
-        return True
-    return False
-
-def isResNet(name):
-    if name.lower() in ['resnet18','resnet20','resnet34','resnet50','resnet101','resnet152']:
-        return True
-    return False
+        return 'vgg'
+    elif name.lower() in ['resnet18','resnet20','resnet34','resnet50','resnet101','resnet152']:
+        return 'resnet'
+    elif name.lower() in ['sew_resnet18','sew_resnet20','sew_resnet34','sew_resnet50','sew_resnet101','sew_resnet152']:
+        return 'sew_resnet'
+    else:
+        pass
 
 def ann_models( model_name, num_classes):
-    if isVGG(model_name):
+    base_model = get_basemodel(model_name)
+    if base_model == 'vgg':
         return VGG(model_name.upper(), num_classes, dropout=0)
-    elif isResNet(model_name):
+    elif base_model == 'resnet':
         return get_resnet(model_name, num_classes=num_classes)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
@@ -98,17 +106,14 @@ def ann_models( model_name, num_classes):
         exit(0)
 
 def snn_models(model_name, T, num_classes):
-    if model_name == 'VGGSNN':
+    base_model = get_basemodel(model_name)
+    if base_model == 'VGGSNN':
         return VGGSNN(num_classes=num_classes)
-    elif model_name == 'resnet18':
-        return resnet18(num_classes=num_classes)
-    elif model_name == 'resnet34':
-        return resnet34(num_classes=num_classes)
-    elif 'sew_resnet' in model_name:
-        model = sew_resnet.__dict__['sew_resnet34'](T=T, connect_f='ADD')
+    elif base_model=='sew_resnet':
+        model = sew_resnet.__dict__[model_name](T=T, connect_f='ADD',num_classes=num_classes)
         return model
     else:
-        AssertionError('SNN is not suported yet!')
+        AssertionError('This architecture is not suported yet!')
 
 def InputSize(name):
     if 'cifar10-dvs' in name.lower() or 'dvs128-gesture' in name.lower():
@@ -125,13 +130,13 @@ def InputSize(name):
 def OuputSize(name):
     if 'cifar10-dvs' == name.lower() or 'cifar10' == name.lower() :
         return 10
-    elif  'dvs128-gesture' == name.lower():
+    elif 'dvs128-gesture' == name.lower():
         return 11
     elif 'cifar100' == name.lower():
         return 100
     elif 'imagenet' == name.lower():
         return 1000
-    elif  'ncaltech101' == name.lower():
+    elif 'ncaltech101' == name.lower():
         return 101
     else:
         NameError('This dataset name is not supported!')

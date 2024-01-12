@@ -32,7 +32,23 @@ class ZIF(torch.autograd.Function):
         tmp = (1 / gama) * (1 / gama) * ((gama - input.abs()).clamp(min=0))
         grad_input = grad_input * tmp
         return grad_input, None
-    
+
+
+class Layer(nn.Module):
+    def __init__(self,in_plane,out_plane,kernel_size,stride,padding,droprate=0.0):
+        super(Layer, self).__init__()
+        self.fwd = SeqToANNContainer(
+            nn.Conv2d(in_plane,out_plane,kernel_size,stride,padding),
+            nn.BatchNorm2d(out_plane),
+            nn.Dropout(p=droprate)
+        )
+        self.act = LIFSpike()
+
+    def forward(self,x):
+        x = self.fwd(x)
+        x = self.act(x)
+        return x    
+
 class LIFSpike(nn.Module):
     def __init__(self, thresh=1, tau=0.5, gama=1.0):
         super(LIFSpike, self).__init__()

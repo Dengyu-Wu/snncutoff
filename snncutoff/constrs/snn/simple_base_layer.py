@@ -5,7 +5,8 @@ from torch.autograd import Function
 from snncutoff.gradients import ZIF
 from snncutoff.neuron import LIF
 
-class BaseLayer(nn.Module):
+
+class SimpleBaseLayer(nn.Module):
     def __init__(self, 
                  T: int = 4, 
                  L: int = 4, 
@@ -18,7 +19,7 @@ class BaseLayer(nn.Module):
                  multistep: bool=True,
                  reset_mode: str = 'hard'
                  ):
-        super(BaseLayer, self).__init__()
+        super(SimpleBaseLayer, self).__init__()
         
         self.vthr = vthr
         self.tau = tau
@@ -51,40 +52,11 @@ class BaseLayer(nn.Module):
         elif self.reset_mode == 'soft':  
             return x - self.vthr*spike
         
-    def _mem_update_singlestep(self,x):
-        if self.neuron.t == 0:
-            self.mem_init = 0.5 if self.reset_mode == 'soft' else self.mem_init
-            self.neuron.initMem(self.mem_init*self.vthr)
-        spike_post = []
-        vmem = self.neuron.vmem + x[0]
-        spike =  (vmem > self.vthr).float()
-        vmem = self.vmem_reset(vmem,spike)
-        self.neuron.updateMem(vmem)
-        spike_post.append(spike*self.vthr)
-        return torch.stack(spike_post,dim=0), 0.0
-
-    def mem_update(self,x):
-        if self.multistep:
-            return self._mem_update_multistep(x)
-        else:
-            return self._mem_update_singlestep(x)   
-        
     def forward(self, x):  
-        x = self.reshape(x)
-        spike_post, mem_post = self.mem_update(x)
+        spike_post, mem_post = self._mem_update_multistep(x)
         if self.regularizer is not None:
             loss = self.regularizer(spike_post.clone(), mem_post.clone()/self.vthr)
         return spike_post
-         
-    
-    def reshape(self,x):
-        if self.multistep:
-            batch_size = int(x.shape[0]/self.T)
-            new_dim = [self.T, batch_size]
-            new_dim.extend(x.shape[1:])
-            return x.reshape(new_dim)
-        else:
-            return x.unsqueeze(0)
         
 
 

@@ -24,6 +24,7 @@ class BaseConfig(BaseModel):
 
 class SNNConfig(BaseModel):
     method: str
+    arch_conversion: bool
     ann_constrs: str
     snn_layers: str
     TEBN: bool
