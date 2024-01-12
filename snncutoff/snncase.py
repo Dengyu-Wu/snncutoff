@@ -15,6 +15,7 @@ class SNNCASE:
         self.snn_loss = get_loss(name,method=args.method)(criterion, args.means,args.lamb)
         self.args = args
         self.net = net
+        self.loss_reg = 0.0
         
     def preprocess(self,x):
         if self.args.add_time_dim:
