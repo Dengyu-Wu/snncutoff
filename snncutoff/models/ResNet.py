@@ -96,6 +96,8 @@ class ResNet(nn.Module):
             nn.ReLU(inplace=True))
         # we use a different inputsize than the original paper
         # so conv2_x's stride is 1
+        if num_classes==1000:
+            self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1) 
         self.conv2_x = self._make_layer(block, 64, num_block[0], 1)
         self.conv3_x = self._make_layer(block, 128, num_block[1], 2)
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2)
@@ -127,12 +129,13 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         output = self.conv1(x)
+        if self.maxpool is not None:
+            output = self.maxpool(output)
         output = self.conv2_x(output)
         output = self.conv3_x(output)
         output = self.conv4_x(output)
         output = self.conv5_x(output)
         output = self.avg_pool(output)
-        # output = output.view(output.size(0), -1)
         output = self.flatten(output)
         output = self.fc(output)
         return output
