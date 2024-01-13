@@ -59,8 +59,8 @@ def main(cfg: DictConfig):
     timesteps=[]
     samples_number=[]
     for i in range(10):
-        evaluator.args.sigma = 1-0.01*i
-        _acc, _timesteps, _samples_number = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
+        epsilon = 1-0.01*i
+        _acc, _timesteps, _samples_number = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader,epsilon=epsilon)
         acc.append(_acc)
         timesteps.append(_timesteps)
         samples_number.append(_samples_number)

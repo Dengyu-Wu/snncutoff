@@ -60,8 +60,8 @@ class Evaluator:
         acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
-    def cutoff_evaluation(self,data_loader,train_loader):
-        beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader)
+    def cutoff_evaluation(self,data_loader,train_loader,epsilon=0.0):
+        beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader,epsilon=epsilon)
         outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         topk = torch.topk(outputs_list,2,dim=-1)

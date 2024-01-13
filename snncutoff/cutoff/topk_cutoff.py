@@ -8,23 +8,20 @@ from torch.utils.data import DataLoader
 from snncutoff.utils import reset_neuron
 
 class TopKCutoff:
-    def __init__(self, T, sigma=1.0, bin_size=100,add_time_dim=False, multistep=False):
-        # self.config = config
+    def __init__(self, T, bin_size=100,add_time_dim=False, multistep=False):
         self.T = T
         self.add_time_dim = add_time_dim
         self.bin_size = bin_size 
-        self.sigma = sigma 
-        self.beta = None
         self.multistep = multistep
 
     @torch.no_grad()
     def setup(self, 
               net: nn.Module,
               data_loader: DataLoader,
+              epsilon: float = 1.0,
               progress: bool = True):
 
         conf, sample = [], []
-        net.eval()
         for data, label in tqdm(data_loader,
                           disable=not progress):
             data = data.cuda()
@@ -58,34 +55,30 @@ class TopKCutoff:
             ygaps_min = ygaps.min()
             ygaps_max = ygaps.max()
             ygaps_disrete = (ygaps_max - ygaps_min)/self.bin_size
-            beta, sample_batch = [], []
+            beta, sample_bin = [], []
    
             for m in range(self.bin_size):
                 beta_m = m*ygaps_disrete+ygaps_min
-                cont_m = []
                 sample_m = []
                 for t in range(self.T):
                     cutoff_sample = (ygaps[t] > beta_m).float()
                     sample_m.append(torch.tensor([(cutoff_sample * pred[t]).sum(),cutoff_sample.sum()]))
                 sample_m = torch.stack(sample_m,dim=0)
                 beta.append(beta_m)
-                sample_batch.append(sample_m)
-            beta = torch.stack(beta,dim=0)
-            sample_batch = torch.stack(sample_batch,dim=0)
-            sample.append(sample_batch)
+                sample_bin.append(sample_m)
+            beta = torch.stack(beta,dim=0)    #m 1 
+            sample_bin = torch.stack(sample_bin,dim=0)
+            sample.append(sample_bin)
 
         sample = torch.stack(sample,dim=0).sum(0)
         conf = sample[...,0]/sample[...,1]
         conf[-1] = 1.0 
-        conf_mask = (conf>=self.sigma).float()
+        conf_mask = (conf>=1-epsilon).float()
         # sample_mask = sample[...,1]*conf_mask
         # sample_max = torch.max(sample_mask,dim=0)[0]
         # beta_index = sample.shape[0]-1-(sample_mask==sample_max).float().flip(dims=[0,]).argmax(0)
-
         beta_index = conf_mask.argmax(0)
-        self.beta = beta[beta_index]
-
-        return self.beta, [conf.cpu().numpy(), beta.cpu().numpy(), sample.cpu().numpy()]
+        return beta[beta_index], [conf.cpu().numpy(), beta.cpu().numpy(), sample.cpu().numpy()]
         
 
     @torch.no_grad()
@@ -106,7 +99,6 @@ class TopKCutoff:
                   data_loader: DataLoader,
                   progress: bool = True):
         outputs_list, label_list = [], []
-        net.eval()
         for data, label in tqdm(data_loader,
                           disable=not progress):
             data = data.cuda()

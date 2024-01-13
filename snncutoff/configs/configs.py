@@ -40,7 +40,7 @@ class SNNConfig(BaseModel):
     add_time_dim: bool
     
 class SNNTest(BaseModel):
-    sigma: float
+    epsilon: float
     decay_factor: float
     cutoff_name: str
     reset_mode: str

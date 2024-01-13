@@ -38,7 +38,7 @@ snn-train:
   alpha: 0.002
   
 snn-test:
-  sigma: 1.0
+  epsilon: 0.0
   decay_factor: 0.5
   cutoff_name: 'topk'
   reset_mode: 'soft'
