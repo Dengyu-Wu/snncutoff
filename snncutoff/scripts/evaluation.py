@@ -29,7 +29,7 @@ def main(cfg: DictConfig):
         
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    train_dataset, test_dataset = data_loaders.get_data_loaders(path=args.dataset_path, data=args.data, resize=False)
+    train_dataset, test_dataset = data_loaders.get_data_loaders(path=args.dataset_path, data=args.data, transform=False,resize=False)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size,
