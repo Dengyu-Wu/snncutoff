@@ -21,6 +21,7 @@ base:
   
 snn-train:
   method: 'ann'
+  arch_conversion: True
   ann_constrs: 'baseconstrs'
   snn_layers: 'baselayer'
   regularizer: 'none'
@@ -33,15 +34,14 @@ snn-train:
   add_time_dim: 'False'
   means: 1.0
   lamb: 1e-3
-  # lamb: 0.0
   alpha: 0.002
   
 snn-test:
-  sigma: 1.0
+  epsilon: 0.0
   decay_factor: 0.5
   cutoff_name: 'topk'
   reset_mode: 'soft'
-  model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
+  model_path: none
 
 ###Logging Configuration
 logging:
