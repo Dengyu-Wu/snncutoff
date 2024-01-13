@@ -4,5 +4,8 @@ __pycache__/
 # Distribution / packaging
 dist/
 
+# Sphinx documentation
+docs/_build/
+
 # Virtual environments
 .venv
