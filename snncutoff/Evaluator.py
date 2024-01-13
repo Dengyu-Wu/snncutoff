@@ -34,9 +34,8 @@ class Evaluator:
         self.args = args
         self.net.eval()
         cutoff=get_cutoff(args.cutoff_name)
-        self.cutoff = cutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim,sigma=args.sigma,multistep=args.multistep)
+        self.cutoff = cutoff(T=args.T, bin_size=100,add_time_dim=args.add_time_dim, multistep=args.multistep)
         self.T = args.T
-        self.sigma = args.sigma
         self.add_time_dim = args.add_time_dim
 
     def evaluation(self,data_loader):
@@ -68,7 +67,6 @@ class Evaluator:
         topk_gap_t = topk[0][...,0] - topk[0][...,1] 
         index = (topk_gap_t>2*beta.unsqueeze(-1)).float()
         index[-1] = 1.0
-        index[:,-1] = 1.0
         index = torch.argmax(index,dim=0)
         mask = torch.nn.functional.one_hot(index, num_classes=self.T)
         outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
