@@ -46,7 +46,7 @@ class Evaluator:
         acc =(outputs_list.max(-1)[1] == new_label).float().sum(1)/label_list.size()[0]
         return acc.cpu().numpy().tolist(), 0.0
     
-    def aoi_evaluation(self,data_loader):
+    def oct_evaluation(self,data_loader):
         outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         index = (outputs_list.max(-1)[1] == new_label).float()

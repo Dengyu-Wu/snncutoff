@@ -10,7 +10,7 @@ from snncutoff.configs import *
 from omegaconf import DictConfig
 from snncutoff.Evaluator import Evaluator
 from snncutoff.utils import multi_to_single_step
-from snncutoff.API import get_model
+from snncutoff import get_snn_model
 from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
 from snncutoff.utils import seed_all
@@ -34,7 +34,7 @@ def main(cfg: DictConfig):
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
-    models = get_model(args)
+    models = get_snn_model(args)
     i= 0
     path = args.model_path
     state_dict = torch.load(path, map_location=torch.device('cpu'))
@@ -46,28 +46,28 @@ def main(cfg: DictConfig):
     acc, loss = evaluator.evaluation(test_loader)
     print(acc)
     print(np.mean(loss))
-    save_pickle(acc,name='timestep_cutoff',path=os.path.dirname(path))
+    result={'accuracy': acc}
+    save_pickle(result,name='timestep_cutoff',path=os.path.dirname(path))
 
-    acc, timesteps = evaluator.aoi_evaluation(test_loader)
+    acc, timesteps = evaluator.oct_evaluation(test_loader)
     print(acc)
     print(np.mean(timesteps))
-    save_pickle(timesteps,name='aoi_timestep',path=os.path.dirname(path))
-
-    acc, timesteps, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
-    # loss
-    print(acc)
-    print(np.mean(timesteps))
-    # acc, loss = evaluator.aoi_evaluation(test_loader)
-    save_pickle(timesteps,name='topk_cutoff_sampels',path=os.path.dirname(path))
-    save_pickle(conf,name='conf_timestep',path=os.path.dirname(path))
+    result={'accuracy': acc, 'timesteps': timesteps}
+    save_pickle(result,name='oct_timestep',path=os.path.dirname(path))
 
     acc=[]
+    timesteps=[]
+    samples_number=[]
     for i in range(10):
         evaluator.args.sigma = 1-0.01*i
-        _acc, timesteps, conf = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
+        _acc, _timesteps, _samples_number = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader)
         acc.append(_acc)
+        timesteps.append(_timesteps)
+        samples_number.append(_samples_number)
     acc = np.array(acc)
-    save_pickle(acc,name='topk_cutoff',path=os.path.dirname(path))
+    timesteps = np.array(timesteps)
+    result={'accuracy': acc, 'timesteps': timesteps, 'samples_number':samples_number}
+    save_pickle(result,name='topk_cutoff',path=os.path.dirname(path))
 
 if __name__ == '__main__':
    main()
