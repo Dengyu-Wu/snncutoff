@@ -34,6 +34,7 @@ tests = []
 docs = [
   "sphinx",
   "sphinx-book-theme",
+  "myst-parser",
 ]
 dev = [
   "snncutoff[tests,docs]",
