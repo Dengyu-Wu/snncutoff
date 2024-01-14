@@ -14,70 +14,25 @@ def get_model(args):
     num_classes  = OuputSize(args.data.lower())
     if args.method !='ann' and args.method !='snn':
         AssertionError('Training method is wrong!')
-    if InputSize(args.data.lower()) == '2-128-128':
-        if args.method=='ann':
-            model = ann_models(args.model,num_classes)
-            model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
-                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))    
-            return model
-        elif args.method=='snn':
-            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
-            model = add_snn_layers(model, args.T,
-                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
-                                    arch_conversion=args.arch_conversion,
-                                    )  
-            return model
-    elif InputSize(args.data.lower()) == '3-32-32':
-        if args.method=='ann':
-            model = ann_models(args.model,num_classes)
-            model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
-                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))   
-            return model
-        elif args.method=='snn':
-            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
-            model = add_snn_layers(model, args.T,
-                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
-                                    arch_conversion=args.arch_conversion,
-                                    )  
-            return model
-    elif InputSize(args.data.lower()) == '3-224-224':
-        if args.method=='ann':
-            model = ann_models(args.model,num_classes)
-            model = add_ann_constraints(model, args.T, args.L, 
-                                        ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
-                                        regularizer=get_regularizer(args.regularizer.lower(),args.method))    
-            return model
-        elif args.method=='snn':
-            model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
-            model = add_snn_layers(model, args.T,
-                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
-                                    arch_conversion=args.arch_conversion,
-                                    )  
-            return model
-    elif InputSize(args.data.lower()) == '2-240-180':
-        if args.method=='ann':
-            return VGGANN_NCaltech101()
-        elif args.method=='snn':
-            model = ann_models(args.model,num_classes)  if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
-            model = add_snn_layers(model, args.T,
-                                    snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
-                                    TEBN=args.TEBN,
-                                    regularizer=get_regularizer(args.regularizer.lower(),args.method),
-                                    arch_conversion=args.arch_conversion,
-                                    )  
-            return model
+    # if InputSize(args.data.lower()) == '2-128-128':
+    if args.method=='ann':
+        model = ann_models(args.model,num_classes)
+        model = add_ann_constraints(model, args.T, args.L, 
+                                    ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
+                                    regularizer=get_regularizer(args.regularizer.lower(),args.method))    
+        return model
+    elif args.method=='snn':
+        model = ann_models(args.model,num_classes) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+        model = add_snn_layers(model, args.T,
+                                snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
+                                TEBN=args.TEBN,
+                                regularizer=get_regularizer(args.regularizer.lower(),args.method),
+                                arch_conversion=args.arch_conversion,
+                                )  
+        return model
     else:
         NameError("The dataset name is not support!")
         exit(0)
-    return model
 
 def get_basemodel(name):
     if name.lower() in ['vgg11','vgg13','vgg16','vgg19',]:
@@ -120,6 +75,8 @@ def InputSize(name):
         return '2-128-128'
     elif 'cifar10' in name.lower() or 'cifar100' in name.lower():
         return '3-32-32'
+    elif 'tiny-imagenet' in name.lower():
+        return '3-64-64'
     elif 'imagenet' in name.lower():
         return '3-224-224'
     elif  'ncaltech101' in name.lower():
@@ -134,9 +91,12 @@ def OuputSize(name):
         return 11
     elif 'cifar100' == name.lower():
         return 100
-    elif 'imagenet' == name.lower():
-        return 1000
     elif 'ncaltech101' == name.lower():
         return 101
+    elif 'tiny-imagenet' == name.lower():
+        return 200
+    elif 'imagenet' == name.lower():
+        return 1000
+
     else:
         NameError('This dataset name is not supported!')
