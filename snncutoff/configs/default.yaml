@@ -42,7 +42,7 @@ snn-test:
   decay_factor: 0.5
   cutoff_name: 'topk'
   reset_mode: 'soft'
-  model_path: /LOCAL2/dengyu/MySNN/easycutoff/outputs/2023-12-08/07-55-17/cifar10-dvs-vggann-alpha0.002.pth
+  model_path: cifar10.pth
 
 ###Logging Configuration
 logging:
@@ -58,4 +58,4 @@ defaults:
 
 hydra:  
   run:  
-    dir: outputs-test/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TEBN${snn-train.TEBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
+    dir: outputs/${base.data}-${base.model}-${snn-train.method}${snn-train.T}T${snn-train.L}L-TET${snn-train.TET}-TEBN${snn-train.TEBN}-${snn-train.ann_constrs}-${snn-train.regularizer}-alpha${snn-train.alpha}-seed${base.seed}-epochs${base.epochs}/
