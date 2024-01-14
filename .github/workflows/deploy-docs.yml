@@ -31,8 +31,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: 'pyproject.toml'
+        #   python-version-file: 'pyproject.toml'
+          python-version: '3.11'
       - name: Install dependencies
+        # TODO: https://github.com/pypa/pip/issues/11440
         run: |
           python -m pip install --upgrade pip
           python -m pip install .[docs]
