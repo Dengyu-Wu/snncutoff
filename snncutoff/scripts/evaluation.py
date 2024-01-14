@@ -10,7 +10,7 @@ from snncutoff.configs import *
 from omegaconf import DictConfig
 from snncutoff.Evaluator import Evaluator
 from snncutoff.utils import multi_to_single_step
-from snncutoff.API import get_model
+from snncutoff import get_snn_model
 from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
 from snncutoff.utils import seed_all
@@ -34,7 +34,7 @@ def main(cfg: DictConfig):
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers, pin_memory=True)
-    models = get_model(args)
+    models = get_snn_model(args)
     i= 0
     path = args.model_path
     state_dict = torch.load(path, map_location=torch.device('cpu'))
