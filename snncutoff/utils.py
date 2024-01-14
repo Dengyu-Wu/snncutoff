@@ -5,7 +5,7 @@ import random
 import os
 import numpy as np
 from snncutoff.neuron import *
-from snncutoff.constrs.ann import PreConstrs, PostConstrs
+from snncutoff.constrs.ann import PreConstrs, PostConstrs, DropoutConstrs
 from snncutoff.constrs.snn import BaseLayer
 from snncutoff.constrs.snn import TEBNLayer
 
@@ -79,11 +79,25 @@ def multi_to_single_step(model,reset_mode):
                                              reset_mode=reset_mode)
         if  'preconstrs' in module.__class__.__name__.lower():
             model._modules[name].multistep=False  
-        # if  'dropout' in module.__class__.__name__.lower():
-        #     model._modules[name] = LinearConstrs(T=1)
         if  'postconstrs' in module.__class__.__name__.lower():
             model._modules[name].multistep=False  
     return model
+
+
+def set_dropout(model,p=0.0,training=True):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = set_dropout(module,p,training=training)
+        if training:
+            if  'baselayer' in module.__class__.__name__.lower():
+                model._modules[name] = DropoutConstrs(module=model._modules[name],p=p)
+                model._modules[name].train()
+        else:
+            if  'dropoutconstrs' in module.__class__.__name__.lower():
+                model._modules[name] = model._modules[name].module
+                model._modules[name].eval()
+    return model
+
 
 def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     for name, module in model._modules.items():

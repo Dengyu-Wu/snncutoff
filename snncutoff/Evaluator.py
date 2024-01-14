@@ -4,7 +4,7 @@ from typing import Type
 from pydantic import BaseModel
 from snncutoff.cutoff import BaseCutoff
 from snncutoff.API import get_cutoff
-from snncutoff.utils import OutputHook, sethook
+from snncutoff.utils import OutputHook, sethook, set_dropout
 
 class Evaluator:
     def __init__(
@@ -60,7 +60,10 @@ class Evaluator:
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def cutoff_evaluation(self,data_loader,train_loader,epsilon=0.0):
+        net = self.net
+        net = set_dropout(net,0.3,training=True)
         beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader,epsilon=epsilon)
+        net = set_dropout(net,training=False)
         outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         topk = torch.topk(outputs_list,2,dim=-1)
