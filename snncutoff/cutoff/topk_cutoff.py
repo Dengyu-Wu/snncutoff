@@ -14,7 +14,7 @@ class TopKCutoff:
         self.bin_size = bin_size 
         self.multistep = multistep
 
-  @torch.no_grad()
+    @torch.no_grad()
     def setup(self, 
               net: nn.Module,
               data_loader: DataLoader,
