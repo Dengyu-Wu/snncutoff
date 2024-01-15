@@ -19,7 +19,7 @@ import torch.utils.data.distributed
 
 from torch.utils.tensorboard import SummaryWriter
 from snncutoff import data_loaders
-from snncutoff.utils import seed_all, get_logger
+from snncutoff.utils import set_seed, get_logger
 from snncutoff.ddp import reduce_mean, ProgressMeter, accuracy, AverageMeter
 
 from snncutoff.configs import AllConfig
@@ -30,7 +30,7 @@ from snncutoff.API import get_model
 def main_worker(local_rank, args):
     args.local_rank = local_rank
     if args.seed is not None:
-        seed_all(args.seed)
+        set_seed(args.seed)
         cudnn.deterministic = True
         warnings.warn('You have chosen to seed training. '
                       'This will turn on the CUDNN deterministic setting, '

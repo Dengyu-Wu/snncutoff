@@ -10,16 +10,16 @@ from snncutoff.configs import *
 from omegaconf import DictConfig
 from snncutoff.Evaluator import Evaluator
 from snncutoff.utils import multi_to_single_step
-from snncutoff import get_snn_model
+from snncutoff.API import get_model
 from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
-from snncutoff.utils import seed_all
+from snncutoff.utils import set_seed
 
 @hydra.main(version_base=None, config_path='../configs', config_name='test')
 def main(cfg: DictConfig):
     args = TestConfig(**cfg['base'], **cfg['snn-train'], **cfg['snn-test'])
     if args.seed is not None:
-        seed_all(args.seed)
+        set_seed(args.seed)
         cudnn.deterministic = True
         warnings.warn('You have chosen to seed training. '
                       'This will turn on the CUDNN deterministic setting, '
