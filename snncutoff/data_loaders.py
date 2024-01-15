@@ -1,4 +1,7 @@
 from .datasets import *
+import warnings 
+
+warnings.filterwarnings('ignore')
 
 def isDVSData(name):
     if 'cifar10-dvs' in name.lower() or 'ncaltech101' in name.lower() or 'dvs128-gesture' in name.lower():
