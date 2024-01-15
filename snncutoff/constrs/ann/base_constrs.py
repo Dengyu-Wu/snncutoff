@@ -24,15 +24,8 @@ class BaseConstrs(nn.Module):
         x = self.relu(x)
         return x
 
-    def reshape(self,x):
-        batch_size = int(x.shape[0]/self.T)
-        new_dim = [self.T, batch_size]
-        new_dim.extend(x.shape[1:])
-        return x.reshape(new_dim)
-
     def forward(self, x):
         if self.regularizer is not None:
-            loss = self.regularizer(self.reshape(x.clone()))
+            loss = self.regularizer(x.clone())
         x = self.constraints(x)
-        x = self.reshape(x)
         return x 

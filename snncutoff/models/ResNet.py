@@ -17,7 +17,7 @@ class BasicBlock(nn.Module):
     #to distinct
     expansion = 1
 
-    def __init__(self, in_channels, out_channels, stride=1):
+    def __init__(self, in_channels, out_channels, stride=1,snn_mode=True):
         super().__init__()
 
         #residual function
@@ -33,6 +33,7 @@ class BasicBlock(nn.Module):
         self.shortcut = nn.Sequential()
         self.a = nn.Sequential()
         self.shortcut_true = False
+        self.snn_mode = snn_mode
         #the shortcut output dimension is not the same with residual function
         #use 1*1 convolution to match the dimension
         if stride != 1 or in_channels != BasicBlock.expansion * out_channels:
@@ -47,9 +48,12 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         shortcut = x 
         out = self.residual_function(x) 
-        new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
-        new_shape.extend(shortcut.size()[2:])
-        shortcut = self.shortcut(x) if self.shortcut_true else shortcut.view(new_shape)
+        if self.snn_mode:
+            new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
+            new_shape.extend(shortcut.size()[2:])
+            shortcut = shortcut.view(new_shape)
+
+        shortcut = self.shortcut(x) if self.shortcut_true else shortcut
         out =  out + shortcut
         return self.relu(out)
 
@@ -57,7 +61,7 @@ class BottleNeck(nn.Module):
     """Residual block for resnet over 50 layers
     """
     expansion = 4
-    def __init__(self, in_channels, out_channels, stride=1):
+    def __init__(self, in_channels, out_channels, stride=1, snn_mode=True):
         super().__init__()
         self.residual_function = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False),
@@ -71,23 +75,31 @@ class BottleNeck(nn.Module):
 
         )
         self.shortcut = nn.Sequential()
+        self.snn_mode = snn_mode
+        self.shortcut_true = False 
         if stride != 1 or in_channels != out_channels * BottleNeck.expansion:
+            self.shortcut_true = True
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels * BottleNeck.expansion, stride=stride, kernel_size=1, bias=False),
                 nn.BatchNorm2d(out_channels * BottleNeck.expansion),
             )
         self.relu = nn.ReLU(inplace=True)
+
     def forward(self, x):
         shortcut = x 
         out = self.residual_function(x) 
-        new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
-        new_shape.extend(shortcut.size()[2:])
-        shortcut = self.shortcut(x) if self.shortcut_true else shortcut.view(new_shape)
+        if self.snn_mode:
+            new_shape = [int(shortcut.size()[1]*shortcut.size()[0]),]
+            new_shape.extend(shortcut.size()[2:])
+            shortcut = shortcut.view(new_shape)
+
+        shortcut = self.shortcut(x) if self.shortcut_true else shortcut
         out =  out + shortcut
         return self.relu(out)
 
+
 class ResNet(nn.Module):
-    def __init__(self, block, num_block, num_classes=100):
+    def __init__(self, block, num_block, num_classes=100, snn_mode=True):
         super().__init__()
         self.in_channels = 64
         self.conv1 = nn.Sequential(
@@ -96,6 +108,7 @@ class ResNet(nn.Module):
             nn.ReLU(inplace=True))
         # we use a different inputsize than the original paper
         # so conv2_x's stride is 1
+        self.snn_mode = snn_mode
         if num_classes==1000:
             self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1) 
         self.conv2_x = self._make_layer(block, 64, num_block[0], 1)
@@ -123,7 +136,7 @@ class ResNet(nn.Module):
         strides = [stride] + [1] * (num_blocks - 1)
         layers = []
         for stride in strides:
-            layers.append(block(self.in_channels, out_channels, stride))
+            layers.append(block(self.in_channels, out_channels, stride,self.snn_mode))
             self.in_channels = out_channels * block.expansion
         return nn.Sequential(*layers)
 
@@ -214,6 +227,6 @@ cfg = {
 
 }
 
-def get_resnet(name, num_classes=10, **kargs):
+def get_resnet(name, num_classes=10, snn_mode=True, **kargs):
     Block = BasicBlock if name == 'resnet18' or name =='resnet34' else BottleNeck
-    return ResNet(Block, cfg[name],num_classes=num_classes)
+    return ResNet(Block, cfg[name],num_classes=num_classes,snn_mode=snn_mode)

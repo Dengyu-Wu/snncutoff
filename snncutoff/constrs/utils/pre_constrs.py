@@ -1,11 +1,8 @@
-import torch
 from torch import nn
-from typing import Callable, List, Type
-from ..ann.base_constrs import BaseConstrs
+from typing import Type
 
-class PreConstrs(BaseConstrs):
+class PreConstrs(nn.Module):
     def __init__(self, T: int = 4, 
-                 vthr: float = 8.0, 
                  module: Type[nn.Module] = None, 
                  multistep: bool = True):
         super().__init__()
@@ -23,5 +20,6 @@ class PreConstrs(BaseConstrs):
         
     def forward(self, x):
         x = self.reshape(x)
-        x = self.module(x)
+        if self.module is not None:
+            x = self.module(x)
         return x 

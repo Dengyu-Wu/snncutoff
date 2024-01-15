@@ -105,15 +105,16 @@ def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
             model._modules[name] = _add_ann_constraints(module, T, L, ann_constrs,regularizer)
         if  'relu' == module.__class__.__name__.lower():
             model._modules[name] = ann_constrs(T=T, L=L, regularizer=regularizer)
-        if  addPreConstrs(module.__class__.__name__.lower()):
-            model._modules[name] = PreConstrs(T=T, module=model._modules[name])
-        if  addPostConstrs(module.__class__.__name__.lower()):
-            model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
+        # if  addPreConstrs(module.__class__.__name__.lower()):
+        #     model._modules[name] = PreConstrs(T=T, module=model._modules[name])
+        # if  addPostConstrs(module.__class__.__name__.lower()):
+        #     model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
     return model
 
 def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
     model = _add_ann_constraints(model, T, L, ann_constrs, regularizer=regularizer)
     model = nn.Sequential(
+        PreConstrs(T=T, module=None),
         *list(model.children()),  
         PostConstrs(T=T, module=None)    # Add the new layer
         )

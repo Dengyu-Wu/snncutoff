@@ -1,17 +1,21 @@
 import torch
 from torch import nn
-from typing import Callable, List, Type
-from ..ann.base_constrs import BaseConstrs
+from typing import Type
 
-class PostConstrs(BaseConstrs):
+class PostConstrs(nn.Module):
     def __init__(self, T: int = 4, 
-                 vthr: float = 8.0, 
                  module: Type[nn.Module] = None, 
                  multistep: bool = True):
         super().__init__()
         self.T = T
         self.module = module
         self.multistep = multistep
+
+    def reshape(self,x):
+        batch_size = int(x.shape[0]/self.T)
+        new_dim = [self.T, batch_size]
+        new_dim.extend(x.shape[1:])
+        return x.reshape(new_dim)
 
     def forward(self, x):
         if self.module is not None:

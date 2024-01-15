@@ -9,6 +9,7 @@ class RCSANN(nn.Module):
         self.add_loss = True
         
     def forward(self,x):
+        x = x.unsqueeze(0)
         rank = len(x.size())-2  # N,T,C,W,H
         dim = -np.arange(rank)-1
         dim = list(dim)
