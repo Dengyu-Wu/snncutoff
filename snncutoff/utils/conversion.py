@@ -35,19 +35,39 @@ def addSingleStep(name):
             return True
     return False
 
-def multi_to_single_step(model,reset_mode):
+def multi_to_single_step(model, multistep_ann, reset_mode):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = multi_to_single_step(module,reset_mode)
+            model._modules[name] = multi_to_single_step(module,multistep_ann,reset_mode)
         if addSingleStep(module.__class__.__name__.lower()):
             model._modules[name] = BaseLayer(vthr=model._modules[name].vthr, 
                                              tau=model._modules[name].tau, 
                                              multistep=False, 
                                              reset_mode=reset_mode)
+        if  addPreConstrs(module.__class__.__name__.lower()) and not multistep_ann:
+            model._modules[name] = PreConstrs(T=1, multistep=False, module=model._modules[name])
+        if  addPostConstrs(module.__class__.__name__.lower()) and not multistep_ann:
+            model._modules[name] = PostConstrs(T=1, multistep=False, module=model._modules[name]) 
         if  'preconstrs' in module.__class__.__name__.lower():
             model._modules[name].multistep=False  
         if  'postconstrs' in module.__class__.__name__.lower():
             model._modules[name].multistep=False  
+    return model
+
+def set_multistep(model):
+    for name, module in model._modules.items():
+        if hasattr(module, "_modules"):
+            model._modules[name] = set_multistep(module)
+        if hasattr(module, "multistep"):
+            model._modules[name].multistep = True
+    return model
+
+
+def preprocess_ann_arch(model):
+    model = set_multistep(model)
+    model = nn.Sequential(
+        *list(model.children())[1:],
+        )
     return model
 
 
@@ -66,25 +86,31 @@ def set_dropout(model,p=0.0,training=True):
     return model
 
 
-def _add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
+def _add_ann_constraints(model, T, L, multistep_ann, ann_constrs, regularizer=None):
     for name, module in model._modules.items():
         if hasattr(module, "_modules"):
-            model._modules[name] = _add_ann_constraints(module, T, L, ann_constrs,regularizer)
+            model._modules[name] = _add_ann_constraints(module, T, L, multistep_ann, ann_constrs,regularizer)
         if  'relu' == module.__class__.__name__.lower():
             model._modules[name] = ann_constrs(T=T, L=L, regularizer=regularizer)
-        # if  addPreConstrs(module.__class__.__name__.lower()):
-        #     model._modules[name] = PreConstrs(T=T, module=model._modules[name])
-        # if  addPostConstrs(module.__class__.__name__.lower()):
-        #     model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
+        if  addPreConstrs(module.__class__.__name__.lower()) and multistep_ann:
+            model._modules[name] = PreConstrs(T=T, module=model._modules[name])
+        if  addPostConstrs(module.__class__.__name__.lower()) and multistep_ann:
+            model._modules[name] = PostConstrs(T=T, module=model._modules[name])    
     return model
 
-def add_ann_constraints(model, T, L, ann_constrs, regularizer=None):
-    model = _add_ann_constraints(model, T, L, ann_constrs, regularizer=regularizer)
-    model = nn.Sequential(
-        PreConstrs(T=T, module=None),
-        *list(model.children()),  
-        PostConstrs(T=T, module=None)    # Add the new layer
-        )
+def add_ann_constraints(model, T, L, multistep_ann, ann_constrs, regularizer=None):
+    model = _add_ann_constraints(model, T, L, multistep_ann, ann_constrs, regularizer=regularizer)
+    if multistep_ann:
+        model = nn.Sequential(
+            *list(model.children()),  
+            PostConstrs(T=T, module=None)    # Add the new layer
+            )
+    else:
+        model = nn.Sequential(
+            PreConstrs(T=T, module=None),
+            *list(model.children()),  
+            PostConstrs(T=T, module=None)    # Add the new layer
+            )
     return model
 
 def addSNNLayers(name):
