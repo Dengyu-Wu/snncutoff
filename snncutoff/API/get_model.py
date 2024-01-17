@@ -14,15 +14,16 @@ def get_model(args):
     num_classes  = OuputSize(args.data.lower())
     if args.method !='ann' and args.method !='snn':
         AssertionError('Training method is wrong!')
-    # if InputSize(args.data.lower()) == '2-128-128':
+
     if args.method=='ann':
-        model = ann_models(args.model,num_classes,args.method)
-        model = add_ann_constraints(model, args.T, args.L, 
+        multistep = args.multistep_ann
+        model = ann_models(args.model,num_classes,multistep)
+        model = add_ann_constraints(model, args.T, args.L, args.multistep_ann,
                                     ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))    
         return model
     elif args.method=='snn':
-        model = ann_models(args.model,num_classes,args.method) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+        model = ann_models(args.model,num_classes,multistep=True) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
         model = add_snn_layers(model, args.T,
                                 snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                 TEBN=args.TEBN,
@@ -44,12 +45,12 @@ def get_basemodel(name):
     else:
         pass
 
-def ann_models( model_name, num_classes,method='SNN'):
+def ann_models( model_name, num_classes,multistep):
     base_model = get_basemodel(model_name)
     if base_model == 'vgg':
         return VGG(model_name.upper(), num_classes, dropout=0)
     elif base_model == 'resnet':
-        return get_resnet(model_name, num_classes=num_classes,snn_mode=('snn'==method.lower()))
+        return get_resnet(model_name, num_classes=num_classes,multistep=multistep)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
     elif model_name == 'vgg-gesture':
