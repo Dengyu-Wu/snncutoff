@@ -36,6 +36,7 @@ class SNNConfig(BaseModel):
     means: float
     lamb: float
     alpha: float
+    multistep_ann: bool
     multistep: bool
     add_time_dim: bool
     

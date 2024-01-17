@@ -30,6 +30,7 @@ snn-train:
   L: 4
   evaluate: 'False'
   TET: 'False'
+  multistep_ann: 'True'
   multistep: 'True'
   add_time_dim: 'False'
   means: 1.0
