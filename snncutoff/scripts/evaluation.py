@@ -9,7 +9,7 @@ import numpy as np
 from snncutoff.configs import *
 from omegaconf import DictConfig
 from snncutoff.Evaluator import Evaluator
-from snncutoff.utils import multi_to_single_step
+from snncutoff.utils import multi_to_single_step, preprocess_ann_arch
 from snncutoff.API import get_model
 from snncutoff.utils import save_pickle
 import torch.backends.cudnn as cudnn
@@ -40,7 +40,9 @@ def main(cfg: DictConfig):
     state_dict = torch.load(path, map_location=torch.device('cpu'))
     models.load_state_dict(state_dict, strict=False)
     if not args.multistep:
-        models = multi_to_single_step(models,reset_mode=args.reset_mode)
+        if not args.multistep_ann:
+            models = preprocess_ann_arch(models)
+        models = multi_to_single_step(models, args.multistep_ann, reset_mode=args.reset_mode)
     models.to(device)
     evaluator = Evaluator(models,args=args)
     acc, loss = evaluator.evaluation(test_loader)
