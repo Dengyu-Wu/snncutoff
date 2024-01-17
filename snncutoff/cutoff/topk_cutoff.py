@@ -40,7 +40,7 @@ class TopKCutoff:
                 ygaps_b = topk[0][...,0] - topk[0][...,1]
             else:
                 for t in range(self.T):
-                    output_t, _ = self.postprocess(net, data[t:t+1])
+                    output_t = self.postprocess(net, data[t:t+1])
                     pred_t = (output_t.softmax(-1).max(-1)[1] == label).float()
                     topk = torch.topk(output_t,2,dim=-1)
                     topk_gap_t = topk[0][:,0] - topk[0][:,1] 
