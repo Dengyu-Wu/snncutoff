@@ -16,6 +16,7 @@ class SNNCASE:
         self.args = args
         self.net = net
         self.loss_reg = 0.0
+        self.rcs_n=args.rcs_n
         
     def preprocess(self,x):
         if self.args.add_time_dim:
@@ -50,7 +51,7 @@ class SNNCASE:
 
     def output_mask(self, x, y):
         _target = torch.unsqueeze(y,dim=0) 
-        index = -int(x.shape[0]*1.0)
+        index = -int(x.shape[0]*self.rcs_n)
         right_predict_mask = x[index:].max(-1)[1].eq(_target).to(torch.float32)
         right_predict_mask = right_predict_mask.prod(0,keepdim=True)
         return right_predict_mask 

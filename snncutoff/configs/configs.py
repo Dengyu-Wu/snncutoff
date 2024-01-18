@@ -39,6 +39,7 @@ class SNNConfig(BaseModel):
     multistep_ann: bool
     multistep: bool
     add_time_dim: bool
+    rcs_n: float
     
 class SNNTest(BaseModel):
     epsilon: float

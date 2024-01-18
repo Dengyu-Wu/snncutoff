@@ -37,6 +37,7 @@ snn-train:
   lamb: 1e-3
   # lamb: 0.0
   alpha: 0.002
+  rcs_n: 0.3
   
 snn-test:
   epsilon: 0.0

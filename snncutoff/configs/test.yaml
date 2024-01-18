@@ -36,6 +36,7 @@ snn-train:
   means: 1.0
   lamb: 1e-3
   alpha: 0.002
+  rcs_n: 0.3
   
 snn-test:
   epsilon: 0.0
