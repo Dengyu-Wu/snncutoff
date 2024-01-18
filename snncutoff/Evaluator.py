@@ -68,7 +68,7 @@ class Evaluator:
         new_label = label_list.unsqueeze(0)
         topk = torch.topk(outputs_list,2,dim=-1)
         topk_gap_t = topk[0][...,0] - topk[0][...,1] 
-        index = (topk_gap_t>2*beta.unsqueeze(-1)).float()
+        index = (topk_gap_t>beta.unsqueeze(-1)).float()
         index[-1] = 1.0
         index = torch.argmax(index,dim=0)
         mask = torch.nn.functional.one_hot(index, num_classes=self.T)
