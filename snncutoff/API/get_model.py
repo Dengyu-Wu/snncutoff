@@ -76,9 +76,9 @@ def InputSize(name):
         return '2-128-128'
     elif 'cifar10' in name.lower() or 'cifar100' in name.lower():
         return '3-32-32'
-    elif 'tiny-imagenet' in name.lower():
-        return '3-64-64'
-    elif 'imagenet' in name.lower():
+    elif 'tiny-imagenet' == name.lower():
+        return '3-224-224'
+    elif 'imagenet' == name.lower():
         return '3-224-224'
     elif  'ncaltech101' in name.lower():
         return '2-240-180'
@@ -98,6 +98,5 @@ def OuputSize(name):
         return 200
     elif 'imagenet' == name.lower():
         return 1000
-
     else:
         NameError('This dataset name is not supported!')
