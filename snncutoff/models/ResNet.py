@@ -102,15 +102,20 @@ class ResNet(nn.Module):
     def __init__(self, block, num_block, num_classes=100, multistep=True):
         super().__init__()
         self.in_channels = 64
-        self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(64),
-            nn.ReLU(inplace=True))
-        # we use a different inputsize than the original paper
-        # so conv2_x's stride is 1
+
         self.multistep = multistep
-        if num_classes==1000:
+        if num_classes==1000 or num_classes==200:
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(3, 64, kernel_size=7,stride=2, padding=3, bias=False),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True))
             self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1) 
+        else:
+            # This is for input size 3*32*32
+            self.conv1 = nn.Sequential(
+                nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True))
         self.conv2_x = self._make_layer(block, 64, num_block[0], 1)
         self.conv3_x = self._make_layer(block, 128, num_block[1], 2)
         self.conv4_x = self._make_layer(block, 256, num_block[2], 2)
