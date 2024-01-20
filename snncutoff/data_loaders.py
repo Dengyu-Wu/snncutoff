@@ -15,6 +15,8 @@ def get_data_loaders(path, data,transform=True, resize=False):
         return GetCifar100(path)
     elif data.lower() == 'imagenet':
         return GetImageNet(path)
+    elif data.lower() == 'tiny-imagenet':
+        return GetTinyImageNet(path)
     elif isDVSData(data):
         train_path = path + '/train'
         val_path = path + '/test'

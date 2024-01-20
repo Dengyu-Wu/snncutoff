@@ -102,7 +102,6 @@ class ResNet(nn.Module):
     def __init__(self, block, num_block, num_classes=100, multistep=True):
         super().__init__()
         self.in_channels = 64
-
         self.multistep = multistep
         if num_classes==1000 or num_classes==200:
             self.conv1 = nn.Sequential(
