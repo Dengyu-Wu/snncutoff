@@ -85,18 +85,6 @@ class TopKCutoff:
         beta_index = conf_mask.argmax(0)
         print(beta_index)
         return beta[beta_index], [conf.cpu().numpy(), beta.cpu().numpy(), samples.cpu().numpy()]
-
-    @torch.no_grad()
-    def postprocess(self, net: nn.Module, data: Any):
-        output = net(data)
-        self.output = output[0]+self.output
-        return self.output
-    
-    def preprocess(self,x):
-        if self.add_time_dim:
-            x = x.unsqueeze(1)
-            x = x.repeat(1,self.T,1,1,1)
-        return x.transpose(0,1)
     
     @torch.no_grad()
     def inference(self,
