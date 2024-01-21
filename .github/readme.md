@@ -1,36 +1,7 @@
 # SNNCutoff
-
-<!-- Light Mode Image -->
-<img src="../docs/_static/logo_light.svg" alt="Light Mode Logo" id="logo-light" style="display: none;">
-
-<!-- Dark Mode Image -->
-<img src="../docs/_static/logo_dark.svg" alt="Dark Mode Logo" id="logo-dark" style="display: none;">
-
-<!-- JavaScript to Toggle Image Display -->
-<script>
-    const lightModeImage = document.getElementById("logo-light");
-    const darkModeImage = document.getElementById("logo-dark");
-    
-    // Function to check and set the appropriate image based on color mode
-    function setLogoImage() {
-        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (prefersDarkMode) {
-            lightModeImage.style.display = "none";
-            darkModeImage.style.display = "inline";
-        } else {
-            lightModeImage.style.display = "inline";
-            darkModeImage.style.display = "none";
-        }
-    }
-    
-    // Call the function to initially set the image
-    setLogoImage();
-    
-    // Listen for changes in color mode preference and update the image accordingly
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setLogoImage);
-</script>
-
+<p align="center">
+<img src="../docs/_static/logo_light.svg" width="700">
+</p>
 
 Welcome to the SNNCutoff! This repository is centered on advancing the training and evaluation of Spiking Neural Networks (SNNs) with an eye towards innovative cutoff mechanisms. SNNCutoff aims to refine the efficiency of SNNs, ensuring robust computing that does not compromise on performance accuracy. It is particularly dedicated to optimizing both the training and inference phases to secure reliable classification outcomes.
 
