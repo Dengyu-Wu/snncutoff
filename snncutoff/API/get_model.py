@@ -11,19 +11,20 @@ from .get_constrs import get_constrs
 from .get_regularizer import get_regularizer
 
 def get_model(args):
+    input_size  = InputSize(args.data.lower())
     num_classes  = OuputSize(args.data.lower())
     if args.method !='ann' and args.method !='snn':
         AssertionError('Training method is wrong!')
 
     if args.method=='ann':
         multistep = args.multistep_ann
-        model = ann_models(args.model,num_classes,multistep)
+        model = ann_models(args.model,num_classes,input_size,multistep)
         model = add_ann_constraints(model, args.T, args.L, args.multistep_ann,
                                     ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))    
         return model
     elif args.method=='snn':
-        model = ann_models(args.model,num_classes,multistep=True) if args.arch_conversion else snn_models(args.model,args.T, num_classes) 
+        model = ann_models(args.model,input_size,num_classes,multistep=True) if args.arch_conversion else snn_models(args.model,args.T,input_size, num_classes) 
         model = add_snn_layers(model, args.T,
                                 snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                 TEBN=args.TEBN,
@@ -45,12 +46,12 @@ def get_basemodel(name):
     else:
         pass
 
-def ann_models( model_name, num_classes,multistep):
+def ann_models( model_name, input_size, num_classes,multistep):
     base_model = get_basemodel(model_name)
     if base_model == 'vgg':
         return VGG(model_name.upper(), num_classes, dropout=0)
     elif base_model == 'resnet':
-        return get_resnet(model_name, num_classes=num_classes,multistep=multistep)
+        return get_resnet(model_name, input_size, num_classes=num_classes,multistep=multistep)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
     elif model_name == 'vgg-gesture':
@@ -73,15 +74,13 @@ def snn_models(model_name, T, num_classes):
 
 def InputSize(name):
     if 'cifar10-dvs' in name.lower() or 'dvs128-gesture' in name.lower():
-        return '2-128-128'
+        return 128 #'2-128-128'
     elif 'cifar10' in name.lower() or 'cifar100' in name.lower():
-        return '3-32-32'
-    elif 'tiny-imagenet' == name.lower():
-        return '3-224-224'
-    elif 'imagenet' == name.lower():
-        return '3-224-224'
+        return 32 #'3-32-32'
+    elif 'imagenet' in name.lower():
+        return 224 #'3-224-224'
     elif  'ncaltech101' in name.lower():
-        return '2-240-180'
+        return 240 #'2-240-180'
     else:
         NameError('This dataset name is not supported!')
 
@@ -94,8 +93,9 @@ def OuputSize(name):
         return 100
     elif 'ncaltech101' == name.lower():
         return 101
-    elif 'tiny-imagenet' == name.lower():
-        return 200
+    elif 'imagenet-' in name.lower():
+        output_size = name.lower().split("-")[-1]
+        return int(output_size)
     elif 'imagenet' == name.lower():
         return 1000
     else:
