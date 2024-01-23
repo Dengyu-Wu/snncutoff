@@ -234,4 +234,4 @@ cfg = {
 
 def get_resnet(name, input_size=32, num_classes=10, multistep=True, **kargs):
     Block = BasicBlock if name == 'resnet18' or name =='resnet34' else BottleNeck
-    return ResNet(Block, cfg[name],input_size, num_classes=num_classes,multistep=multistep)
+    return ResNet(Block, cfg[name],input_size=input_size, num_classes=num_classes,multistep=multistep)

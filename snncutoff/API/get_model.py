@@ -18,7 +18,7 @@ def get_model(args):
 
     if args.method=='ann':
         multistep = args.multistep_ann
-        model = ann_models(args.model,num_classes,input_size,multistep)
+        model = ann_models(args.model, input_size, num_classes,multistep)
         model = add_ann_constraints(model, args.T, args.L, args.multistep_ann,
                                     ann_constrs=get_constrs(args.ann_constrs.lower(),args.method), 
                                     regularizer=get_regularizer(args.regularizer.lower(),args.method))    
@@ -51,7 +51,7 @@ def ann_models( model_name, input_size, num_classes,multistep):
     if base_model == 'vgg':
         return VGG(model_name.upper(), num_classes, dropout=0)
     elif base_model == 'resnet':
-        return get_resnet(model_name, input_size, num_classes=num_classes,multistep=multistep)
+        return get_resnet(model_name, input_size=input_size, num_classes=num_classes,multistep=multistep)
     elif model_name == 'vggann':
         return VGGANN(num_classes=num_classes)
     elif model_name == 'vgg-gesture':
