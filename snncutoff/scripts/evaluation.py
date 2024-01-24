@@ -60,14 +60,17 @@ def main(cfg: DictConfig):
     acc=[]
     timesteps=[]
     samples_number=[]
-    for i in range(10):
-        epsilon = 0.05*i
+    for i in range(1):
+        epsilon = args.epsilon
+        # epsilon = 0.05*i
         _acc, _timesteps, _samples_number = evaluator.cutoff_evaluation(test_loader,train_loader=train_loader,epsilon=epsilon)
         acc.append(_acc)
         timesteps.append(_timesteps)
         samples_number.append(_samples_number)
     acc = np.array(acc)
     timesteps = np.array(timesteps)
+    print(acc)
+    print(timesteps)
     result={'accuracy': acc, 'timesteps': timesteps, 'samples_number':samples_number}
     save_pickle(result,name='topk_cutoff',path=os.path.dirname(path))
 

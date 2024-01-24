@@ -62,7 +62,7 @@ def ann_models( model_name, input_size, num_classes,multistep):
         AssertionError('The network is not suported!')
         exit(0)
 
-def snn_models(model_name, T, num_classes):
+def snn_models(model_name, T, input_size, num_classes):
     base_model = get_basemodel(model_name)
     if base_model == 'VGGSNN':
         return VGGSNN(num_classes=num_classes)
