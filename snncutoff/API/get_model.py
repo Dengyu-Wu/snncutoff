@@ -6,6 +6,7 @@ from snncutoff.constrs.snn import *
 from snncutoff.utils import add_ann_constraints, add_snn_layers
 from snncutoff.models.VGG import VGG
 from snncutoff.models.ResNet import get_resnet
+from snncutoff.models.sew_resnet import get_sewresnet
 from snncutoff.models import sew_resnet
 from .get_constrs import get_constrs
 from .get_regularizer import get_regularizer
@@ -67,7 +68,7 @@ def snn_models(model_name, T, input_size, num_classes):
     if base_model == 'VGGSNN':
         return VGGSNN(num_classes=num_classes)
     elif base_model=='sew_resnet':
-        model = sew_resnet.__dict__[model_name](T=T, connect_f='ADD',num_classes=num_classes)
+        model = get_sewresnet(model_name, input_size=input_size, num_classes=num_classes,T=T)
         return model
     else:
         AssertionError('This architecture is not suported yet!')

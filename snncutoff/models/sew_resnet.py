@@ -139,7 +139,7 @@ def zero_init_blocks(net: nn.Module, connect_f: str):
 
 class SEWResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
+    def __init__(self, block, layers,input_size=224, num_classes=1000, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
                  norm_layer=None, T=4, connect_f=None):
         super(SEWResNet, self).__init__()
@@ -254,10 +254,16 @@ def sew_resnet152(**kwargs):
 
 
 cfg = {
-    'sewresnet18': [2, 2, 2, 2],
-    'sewresnet34': [3, 4, 6, 3],
-    'sewresnet50': [3, 4, 6, 3],
-    'sewresnet101': [3, 4, 23, 3],
-    'sewresnet152': [3, 8, 36, 3]
+    'sew_resnet18': [2, 2, 2, 2],
+    'sew_resnet34': [3, 4, 6, 3],
+    'sew_resnet50': [3, 4, 6, 3],
+    'sew_resnet101': [3, 4, 23, 3],
+    'sew_resnet152': [3, 8, 36, 3]
 
 }
+
+
+
+def get_sewresnet(name, input_size=32, num_classes=10,T=4, **kwargs):
+    Block = BasicBlock if name == 'sew_resnet18' or name =='sew_resnet34' else Bottleneck
+    return SEWResNet(Block, cfg[name],input_size=input_size, num_classes=num_classes,T=T,connect_f='ADD', **kwargs)
