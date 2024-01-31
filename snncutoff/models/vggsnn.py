@@ -3,7 +3,7 @@ import torch.nn as nn
 from snncutoff.external.layers import Layer, SeqToANNContainer
 
 class VGGSNN(nn.Module):
-    def __init__(self, current_out=False):
+    def __init__(self, num_classes=10):
         super(VGGSNN, self).__init__()
         pool = SeqToANNContainer(nn.AvgPool2d(2))
         #pool = APLayer(2)
@@ -24,7 +24,7 @@ class VGGSNN(nn.Module):
         )
         W = int(32/2/2/2/2)
         self.T = 4
-        self.fc = SeqToANNContainer(nn.Linear(512*W*W,10))#OutputLayerCurrent
+        self.fc = SeqToANNContainer(nn.Linear(512*W*W,num_classes))#OutputLayerCurrent
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):

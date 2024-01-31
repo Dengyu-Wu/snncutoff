@@ -65,7 +65,7 @@ def ann_models( model_name, input_size, num_classes,multistep):
 
 def snn_models(model_name, T, input_size, num_classes):
     base_model = get_basemodel(model_name)
-    if base_model == 'VGGSNN':
+    if model_name.lower() == 'vggsnn':
         return VGGSNN(num_classes=num_classes)
     elif base_model=='sew_resnet':
         model = get_sewresnet(model_name, input_size=input_size, num_classes=num_classes,T=T)
