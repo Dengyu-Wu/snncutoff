@@ -6,9 +6,7 @@ build-backend = "hatchling.build"
 name = "snncutoff"
 version = "0.0.0"
 description = ""
-requires-python = ">=3.9"
-readme  = { file = ".github/readme.md", content-type='text/markdown' }
-license = { file = "license.md" }
+readme  = { file = ".github/readme.md", content-type="text/markdown" }
 authors = [
   { name = "Dengyu Wu" },
   { name = "Minghong Xu" },
@@ -21,22 +19,23 @@ classifiers = [
   "Natural Language :: English",
   "Programming Language :: Python :: 3",
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Software Development :: Libraries",
 ]
 
+requires-python = ">=3.9"
 dependencies = [
   "numpy",
   "torch",
   "tqdm",
 ]
-
-[project.optional-dependencies]
-tests = []
-docs = [
+optional-dependencies.tests = [
+]
+optional-dependencies.docs = [
   "sphinx",
   "sphinx-book-theme",
   "myst-parser",
 ]
-dev = [
+optional-dependencies.dev = [
   "snncutoff[tests,docs]",
   "build",
   "twine",
