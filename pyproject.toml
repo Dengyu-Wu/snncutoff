@@ -8,7 +8,7 @@ version = "0.0.0"
 description = ""
 requires-python = ">=3.9"
 readme  = { file = ".github/readme.md", content-type='text/markdown' }
-license = { file = "LICENSE" }
+license = { file = "license.md" }
 authors = [
   { name = "Dengyu Wu" },
   { name = "Minghong Xu" },
