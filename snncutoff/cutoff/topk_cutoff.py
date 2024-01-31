@@ -6,8 +6,9 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from snncutoff.utils import reset_neuron
+from .base_cutoff import BaseCutoff
 
-class TopKCutoff:
+class TopKCutoff(BaseCutoff):
     def __init__(self, T, bin_size=100,add_time_dim=False, multistep=False):
         self.T = T
         self.add_time_dim = add_time_dim
