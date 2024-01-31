@@ -43,8 +43,7 @@ We provide training and evaluation scripts in [examples](/examples).
 
 ## Contributing
 
-We welcome contributions from the community! If you have suggestions for improvement or want to contribute to the codebase, please read our [Contributing Guidelines](./contributing.md) for more information on submitting pull requests.
-
+Check the [contributing guidelines](./contributing.md) if you want to get involved with developing SNNCutoff.
 
 ## Acknowledgments
 Special acknowledgment is given to the following projects for their influence on our coding style and structure:
