@@ -3,15 +3,19 @@
 
   inputs = {
     utils.url = "github:numtide/flake-utils";
+
+    # TODO: CUDA should work without explicitly invoking a wrapper
+    nixglhost.url = "github:numtide/nix-gl-host";
   };
 
   outputs = {
     self,
     nixpkgs,
     utils,
+    nixglhost,
     ...
   }:
-    utils.lib.eachDefaultSystem (system: # FIXME: outputs for multiple systems
+    utils.lib.eachDefaultSystem (system: # TODO: deprecate flake-utils
     let
       pkgs = import nixpkgs {
         inherit system;
@@ -23,6 +27,7 @@
         buildInputs = [
           pypkgs.python
           pypkgs.venvShellHook  # creates a venv in $venvDir
+          nixglhost.defaultPackage.${system}
         ];
 
         postVenvCreation = ''
@@ -33,14 +38,8 @@
         postShellHook = ''
         '';
 
-        LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [
-          # Enable python libraries to discover libstdc++.so.6
-          stdenv.cc.cc
-
-          # FIXME: workaround for finding libcuda.so on non-NixOS systems
-          "/usr"  # General location
-          "/usr/lib/wsl"  # On WSL
-        ];
+        # Enable python libraries to discover libstdc++.so.6
+        LD_LIBRARY_PATH = with pkgs; lib.makeLibraryPath [ stdenv.cc.cc ];
       };
     });
 }
