@@ -7,12 +7,12 @@ class OutputHook(list):
         self.get_connection = get_connection
     def __call__(self, module, inputs, output):
         if self.get_connection:
-            loss = []
-            loss.append(output[0])
+            connection = []
+            connection.append(output[0])
             layer_size = torch.tensor(list(output[0].shape[2:]))
             layer_size = torch.prod(layer_size)
-            loss.append(layer_size)
-            self.append(loss)                  
+            connection.append(layer_size)
+            self.append(connection)                  
         else:
             loss = output
             self.append(loss)        

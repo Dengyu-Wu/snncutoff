@@ -77,36 +77,28 @@ class Evaluator:
         acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
         return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
 
-    def ANN_OPS(self):
+    def ANN_OPS(self,input_size):
             net = self.net
-            print('MOPS.......')
-
-            output_hook = OutputHook()
+            print('ANN MOPS.......')
+            output_hook = OutputHook(get_connection=True)
             net = sethook(output_hook)(net)
-            input_size = (3,32,32)
             inputs = torch.randn(input_size).unsqueeze(0).to(net.device)
             outputs = net(inputs)
             connections = list(output_hook)
             net = sethook(output_hook)(net,remove=True)
-
             tot_fp = 0
-            tot_bp = 0
             for name,w,output in connections:
                 fin = torch.prod(torch.tensor(w))
                 N_neuron = torch.prod(torch.tensor(output))
                 tot_fp += (fin*2+1)*N_neuron
-                tot_bp += 2*fin + (fin*2+1)*N_neuron
-            tot_op = self.Nops[0]*tot_fp + self.Nops[1]*tot_bp
-            return [tot_op, tot_fp, tot_bp]
+            print(tot_fp)
+            return tot_fp
     
-    def SNN_Spike_Count(self):
+    def SNN_Spike_Count(self,input_size):
             net = self.net
             connections = []
-            print('MOPS.......')
-
-            output_hook = OutputHook()
+            output_hook = OutputHook(get_connection=True)
             net = sethook(output_hook)(net)
-            input_size = (3,32,32)
             inputs = torch.randn(input_size).unsqueeze(0).to(net.device)
             outputs = net(inputs)
             connections = list(output_hook)
