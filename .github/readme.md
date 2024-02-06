@@ -1,7 +1,10 @@
 # SNNCutoff
-<p align="center">
-<img src="../docs/_static/logo_dark.svg" width="700">
-</p>
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/logo_dark.svg" width="700">
+    <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="../docs/_static/logo_light.svg">
+  </picture>
+</div>
 
 Welcome to the SNNCutoff! This repository is centered on advancing the training and evaluation of Spiking Neural Networks (SNNs) with an eye towards innovative cutoff mechanisms. SNNCutoff aims to refine the efficiency of SNNs, ensuring robust computing that does not compromise on performance accuracy. It is particularly dedicated to optimizing both the training and inference phases to secure reliable classification outcomes.
 
@@ -10,7 +13,7 @@ Welcome to the SNNCutoff! This repository is centered on advancing the training 
 SNNCutoff provides a training workflow leveraging PyTorch for model conversion. It enables the seamless transformation of Artificial Neural Network (ANN) architectures with ReLU activation into intermediate models. These models can be tailored with specific constraints optimising ANN training for SNN, as well as equipped with spiking layers for direct SNN training optimisation.
 
 <p align="center">
-<img src="https://github.com/Dengyu-Wu/snncutoff/raw/main/docs/_static/framework.png" width="800">
+<img src="../docs/_static/framework.png" width="800">
 </p>
 
 ## A New Metric
