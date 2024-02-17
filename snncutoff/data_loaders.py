@@ -14,7 +14,10 @@ def get_data_loaders(path, data,transform=True, resize=False):
     elif data.lower() == 'cifar100':
         return GetCifar100(path)
     elif 'imagenet' in data.lower():
-        return GetImageNet(path)
+        if 'tiny-imagenet' == data.lower():
+            return GetTinyImageNet(path)
+        else:
+            return GetImageNet(path)
     elif isDVSData(data):
         train_path = path + '/train'
         val_path = path + '/test'
@@ -24,4 +27,3 @@ def get_data_loaders(path, data,transform=True, resize=False):
     else:
         NameError("The dataset name is not support!")
         exit(0)
-

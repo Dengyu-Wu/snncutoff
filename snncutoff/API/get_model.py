@@ -79,7 +79,10 @@ def InputSize(name):
     elif 'cifar10' in name.lower() or 'cifar100' in name.lower():
         return 32 #'3-32-32'
     elif 'imagenet' in name.lower():
-        return 224 #'3-224-224'
+        if 'tiny-imagenet' == name.lower():
+            return 64
+        else:
+            return 224 #'3-224-224'
     elif  'ncaltech101' in name.lower():
         return 240 #'2-240-180'
     else:
@@ -97,6 +100,8 @@ def OuputSize(name):
     elif 'imagenet-' in name.lower():
         output_size = name.lower().split("-")[-1]
         return int(output_size)
+    elif 'tiny-imagenet' == name.lower():
+        return 200
     elif 'imagenet' == name.lower():
         return 1000
     else:
