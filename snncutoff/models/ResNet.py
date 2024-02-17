@@ -103,8 +103,8 @@ class ResNet(nn.Module):
         super().__init__()
         self.in_channels = 64
         self.multistep = multistep
-        if input_size == 32:
-            # This is for input size 3*32*32
+        if input_size != 224:
+            # This is for input size 3*32*32 and 3*64*64
             self.conv1 = nn.Sequential(
                 nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
                 nn.BatchNorm2d(64),
