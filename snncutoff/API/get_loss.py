@@ -8,7 +8,6 @@ loss = {
 }
 
 
-
 def get_loss(name: str, method: str,):
     if method == 'ann':
         return loss['mean']
