@@ -29,6 +29,7 @@ snn-train:
   T: 4
   L: 4
   evaluate: 'False'
+  loss: 'mean'
   TET: 'False'
   multistep_ann: 'True'
   multistep: 'True'

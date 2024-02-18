@@ -11,8 +11,7 @@ class SNNCASE:
         args: dict
     ) -> None:
         self.criterion = criterion
-        name = 'tet' if args.TET else 'mean'
-        self.snn_loss = get_loss(name,method=args.method)(criterion, args.means,args.lamb)
+        self.snn_loss = get_loss(args.loss,method=args.method)(criterion, args.means,args.lamb)
         self.args = args
         self.net = net
         self.loss_reg = 0.0

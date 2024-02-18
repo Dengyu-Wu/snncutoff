@@ -31,6 +31,7 @@ class SNNConfig(BaseModel):
     T: int
     L: int
     evaluate: bool
+    loss: str
     TET: bool
     regularizer: str
     means: float
