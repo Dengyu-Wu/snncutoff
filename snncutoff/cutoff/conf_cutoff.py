@@ -10,7 +10,6 @@ from .base_cutoff import BaseCutoff
 
 class ConfCutoff(BaseCutoff):
     def __init__(self, T, add_time_dim=False, multistep=False,  *args, **kwargs):
-        # self.config = config
         self.T = T
         self.add_time_dim = add_time_dim
         self.multistep = multistep
@@ -42,7 +41,6 @@ class ConfCutoff(BaseCutoff):
             data = data.cuda()
             data = self.preprocess(data)
             label = label.cuda()
-            # pred, conf = [], []
             outputs = []
             self.output = 0.0
 
@@ -72,7 +70,6 @@ class ConfCutoff(BaseCutoff):
                           dropout_rate=0.3,
                           epsilon=0.0):
         
-        net.eval()
         outputs_list, label_list = self.inference(net=net, data_loader=data_loader)
         new_label = label_list.unsqueeze(0)
         conf = outputs_list.softmax(-1)
