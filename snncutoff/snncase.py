@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from snncutoff.API import get_loss
+from snncutoff.API import get_loss, get_regularizer_loss
 from snncutoff.utils import  OutputHook, sethook
 
 class SNNCASE:
@@ -12,6 +12,7 @@ class SNNCASE:
     ) -> None:
         self.criterion = criterion
         self.snn_loss = get_loss(args.loss,method=args.method)(criterion, args.means,args.lamb)
+        self.compute_reg_loss = get_regularizer_loss(args.regularizer,method=args.method)(args).compute_reg_loss
         self.args = args
         self.net = net
         self.loss_reg = 0.0
@@ -33,12 +34,8 @@ class SNNCASE:
         output_hook = OutputHook()
         self.net = sethook(output_hook)(self.net)
         x = self.net(x)
-        mask = self.output_mask(x,y)
         cs_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() 
-        mask = torch.unsqueeze(mask,dim=2).flatten(0, 1).contiguous().detach()
-        cs_mean = cs_mean*mask
-        cs_mean = cs_mean.max(dim=0)[0]
-        loss_reg = cs_mean.mean()
+        loss_reg = self.compute_reg_loss(x,y,cs_mean)
         self.loss_reg = loss_reg
         return self.snn_loss(x,y)[0], self.snn_loss(x,y)[1]+ self.args.alpha*loss_reg
     
@@ -47,13 +44,6 @@ class SNNCASE:
             return self._forward_regularization(x,y)
         else:
             return self._forward(x,y)
-
-    def output_mask(self, x, y):
-        _target = torch.unsqueeze(y,dim=0) 
-        index = -int(x.shape[0]*self.rcs_n)
-        right_predict_mask = x[index:].max(-1)[1].eq(_target).to(torch.float32)
-        right_predict_mask = right_predict_mask.prod(0,keepdim=True)
-        return right_predict_mask 
 
     def get_loss_reg(self):
         return self.loss_reg

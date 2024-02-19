@@ -20,3 +20,18 @@ class RCSANN(nn.Module):
         return r
 
 
+class RCSANNLoss(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def compute_reg_loss(self, x, y, features):
+        _target = torch.unsqueeze(y,dim=0) 
+        right_predict_mask = x.max(-1)[1].eq(_target).to(torch.float32)
+        right_predict_mask = right_predict_mask.prod(0,keepdim=True)
+        right_predict_mask = torch.unsqueeze(right_predict_mask,dim=2).flatten(0, 1).contiguous().detach()
+        features = features*right_predict_mask
+        features = features.max(dim=0)[0]
+        loss = features.mean()
+        return loss 
+
+
