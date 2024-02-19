@@ -60,22 +60,30 @@ class Evaluator:
         return acc.cpu().numpy().item(), (index+1).cpu().numpy()
 
     def cutoff_evaluation(self,data_loader,train_loader,epsilon=0.0):
-        net = self.net
-        net = set_dropout(net,0.3,training=True)
-        beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader,epsilon=epsilon)
-        net = set_dropout(net,training=False)
-        outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
-        new_label = label_list.unsqueeze(0)
-        topk = torch.topk(outputs_list,2,dim=-1)
-        topk_gap_t = topk[0][...,0] - topk[0][...,1] 
-        index = (topk_gap_t>beta.unsqueeze(-1)).float()
-        index[-1] = 1.0
-        index = torch.argmax(index,dim=0)
-        mask = torch.nn.functional.one_hot(index, num_classes=self.T)
-        outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
-        outputs_list = outputs_list.sum(0)
-        acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
-        return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
+        acc, timestep, conf = self.cutoff.cutoff_evaluation(net=self.net, 
+                                                            data_loader=data_loader,
+                                                            train_loader=train_loader,
+                                                            epsilon=epsilon)
+        return acc, timestep, conf
+        
+
+    # def cutoff_evaluation(self,data_loader,train_loader,epsilon=0.0):
+    #     net = self.net
+    #     net = set_dropout(net,0.3,training=True)
+    #     beta, conf = self.cutoff.setup(net=self.net, data_loader=train_loader,epsilon=epsilon)
+    #     net = set_dropout(net,training=False)
+    #     outputs_list, label_list = self.cutoff.inference(net=self.net, data_loader=data_loader)
+    #     new_label = label_list.unsqueeze(0)
+    #     topk = torch.topk(outputs_list,2,dim=-1)
+    #     topk_gap_t = topk[0][...,0] - topk[0][...,1] 
+    #     index = (topk_gap_t>beta.unsqueeze(-1)).float()
+    #     index[-1] = 1.0
+    #     index = torch.argmax(index,dim=0)
+    #     mask = torch.nn.functional.one_hot(index, num_classes=self.T)
+    #     outputs_list = outputs_list*mask.transpose(0,1).unsqueeze(-1)
+    #     outputs_list = outputs_list.sum(0)
+    #     acc = (outputs_list.max(-1)[1]  == new_label[0]).float().sum()/label_list.size()[0]
+    #     return acc.cpu().numpy().item(), (index+1).cpu().numpy(), conf
 
     def ANN_OPS(self,input_size):
             net = self.net

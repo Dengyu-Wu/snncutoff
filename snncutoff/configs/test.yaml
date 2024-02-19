@@ -29,14 +29,17 @@ snn-train:
   T: 4
   L: 4
   evaluate: 'False'
+  loss: 'mean'
   TET: 'False'
   multistep_ann: 'True'
   multistep: 'True'
   add_time_dim: 'False'
   means: 1.0
   lamb: 1e-3
+  # lamb: 0.0
   alpha: 0.002
   rcs_n: 0.3
+  
   
 snn-test:
   epsilon: 0.0
