@@ -49,21 +49,14 @@ pip install -r requirements. txt
 ``` 
 
 ### Training and Evaluation 
-We provide training and evaluation scripts in [examples](/examples). 
+We provide training and evaluation examples in [scripts](/scripts). 
 
 ## Contributing
 
 Check the [contributing guidelines](./contributing.md) if you want to get involved with developing SNNCutoff.
 
 ## Acknowledgments
-Special acknowledgment is given to the following projects for their influence on our coding style and structure:
 
-- [OpenOOD](https://github.com/Jingkang50/OpenOOD) for its robust and versatile framework.
-- [SNN-QCFS](https://github.com/putshua/SNN_conversion_QCFS), [SpKeras](https://github.com/Dengyu-Wu/spkeras)  for their innovative approaches in SNN conversion.
-- [ChatGPT](https://chat.openai.com/auth/login) for the generative logo.
-
-We extend our appreciation to all those who have contributed, directly or indirectly, to the success of this endeavor. Your contributions are deeply valued and have played a significant role in advancing the field of Spiking Neural Networks.
-
-
+We extend our appreciation to everyone who has contributed to the development of this project, both directly and indirectly.
 
 
