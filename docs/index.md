@@ -4,11 +4,22 @@
 % contain the root `toctree` directive.
 
 # Welcome to SNNCutoff's documentation!
-
 ```{toctree}
 :caption: 'Contents:'
 :maxdepth: 2
 ```
+
+<p align="center">
+<img src="./_static/framework.png" width="800">
+</p>
+
+- **A New Metric**:
+  - **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
+
+- **Cutoff Approximation**:
+  - **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
+  - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
+  - **Others**: Coming soon. 
 
 # Indices and tables
 
