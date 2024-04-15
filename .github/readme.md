@@ -7,17 +7,16 @@
 
 #
 
-**SNNCutoff** is a Python package developed on a PyTorch backend, designed with a focus on:
+**SNNCutoff** is a Python package developed with a PyTorch backend, designed primarily for evaluating Spiking Neural Networks (SNNs). It offers:
 
 - **SNN Evaluation**:
-  - Offering comprehensive tools to evaluate spiking neural networks (SNNs) with precision.
-  - Utilizing detailed performance metrics.
-  - Conducting comparative analyses using benchmark standards.
+  - Utilizing detailed performance metrics, e.g., accuracy, latency and operations.
+  - Capabilities for conducting adaptive inference or cutoff of SNNs.
 
 - **SNN Training**:
   - While the emphasis is on evaluation, the toolkit also supports a diverse array of training algorithms.
 
-You can customize training to optimize SNN development under unfied evaluation framework.
+# Overview 
 
 <p align="center">
 <img src="../docs/_static/framework.png" width="800">
