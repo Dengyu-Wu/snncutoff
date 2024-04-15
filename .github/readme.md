@@ -1,4 +1,3 @@
-# SNNCutoff
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/logo_dark.svg" width="700">
@@ -6,24 +5,33 @@
   </picture>
 </div>
 
-Welcome to the SNNCutoff! This repository is centered on advancing the training and evaluation of Spiking Neural Networks (SNNs) with an eye towards innovative cutoff mechanisms. SNNCutoff aims to refine the efficiency of SNNs, ensuring robust computing that does not compromise on performance accuracy. It is particularly dedicated to optimizing both the training and inference phases to secure reliable classification outcomes.
+#
 
-## Framework 
+**SNNCutoff** is a Python package developed on a PyTorch backend, designed with a focus on:
 
-SNNCutoff provides a training workflow leveraging PyTorch for model conversion. It enables the seamless transformation of Artificial Neural Network (ANN) architectures with ReLU activation into intermediate models. These models can be tailored with specific constraints optimising ANN training for SNN, as well as equipped with spiking layers for direct SNN training optimisation.
+- **SNN Evaluation**:
+  - Offering comprehensive tools to evaluate spiking neural networks (SNNs) with precision.
+  - Utilizing detailed performance metrics.
+  - Conducting comparative analyses using benchmark standards.
+
+- **SNN Training**:
+  - While the emphasis is on evaluation, the toolkit also supports a diverse array of training algorithms.
+
+You can customize training to optimize SNN development under unfied evaluation framework.
 
 <p align="center">
 <img src="../docs/_static/framework.png" width="800">
 </p>
 
-## A New Metric
-- **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
+- **A New Metric**:
+  - **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
 
-## Cutoff Approximation 
-- **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
-- **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
-- **Others**: Coming soon. 
+- **Cutoff Approximation**:
+  - **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
+  - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
+  - **Others**: Coming soon. 
 
+More details in [Documentation](https://dengyu-wu.github.io/snncutoff/).
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -38,7 +46,7 @@ git clone https://github.com/TACPSLab/easycutoff.git
 
 2. Install Pytorch
 ```sh
-pip pip install -r requirements. txt 
+pip install -r requirements. txt 
 ``` 
 
 ### Training and Evaluation 
