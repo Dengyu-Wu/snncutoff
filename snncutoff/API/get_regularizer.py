@@ -1,22 +1,29 @@
 from snncutoff.regularizer import *
 
 
+class NoneReg(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def compute_reg_loss(self, x, y, features):
+        return 0.0 
+
 ann_regularizer = {
-'none': None,
+'none': NoneReg,
 'rcs': RCSANN(),
 }
 snn_regularizer = {
-'none': None,
+'none': NoneReg,
 'rcs': RCSSNN(),
 } 
 
 ann_regularizer_loss = {
-'none': None,
+'none': NoneReg,
 'rcs': RCSANNLoss,
 }
 
 snn_regularizer_loss = {
-'none': None,
+'none': NoneReg,
 'rcs': RCSSNNLoss,
 }
 
@@ -31,3 +38,4 @@ def get_regularizer_loss(name: str, method: str):
         return ann_regularizer_loss[name]
     elif method == 'snn':
         return snn_regularizer_loss[name]
+
