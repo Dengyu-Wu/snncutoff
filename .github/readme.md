@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/logo_dark.png" width="700">
-    <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="../docs/_static/logo_light.png"  width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/dark_mode.png" width="700">
+    <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="../docs/_static/light_mode.png"  width="700">
   </picture>
 </div>
 
