@@ -1,7 +1,7 @@
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/logo_dark.svg" width="700">
-    <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="../docs/_static/logo_light.svg"  width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="../docs/_static/logo_dark.png" width="700">
+    <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="../docs/_static/logo_light.png"  width="700">
   </picture>
 </div>
 
@@ -40,7 +40,7 @@ To begin using SNNCutoff, clone this repository and follow the setup instruction
 
 1. Clone the repo
 ```sh
-git clone https://github.com/TACPSLab/easycutoff.git
+git clone https://github.com/Dengyu-Wu/snncutoff.git
 ```
 
 2. Install Pytorch
