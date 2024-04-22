@@ -39,13 +39,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install .[docs]
       - name: Build documentation
+        # TODO: https://github.com/pydata/pydata-sphinx-theme/issues/1643
         run: >
           sphinx-build
           -b dirhtml ./docs ./build/docs
           -vv
           --jobs=auto
           --show-traceback
-          --fail-on-warning
           --keep-going
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
