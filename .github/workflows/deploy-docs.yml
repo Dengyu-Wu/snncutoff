@@ -39,15 +39,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install .[docs]
       - name: Build documentation
-        # TODO: Replace -T with --show-traceback and -W with --fail-on-warning
-        #       after Sphinx 7.3 is released
         run: >
           sphinx-build
           -b dirhtml ./docs ./build/docs
           -vv
           --jobs=auto
-          -T
-          -W
+          --show-traceback
+          --fail-on-warning
           --keep-going
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
