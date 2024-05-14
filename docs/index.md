@@ -5,7 +5,7 @@
 
 # Welcome to SNNCutoff's documentation!
 ```{toctree}
-:caption: 'Contents:'
+:caption: 'Overview:'
 :maxdepth: 2
 ```
 
@@ -16,7 +16,6 @@ SNNCutoff is a Python package developed with a PyTorch backend, designed primari
 <p align="center">
 <img src="./_static/framework.png" width="800">
 </p>
-
 
 - **SNN Training Algorithms**:
   - [**Notations and references**](references)
