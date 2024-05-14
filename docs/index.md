@@ -9,6 +9,10 @@
 :maxdepth: 2
 ```
 
+SNNCutoff is a Python package developed with a PyTorch backend, designed primarily for evaluating Spiking Neural Networks (SNNs).
+
+# Overview
+
 <p align="center">
 <img src="./_static/framework.png" width="800">
 </p>
@@ -21,8 +25,5 @@
   - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
   - **Others**: Coming soon. 
 
-# Indices and tables
-
-- {ref}`genindex`
-- {ref}`modindex`
-- {ref}`search`
+# References
+- {ref}`references`
