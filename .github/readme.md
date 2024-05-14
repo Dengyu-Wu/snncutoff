@@ -23,7 +23,7 @@
 </p>
 
 - **SNN Training Algorithms**:
-  - [**Notations and References**](../docs/references.md)
+  - [**Notations and References**](https://dengyu-wu.github.io/snncutoff/references)
 
 
 - **A New Metric**:
