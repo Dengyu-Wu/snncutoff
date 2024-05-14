@@ -17,6 +17,11 @@ SNNCutoff is a Python package developed with a PyTorch backend, designed primari
 <img src="./_static/framework.png" width="800">
 </p>
 
+
+- **SNN Training Algorithms**:
+- {ref}`Notations and references <references> `.
+
+
 - **A New Metric**:
   - **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
 
@@ -24,6 +29,3 @@ SNNCutoff is a Python package developed with a PyTorch backend, designed primari
   - **Timestep (Baseline)**: Cutoff triggered using fixed timestep. 
   - **Top-K**: Cutoff triggered using the gap between the top-1 and top-2 output predictions at each timestep. 
   - **Others**: Coming soon. 
-
-# References
-- {ref}`references`.
