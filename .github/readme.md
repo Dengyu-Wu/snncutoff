@@ -23,7 +23,7 @@
 </p>
 
 - **SNN Training Algorithms**:
-  - [**Notations and references**](../docs/references.md)
+  - [**Notations and References**](../docs/references.md)
 
 
 - **A New Metric**:
