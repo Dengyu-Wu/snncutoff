@@ -16,6 +16,7 @@ release = '0.0.0'
 
 extensions = [
     'myst_parser',
+    'sphinx.ext.pngmath',
 ]
 
 templates_path = ['_templates']
