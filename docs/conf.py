@@ -16,17 +16,13 @@ release = '0.0.0'
 
 extensions = [
     'myst_parser',
-    'sphinx.ext.todo',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.graphviz',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+mathjax_path="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
 
 # -- Options for HTML output -------------------------------------------------
