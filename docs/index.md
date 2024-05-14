@@ -26,4 +26,4 @@ SNNCutoff is a Python package developed with a PyTorch backend, designed primari
   - **Others**: Coming soon. 
 
 # References
-- {ref}`referencesindex`
+- {ref}`references`.
