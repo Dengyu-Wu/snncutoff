@@ -19,7 +19,7 @@ SNNCutoff is a Python package developed with a PyTorch backend, designed primari
 
 
 - **SNN Training Algorithms**:
-- {ref}`Notations and references <references> `.
+  - {ref}`Notations and references <references> `.
 
 
 - **A New Metric**:
