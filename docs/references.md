@@ -12,6 +12,7 @@
 | $\color{#FB929E}{ECC}$ | Wu et al. | *A little energy goes a long way: Build an energy-efficient, accurate spiking neural network from convolutional neural network* | Frontiers in neuroscience | 2022 | [Link](https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2022.759900/full) |
 | $\color{#FB929E}\underline{QCFS}$ | Bu et al. | *Optimal {ANN}-{SNN} Conversion for High-accuracy and Ultra-low-latency Spiking Neural Networks* | ICLR | 2022 | [Link](https://openreview.net/forum?id=7B3IJMM1k_M) |
 | $\color{#AEDEFC}\underline{TET}$ | Deng et al. | *Temporal Efficient Training of Spiking Neural Network via Gradient Re-weighting* | ICLR | 2022 | [Link](https://openreview.net/forum?id=_XNtisL32jv) |
+| $\color{#AEDEFC}\underline{TEBN}$ | Duan et al. | *Temporal effective batch normalization in spiking neural networks* | Advances in Neural Information Processing Systems | 2022 | [Link](https://proceedings.neurips.cc/paper_files/paper/2022/hash/de2ad3ed44ee4e675b3be42aa0b615d0-Abstract-Conference.html) |
 | **2019** | | | | | | | |
 | $\color{#FB929E}{ThresholdNorm}$ | Sengupta et al. | *Going deeper in spiking neural networks: VGG and residual architectures* | Frontiers in neuroscience | 2019 | [Link](https://www.frontiersin.org/journals/neuroscience/articles/10.3389/fnins.2019.00095/full) |
 | **2017** | | | | | | | |
