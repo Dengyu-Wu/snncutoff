@@ -22,6 +22,10 @@
 <img src="../docs/_static/framework.png" width="800">
 </p>
 
+- **SNN Training Algorithms**:
+  - [**Notations and references**](../docs/references.md)
+
+
 - **A New Metric**:
   - **Optimal Cutoff Timestep (OCT)**: A optimal timestep that determines the minimal input processing duration for maintaining predictive reliability in SNNs. OCT is grounded in theoretical analysis and serves as a robust benchmark for assessing SNN models under different optimization algorithms.
 
