@@ -49,5 +49,5 @@ class SNNCASE:
         return self.loss_reg
 
     def remove_hook(self):
-        output_hook = OutputHook()
-        self.net  = sethook(output_hook)(self.net ,remove=True)
+        output_hook =  OutputHook(output_type='reg_loss')
+        self.net  = sethook(output_hook,output_hook='reg_loss')(self.net ,remove=True)
