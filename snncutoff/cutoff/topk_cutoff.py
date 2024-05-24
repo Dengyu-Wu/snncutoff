@@ -86,7 +86,6 @@ class TopKCutoff(BaseCutoff):
         conf[-1] = 1.0 
         conf_mask = (conf>=1-epsilon).float()
         beta_index = conf_mask.argmax(0)
-        print(beta_index)
         return beta[beta_index], [conf.cpu().numpy(), beta.cpu().numpy(), samples.cpu().numpy()]
     
     @torch.no_grad()
