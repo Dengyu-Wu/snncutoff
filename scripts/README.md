@@ -1,11 +1,39 @@
-## Script Overview
+# SNNCutoff Scripts
 
-The scripts of `training.py` and `evaluation.py` accept various parameters to control different aspects of the training process.
+The scripts of `training.py` and `evaluation.py` accept various parameters to control different aspects of the training and evaluation.
+
+
+## Content
 
 - Conversion: examples based on conversion algorithm, e.g., QCFS
-- Conversion: examples based on direction training, e.g., TET and TEBN
+- DirectTraining: examples based on direction training, e.g., TET and TEBN
 
-### Parameters
+### Bash Script Example
+
+```bash
+#!/bin/bash
+
+python ./scripts/training.py \
+        base.batch_size=128 \
+        base.epochs=300 \
+        base.gpu_id='1' \
+        base.seed=1200 \
+        base.port='11152' \
+        base.data='cifar10' \
+        base.model='sew_resnet18' \
+        base.dataset_path='datasets' \
+        \
+        snn-train.method='snn' \
+        snn-train.arch_conversion=False \
+        snn-train.ann_constrs='baseconstrs' \
+        snn-train.snn_layers='simplebaselayer' \
+        snn-train.regularizer='rcs' \
+        snn-train.TET=True \
+        snn-train.multistep=True \
+        snn-train.add_time_dim=True \
+        snn-train.T=6 \
+        snn-train.alpha=0.00
+```
 
 #### Base Parameters
 
@@ -30,3 +58,13 @@ The scripts of `training.py` and `evaluation.py` accept various parameters to co
 - `snn-train.add_time_dim`: Boolean to add a time dimension. Default is `True`.
 - `snn-train.T`: Time steps for SNN training. Default is `6`.
 - `snn-train.alpha`: Alpha parameter for the SNN training. Default is `0.00`.
+
+### Training and Evaluation
+
+```sh
+sh scripts/DirectTraining/tet/training.sh
+```
+or 
+```sh
+sh scripts/DirectTraining/tet/evaluation.sh
+```
