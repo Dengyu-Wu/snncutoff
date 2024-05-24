@@ -2,34 +2,43 @@ import torch
 from snncutoff.neuron import *
 
 class OutputHook(list):
-    def __init__(self, get_connection=False):
+    def __init__(self, output_type='connection'):
         self.mask = 0  
-        self.get_connection = get_connection
+        self.output_type = output_type
     def __call__(self, module, inputs, output):
-        if self.get_connection:
-            connection = []
-            connection.append(output[0])
-            layer_size = torch.tensor(list(output[0].shape[2:]))
-            layer_size = torch.prod(layer_size)
-            connection.append(layer_size)
-            self.append(connection)                  
-        else:
+        if self.output_type=='connection':
+            self.append([module.__class__.__name__,module.weight.size(), output.size()])
+        elif self.output_type=='activation':
+            output = output.sum([0,1])
+            self.append([output.size(), output])
+        elif self.output_type=='reg_loss':
             loss = output
             self.append(loss)        
 
-
 class sethook(object):
-    def __init__(self,output_hook):
+    def __init__(self,output_hook,output_type='reg_loss'):
         self.module_dict = {}
         self.k = 0
         self.output_hook = output_hook
+        type = {
+        'activation': 'neuron',
+        'connection': 'connection',
+        'reg_loss': 'add_loss',
+        }
+        self.output_type = type[output_type]
     def get_module(self,model):
         for name, module in model._modules.items():
             if hasattr(module, "_modules"):
                 model._modules[name] = self.get_module(module)
-            if hasattr(module, "add_loss"):
-                self.module_dict[str(self.k)] = module
-                self.k+=1
+            if self.output_type == 'connection':
+                if 'conv' in module.__class__.__name__.lower() or 'linear' in module.__class__.__name__.lower():
+                    if 'layer' not  in module.__class__.__name__.lower():
+                        self.module_dict[str(self.k)] = module
+                        self.k+=1
+            else:
+                if hasattr(module, self.output_type):
+                    self.module_dict[str(self.k)] = module
+                    self.k+=1
         return model
     
     def __call__(self,model,remove=False):
