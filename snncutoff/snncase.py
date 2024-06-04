@@ -31,8 +31,8 @@ class SNNCASE:
 
     def _forward_regularization(self, x, y): 
         x = self.preprocess(x)
-        output_hook = OutputHook()
-        self.net = sethook(output_hook)(self.net)
+        output_hook =  OutputHook(output_type='reg_loss')
+        self.net = sethook(output_hook, output_type='reg_loss')(self.net)
         x = self.net(x)
         cs_mean = torch.stack(output_hook,dim=2).flatten(0, 1).contiguous() 
         loss_reg = self.compute_reg_loss(x,y,cs_mean)
@@ -50,4 +50,4 @@ class SNNCASE:
 
     def remove_hook(self):
         output_hook =  OutputHook(output_type='reg_loss')
-        self.net  = sethook(output_hook,output_hook='reg_loss')(self.net ,remove=True)
+        self.net  = sethook(output_hook,output_type='reg_loss')(self.net ,remove=True)
