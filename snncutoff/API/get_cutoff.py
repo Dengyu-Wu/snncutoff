@@ -5,6 +5,7 @@ cutoff_list = {
 'timestep': BaseCutoff,
 'conf': ConfCutoff,
 'topk': TopKCutoff,
+'spikecp': SpikeCPCutoff,
 }
 
 def get_cutoff(name):
