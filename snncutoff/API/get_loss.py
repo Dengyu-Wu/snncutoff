@@ -1,5 +1,6 @@
 # Importing necessary classes from snncutoff.loss
 from snncutoff.loss import MeanLoss, TETLoss
+from typing import Type
 
 # Dictionary mapping for loss functions
 loss: dict[str, Type] = {
