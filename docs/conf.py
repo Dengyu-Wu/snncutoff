@@ -18,7 +18,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinxcontrib.youtube",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_examples",
@@ -27,8 +26,6 @@ extensions = [
     "sphinx_togglebutton",
     "sphinxcontrib.bibtex",
     "sphinxext.opengraph",
-    # For the kitchen sink
-    "sphinx.ext.todo",
 ]
 
 myst_enable_extensions = [
