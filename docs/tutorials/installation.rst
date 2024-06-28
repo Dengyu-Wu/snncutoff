@@ -1,4 +1,5 @@
-# Installation
+Installation
+=======
 
 1. Clone the repo
 ```sh

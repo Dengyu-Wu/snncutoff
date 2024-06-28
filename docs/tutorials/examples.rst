@@ -1,11 +1,12 @@
-## Examples
+Examples
+=======
 
-### Training
+## Training
 
 ```sh
 sh scripts/DirectTraining/tet/training.sh
 ```
-### Evaluation
+## Evaluation
 ```sh
 sh scripts/DirectTraining/tet/evaluation.sh
 ```
