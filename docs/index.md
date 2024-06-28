@@ -5,10 +5,8 @@
 
 # Welcome to SNNCutoff's documentation!
 ```{toctree}
-:caption: 'Overview:'
 :hidden:
 tutorials/quick_start
-:maxdepth: 2
 ```
 
 

@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'SNNCutoff'
-copyright = '2024, Dengyu Wu and Minghong Xu'
+copyright = '2024-present, Dengyu Wu and Minghong Xu'
 author = 'Dengyu Wu and Minghong Xu'
 release = '0.0.0'
 
