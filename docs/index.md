@@ -6,8 +6,11 @@
 # Welcome to SNNCutoff's documentation!
 ```{toctree}
 :caption: 'Overview:'
+:hidden:
+tutorials/quick_start
 :maxdepth: 2
 ```
+
 
 SNNCutoff is a Python package developed with a PyTorch backend, designed primarily for evaluating Spiking Neural Networks (SNNs).
 
