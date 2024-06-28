@@ -30,3 +30,5 @@ mathjax_path="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-M
 
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
+html_logo = "_static/light_mode.png"
+html_favicon = "_static/snncutoff_favicon.png"
