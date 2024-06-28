@@ -29,6 +29,7 @@ mathjax_path="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-M
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_book_theme'
+html_title = 'SNNCutoff Documentation'
 html_static_path = ['_static']
 html_logo = "_static/light_mode.png"
 html_favicon = "_static/snncutoff_favicon.png"
@@ -38,4 +39,6 @@ html_theme_options = {
     "use_repository_button": True,
 }
 
-html_sidebars = {'**': ['localtoc.html', 'globaltoc.html', 'searchbox.html']}
+html_sidebars = {
+    "**": ["sbt-sidebar-nav.html", "navbar-logo.html", "icon-links.html"]
+}

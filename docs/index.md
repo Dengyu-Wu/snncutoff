@@ -4,8 +4,12 @@
 % contain the root `toctree` directive.
 
 ```{toctree}
-:hidden:
-tutorials/quick_start
+:caption: 'Tutorials'
+tutorials/installation
+tutorials/examples
+:caption: 'Cutoff'
+cutoff/topk
+:caption: 'References'
 references
 ```
 
