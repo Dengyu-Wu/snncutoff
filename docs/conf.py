@@ -15,7 +15,23 @@ release = '0.0.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'myst_parser',
+    "ablog",
+    "myst_nb",
+    "numpydoc",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.viewcode",
+    "sphinxcontrib.youtube",
+    "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_examples",
+    "sphinx_tabs.tabs",
+    "sphinx_thebe",
+    "sphinx_togglebutton",
+    "sphinxcontrib.bibtex",
+    "sphinxext.opengraph",
+    # For the kitchen sink
+    "sphinx.ext.todo",
 ]
 
 myst_enable_extensions = [
