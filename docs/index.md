@@ -4,6 +4,7 @@
 % contain the root `toctree` directive.
 
 ```{toctree}
+:hidden:
 :caption: 'Tutorials'
 tutorials/installation
 tutorials/examples
