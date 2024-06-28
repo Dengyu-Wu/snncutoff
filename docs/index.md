@@ -7,6 +7,7 @@
 ```{toctree}
 :hidden:
 tutorials/quick_start
+references
 ```
 
 
