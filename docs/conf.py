@@ -34,6 +34,7 @@ html_logo = "_static/light_mode.png"
 html_favicon = "_static/snncutoff_favicon.png"
 
 html_theme_options = {
+    "repository_url": "https://github.com/Dengyu-Wu/snncutoff",
     "use_repository_button": True,
 }
 
