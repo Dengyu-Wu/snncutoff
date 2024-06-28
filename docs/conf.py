@@ -35,7 +35,5 @@ html_favicon = "_static/snncutoff_favicon.png"
 
 html_theme_options = {
     "use_repository_button": True,
-    "path_to_docs": "docs",
-    "use_fullscreen_button": True,
 }
 
