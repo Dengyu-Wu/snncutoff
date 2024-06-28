@@ -11,11 +11,15 @@ copyright = '2024-present, Dengyu Wu and Minghong Xu'
 author = 'Dengyu Wu and Minghong Xu'
 release = '0.0.0'
 
+master_doc = 'index'
+
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
 ]
 
