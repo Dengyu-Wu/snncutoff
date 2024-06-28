@@ -19,6 +19,11 @@ extensions = [
     'sphinx.ext.mathjax',
 ]
 
+myst_enable_extensions = [
+    "amsmath",
+    "dollarmath",
+]
+
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
