@@ -38,3 +38,10 @@ html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
 html_logo = "_static/light_mode.png"
 html_favicon = "_static/snncutoff_favicon.png"
+
+html_theme_options = {
+    "use_repository_button": True,
+    "path_to_docs": "docs",
+    "use_fullscreen_button": True,
+}
+
