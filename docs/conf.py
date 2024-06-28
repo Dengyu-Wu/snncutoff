@@ -18,14 +18,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx_copybutton",
-    "sphinx_design",
-    "sphinx_examples",
-    "sphinx_tabs.tabs",
-    "sphinx_thebe",
-    "sphinx_togglebutton",
-    "sphinxcontrib.bibtex",
-    "sphinxext.opengraph",
 ]
 
 myst_enable_extensions = [
