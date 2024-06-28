@@ -40,5 +40,5 @@ html_theme_options = {
 }
 
 html_sidebars = {
-    "**": ["sbt-sidebar-nav.html", "navbar-logo.html", "icon-links.html"]
+    "**": ["navbar-logo.html", "sbt-sidebar-nav.html",  "icon-links.html"]
 }
