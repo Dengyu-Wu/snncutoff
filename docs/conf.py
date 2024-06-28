@@ -38,7 +38,3 @@ html_theme_options = {
     "repository_url": "https://github.com/Dengyu-Wu/snncutoff",
     "use_repository_button": True,
 }
-
-html_sidebars = {
-    "**": ["navbar-logo.html", "sbt-sidebar-nav.html",  "icon-links.html"]
-}

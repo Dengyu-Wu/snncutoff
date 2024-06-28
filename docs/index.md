@@ -10,14 +10,15 @@
 
 tutorials/installation
 tutorials/examples
+```
 
-{toctree}
+```{toctree}
 :maxdepth: 2
 :hidden:
 :caption: 'Cutoff'
 cutoff/topk
-
-{toctree}
+```
+```{toctree}
 :maxdepth: 2
 :hidden:
 :caption: 'References'

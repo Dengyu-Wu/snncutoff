@@ -1,4 +1,4 @@
-# Notations and References 
+# References 
 
 <b> Notation:</b> &nbsp;&nbsp; <span style="color:#FB929E">Conversion</span>    &nbsp;&nbsp;<span style="color:#AEDEFC">Direct Training </span>  &nbsp;&nbsp; <span style="color:#CF9FD2"> Hybrid</span>   &nbsp;&nbsp;   <span style="color:#929292"><ins> Reproduced</ins></span> 
 
