@@ -4,15 +4,26 @@
 % contain the root `toctree` directive.
 
 ```{toctree}
+:maxdepth: 2
 :hidden:
 :caption: 'Tutorials'
+
 tutorials/installation
 tutorials/examples
+
+{toctree}
+:maxdepth: 2
+:hidden:
 :caption: 'Cutoff'
 cutoff/topk
+
+{toctree}
+:maxdepth: 2
+:hidden:
 :caption: 'References'
 references
 ```
+
 
 <div align="center">
   <picture>
