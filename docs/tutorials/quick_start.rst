@@ -2,5 +2,5 @@ Quick start
 ===============
 
 .. toctree::
-   Installation
-   Examples
+   installation
+   examples
