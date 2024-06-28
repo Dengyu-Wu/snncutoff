@@ -17,7 +17,6 @@ release = '0.0.0'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
-    "sphinx.ext.viewcode",
 ]
 
 myst_enable_extensions = [
