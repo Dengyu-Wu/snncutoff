@@ -38,3 +38,4 @@ html_theme_options = {
     "use_repository_button": True,
 }
 
+html_sidebars = {'**': ['localtoc.html', 'sourcelink.html']}

@@ -9,15 +9,12 @@ tutorials/quick_start
 references
 ```
 
-
 <div align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="_static/dark_mode.png" width="700">
     <img alt="Text changing depending on mode. Light: 'So light!' Dark: 'So dark!'" src="_static/light_mode.png"  width="700">
   </picture>
 </div>
-
-SNNCutoff is a Python package developed with a PyTorch backend, designed primarily for evaluating Spiking Neural Networks (SNNs).
 
 # Overview
 
