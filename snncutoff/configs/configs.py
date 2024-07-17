@@ -21,6 +21,15 @@ class BaseConfig(BaseModel):
     checkpoint_save: bool
     checkpoint_path: str
 
+class neuron_params(BaseModel):
+  vthr: float 
+  T: float 
+  tau: float
+  num_bit: int
+  mem_init: float
+  multistep: bool
+  reset_mode: str
+
 
 class SNNConfig(BaseModel):
     method: str

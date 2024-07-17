@@ -19,6 +19,16 @@ base:
   checkpoint_save: False
   checkpoint_path: none
   
+neuron_params:
+  vthr: 1.0
+  T: 10
+  tau: 0.5
+  mem_init: 0.
+  num_bit: 16
+  multistep: True
+  reset_mode: 'hard'
+  
+  
 snn-train:
   method: 'ann'
   arch_conversion: True

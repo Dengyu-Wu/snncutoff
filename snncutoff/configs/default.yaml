@@ -39,7 +39,17 @@ snn-train:
   # lamb: 0.0
   alpha: 0.002
   rcs_n: 0.3
+
+neuron_params:
+  vthr: 1.0
+  T: 10
+  tau: 0.5
+  mem_init: 0.
+  num_bit: 16
+  multistep: True
+  reset_mode: 'hard'
   
+
 snn-test:
   epsilon: 0.0
   decay_factor: 0.5
