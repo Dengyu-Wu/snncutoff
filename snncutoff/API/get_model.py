@@ -29,6 +29,7 @@ def get_model(args):
         model = add_snn_layers(model, args.T,
                                 snn_layers=get_constrs(args.snn_layers.lower(),args.method), 
                                 TEBN=args.TEBN,
+                                neuron_params=args.neuron_params,
                                 regularizer=get_regularizer(args.regularizer.lower(),args.method),
                                 arch_conversion=args.arch_conversion,
                                 )  
