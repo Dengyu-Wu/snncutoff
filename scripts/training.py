@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import warnings
+from types import SimpleNamespace
 
 import wandb
 import hydra
@@ -283,6 +284,9 @@ def save_checkpoint(state, is_best, checkpoint_names='checkpoint.pth',bestpoint_
 @hydra.main(version_base=None, config_path='../snncutoff/configs', config_name='default')
 def main(cfg: DictConfig):   
     args = AllConfig(**cfg['base'],**cfg['snn-train'],**cfg['logging'])
+    agrs_ext =  {'neuron_params': None}
+    args = SimpleNamespace(**{**args.__dict__,**agrs_ext})
+    args.neuron_params = cfg['neuron_params']
     if args.gpu_id != 'none':
         os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu_id
     args.nprocs = torch.cuda.device_count()
