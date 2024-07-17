@@ -10,64 +10,92 @@ class LIF(nn.Module):
                  T: int = 4, 
                  vthr: float = 1.0, 
                  tau: float = 0.5, 
-                 mem_init: float = 0., 
-                 surogate: Type[Function] = ZIF,
-                 multistep: bool=True,
+                 mem_init: float = 0.0, 
+                 surrogate: Type[Function] = ZIF,
+                 multistep: bool = True,
                  reset_mode: str = 'hard',
-                 *args, 
                  **kwargs):
-
-        super(LIF, self).__init__()
-        
         """
         Initialize the LIF neuron model.
 
         Args:
+            T (int): The number of time steps.
             vthr (float): The threshold voltage for spike generation.
             tau (float): The time constant of the membrane potential decay.
+            mem_init (float): The initial membrane potential.
+            surrogate (Type[Function]): The surrogate gradient function.
+            multistep (bool): Whether to use multistep processing.
+            reset_mode (str): The mode of resetting the membrane potential ('hard' or 'soft').
         """
-        self.t = 0.0
+        super(LIF, self).__init__()
         self.T = T
-        self.mem_init=mem_init
-        self.vmem = 0.0
         self.vthr = vthr
         self.tau = tau
+        self.mem_init = mem_init
+        self.vmem = 0.0
         self.gamma = 1.0
         self.reset_mode = reset_mode
-        self.multistep=multistep
-        self.surogate = surogate.apply
+        self.multistep = multistep
+        self.surrogate = surrogate.apply
+        self.t = 0.0
 
-    def _mem_update_multistep(self, x):  
+    def _mem_update_multistep(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Update the membrane potential and generate spikes for multistep input.
+
+        Args:
+            x (torch.Tensor): The input tensor over multiple time steps.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: The spikes and membrane potentials over time.
+        """
         spike_post = []
         mem_post = []
         self.reset()
         for t in range(self.T):
             vmem = self.vmem + x[t]
-            spike =  self.surogate(vmem - self.vthr, self.gamma)
-            vmem = self.vmem_reset(vmem,spike)
+            spike = self.surrogate(vmem - self.vthr, self.gamma)
+            vmem = self.vmem_reset(vmem, spike)
             self.updateMem(vmem)
             spike_post.append(spike)
             mem_post.append(vmem)
-        return torch.stack(spike_post,dim=0), torch.stack(mem_post,dim=0)
+        return torch.stack(spike_post, dim=0), torch.stack(mem_post, dim=0)
 
-    def _mem_update_singlestep(self,x):
-        if self.neuron.t == 0:
+    def _mem_update_singlestep(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Update the membrane potential and generate spikes for single-step input.
+
+        Args:
+            x (torch.Tensor): The input tensor for a single time step.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: The spikes and membrane potentials.
+        """
+        if self.t == 0:
             self.mem_init = 0.5 if self.reset_mode == 'soft' else self.mem_init
-            self.neuron.initMem(self.mem_init*self.vthr)
+            self.initMem(self.mem_init * self.vthr)
         spike_post = []
-        vmem = self.neuron.vmem + x[0]
-        spike =  (vmem > self.vthr).float()
-        vmem = self.vmem_reset(vmem,spike)
-        self.neuron.updateMem(vmem)
-        spike_post.append(spike*self.vthr)
-        return torch.stack(spike_post,dim=0), 0.0
+        vmem = self.vmem + x[0]
+        spike = (vmem > self.vthr).float()
+        vmem = self.vmem_reset(vmem, spike)
+        self.updateMem(vmem)
+        spike_post.append(spike * self.vthr)
+        return torch.stack(spike_post, dim=0), 0.0
 
-    def forward(self,x):
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Forward pass through the LIF neuron model.
+
+        Args:
+            x (torch.Tensor): The input tensor.
+
+        Returns:
+            tuple[torch.Tensor, torch.Tensor]: The spikes and membrane potentials.
+        """
         if self.multistep:
             return self._mem_update_multistep(x)
         else:
-            return self._mem_update_singlestep(x)   
-
+            return self._mem_update_singlestep(x)
 
     def reset(self):
         """
@@ -95,17 +123,18 @@ class LIF(nn.Module):
         self.vmem = x * self.tau
         self.t += 1
 
-    def is_spike(self) -> bool:
+    def vmem_reset(self, x: torch.Tensor, spike: torch.Tensor) -> torch.Tensor:
         """
-        Check if the membrane potential has reached the threshold.
+        Reset the membrane potential based on the reset mode.
+
+        Args:
+            x (torch.Tensor): The membrane potential tensor.
+            spike (torch.Tensor): The spike tensor.
 
         Returns:
-            bool: True if the membrane potential has reached or exceeded the threshold, False otherwise.
+            torch.Tensor: The reset membrane potential.
         """
-        return self.vmem >= self.vthr
-
-    def vmem_reset(self, x, spike):
         if self.reset_mode == 'hard':
-            return x * (1-spike)
-        elif self.reset_mode == 'soft':  
-            return x - self.vthr*spike
+            return x * (1 - spike)
+        elif self.reset_mode == 'soft':
+            return x - self.vthr * spike
