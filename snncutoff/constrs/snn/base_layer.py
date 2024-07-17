@@ -1,77 +1,32 @@
-import torch
 from torch import nn
 from typing import Type
-from torch.autograd import Function
-from snncutoff.gradients import ZIF
 from snncutoff.neuron import LIF
 
 class BaseLayer(nn.Module):
     def __init__(self, 
-                 T: int = 4, 
-                 L: int = 4, 
-                 vthr: float = 1.0, 
-                 tau: float = 0.5, 
-                 mem_init: float = 0., 
-                 neuron: Type[object]=LIF,
-                 regularizer: Type[nn.Module] = None, 
-                 surogate: Type[Function] = ZIF,
-                 multistep: bool=True,
-                 reset_mode: str = 'hard'
-                 ):
+                 neuron: Type[nn.Module]=LIF,
+                 regularizer: Type[nn.Module]=None, 
+                 T: int=10, 
+                 neuron_params: dict = {'vthr': 1.0, 
+                                        'tau': 0.,
+                                        'mem_init': 0.,
+                                        'multistep': True,
+                                        'reset_mode': 'hard',
+                                        },
+                 **kwargs):
+
         super(BaseLayer, self).__init__()
         
-        self.vthr = vthr
-        self.tau = tau
         self.T = T
-        self.mem_init = mem_init 
-        self.neuron=neuron(vthr=vthr, tau=tau)
-        self.neuron.reset()
+        self.vthr = neuron_params['vthr']
+        neuron_params['T'] = self.T 
+        self.multistep = neuron_params['multistep']
+        self.neuron=neuron(**neuron_params)
         self.regularizer = regularizer
-        self.multistep = multistep
-        self.surogate=surogate.apply
-        self.gamma = 1.0
-        self.reset_mode = reset_mode
-
-    def _mem_update_multistep(self,x):
-        spike_post = []
-        mem_post = []
-        self.neuron.reset()
-        for t in range(self.T):
-            vmem = self.neuron.vmem + x[t]
-            spike =  self.surogate(vmem - self.vthr, self.gamma)
-            vmem = self.vmem_reset(vmem,spike)
-            self.neuron.updateMem(vmem)
-            spike_post.append(spike)
-            mem_post.append(vmem)
-        return torch.stack(spike_post,dim=0), torch.stack(mem_post,dim=0)
-    
-    def vmem_reset(self, x, spike):
-        if self.reset_mode == 'hard':
-            return x * (1-spike)
-        elif self.reset_mode == 'soft':  
-            return x - self.vthr*spike
-        
-    def _mem_update_singlestep(self,x):
-        if self.neuron.t == 0:
-            self.mem_init = 0.5 if self.reset_mode == 'soft' else self.mem_init
-            self.neuron.initMem(self.mem_init*self.vthr)
-        spike_post = []
-        vmem = self.neuron.vmem + x[0]
-        spike =  (vmem > self.vthr).float()
-        vmem = self.vmem_reset(vmem,spike)
-        self.neuron.updateMem(vmem)
-        spike_post.append(spike*self.vthr)
-        return torch.stack(spike_post,dim=0), 0.0
-
-    def mem_update(self,x):
-        if self.multistep:
-            return self._mem_update_multistep(x)
-        else:
-            return self._mem_update_singlestep(x)   
         
     def forward(self, x):  
         x = self.reshape(x)
-        spike_post, mem_post = self.mem_update(x)
+        spike_post, mem_post = self.neuron(x)
         if self.regularizer is not None:
             loss = self.regularizer(spike_post.clone(), mem_post.clone()/self.vthr)
         return spike_post
