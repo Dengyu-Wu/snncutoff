@@ -77,7 +77,7 @@ class SpikeCPCutoff(BaseCutoff):
         nc_score = torch.cat(nc_score, dim=1)
         nc_score = torch.cat((nc_score, (nc_score[:, 0] + torch.inf).unsqueeze(1)), dim=1)
         smallest_i = torch.ceil(torch.tensor((1 - alpha) * (nc_score.size()[1] + 1)).to(nc_score.device))
-        s_th = -1 * torch.topk(-1 * nc_score, smallest_i.to(torch.int32), dim=1)[0][:, -1, 0]
+        s_th = -1 * torch.topk(-1 * nc_score, smallest_i.to(torch.int32)-1, dim=1)[0][:, -1, 0]
         return s_th
 
     @torch.no_grad()
