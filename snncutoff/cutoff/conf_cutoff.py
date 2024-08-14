@@ -6,6 +6,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from snncutoff.utils import reset_neuron
 from .base_cutoff import BaseCutoff
+import numpy as np
 
 class ConfCutoff(BaseCutoff):
     def __init__(self, T: int, add_time_dim: bool = False, multistep: bool = False, *args, **kwargs):
